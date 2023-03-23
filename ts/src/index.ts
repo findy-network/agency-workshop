@@ -4,15 +4,25 @@ import QRCode from 'qrcode'
 
 import prepareIssuer from './prepare';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
+import mailer from '@sendgrid/mail'
 
 
 const app: Express = express();
 const port = process.env.PORT || 3001;
-const invitations: { issue: string[], verify: string[] } = {
+const invitations: {
+  issue: string[],
+  verify: string[],
+  waitingForEmail: string[],
+  waitingForVerification: Map<string, string>
+} = {
   issue: [],
-  verify: []
+  verify: [],
+  waitingForEmail: [],
+  waitingForVerification: new Map<string, string>()
 }
 const userName = process.env.FCLI_USER || 'ts-example'
+
+mailer.setApiKey(process.env.SENDGRID_API_KEY || '')
 
 const setupFindyAgency = async () => {
   const acatorProps = {
@@ -53,6 +63,12 @@ const runApp = async () => {
   }
   console.log(`Credential definition available: ${credDefId}`)
 
+  const askForEmail = async (connectionId: string) => {
+    const msg = new agencyv1.Protocol.BasicMessageMsg()
+    msg.setContent("Hi there 👋!\n Please enter your email to get started.")
+    await protocolClient.sendBasicMessage(connectionId, msg)
+  }
+
   // Listening callback handles agent events
   await agentClient.startListeningWithHandler(
     {
@@ -60,21 +76,11 @@ const runApp = async () => {
       DIDExchangeDone: async (info) => {
         console.log(`New connection: ${info.connectionId}`)
 
-        // If connection was for issuing, continue by issuing the "foobar" credential
+        // If connection was for issuing, continue by querying user's email
         if (invitations.issue.includes(info.connectionId)) {
-          const attributes = new agencyv1.Protocol.IssuingAttributes()
-          const attr = new agencyv1.Protocol.IssuingAttributes.Attribute()
-          attr.setName("foo")
-          attr.setValue("bar")
-          attributes.addAttributes(attr)
+          await askForEmail(info.connectionId)
+          invitations.waitingForEmail = [info.connectionId, ...invitations.waitingForEmail]
 
-          const credential = new agencyv1.Protocol.IssueCredentialMsg()
-          credential.setCredDefid(credDefId)
-          credential.setAttributes(attributes)
-
-          await protocolClient.sendCredentialOffer(info.connectionId, credential)
-
-          // If connection was for verifying, continue by verifying the "foobar" credential
         } else {
           const attributes = new agencyv1.Protocol.Proof()
           const attr = new agencyv1.Protocol.Proof.Attribute()
@@ -86,6 +92,32 @@ const runApp = async () => {
           proofRequest.setAttributes(attributes)
 
           await protocolClient.sendProofRequest(info.connectionId, proofRequest)
+        }
+      },
+      BasicMessageDone: async (info, basicMessage) => {
+        if (!basicMessage.getSentByMe() && invitations.waitingForEmail.includes(info.connectionId)) {
+          const msg = basicMessage.getContent()
+          // dummy validation
+          if (msg.split(' ').length === 1 && msg.indexOf('@') >= 0) {
+            invitations.waitingForEmail = invitations.waitingForEmail.filter(item => item !== info.connectionId)
+            // send verification mail
+            const content = `Please verify your email by clicking the following link:\n http://localhost:3001/email/${info.connectionId}`
+            const emailMsg = {
+              to: msg,
+              from: {
+                email: process.env.SENDGRID_SENDER || '',
+                name: "Issuer example",
+              },
+              subject: 'Email verification',
+              text: content,
+              html: content
+            }
+            console.log("Sending:", emailMsg)
+            const ok = await mailer.send(emailMsg)
+            invitations.waitingForVerification.set(info.connectionId, msg)
+          } else {
+            await askForEmail(info.connectionId)
+          }
         }
       },
       IssueCredentialDone: (info) => {
@@ -152,6 +184,34 @@ const runApp = async () => {
   app.get('/issue', async (req: Request, res: Response) => {
     const id = await renderInvitation("Issue credential", res)
     invitations.issue = [...invitations.issue, id]
+  });
+
+  // Verify email
+  app.get('/email/:connectionId', async (req: Request, res: Response) => {
+    const { connectionId } = req.params
+    const item = invitations.waitingForVerification.get(connectionId)
+    if (item) {
+      invitations.waitingForVerification.delete(connectionId)
+      const attributes = new agencyv1.Protocol.IssuingAttributes()
+      const attr = new agencyv1.Protocol.IssuingAttributes.Attribute()
+      attr.setName("email")
+      attr.setValue(item || " ")
+      attributes.addAttributes(attr)
+
+      const credential = new agencyv1.Protocol.IssueCredentialMsg()
+      credential.setCredDefid(credDefId)
+      credential.setAttributes(attributes)
+
+      await protocolClient.sendCredentialOffer(connectionId, credential)
+      res.send(`<html>
+      <h1>Offer sent!</h1>
+      <p>Please open your wallet application and accept the credential.</p>
+      <p>You can close this window.</p>
+  </html>`);
+
+    } else {
+      res.send(`<html><h1>Error</h1></html>`);
+    }
   });
 
   app.get('/', (req: Request, res: Response) => {
