@@ -8,9 +8,6 @@ CRED_DEF_ID
 cli/verify-bot.yaml
 cli/issue-bot.yaml
 
-app/cert
-app/install.sh
-
 go/cert
 go/install.sh
 
