@@ -1,0 +1,8 @@
+dist/
+node_modules/
+
+CRED_DEF_ID
+cert/
+install.sh
+
+.envrc

@@ -10,6 +10,7 @@ services:
       FCLI_POOL_GENESIS_TXN_FILE: ''
       FCLI_POOL_NAME: 'FINDY_FILE_LEDGER'
       FCLI_AGENCY_POOL_NAME: 'FINDY_FILE_LEDGER'
+      FCLI_STEWARD_POOL_NAME: 'FINDY_FILE_LEDGER'
       FCLI_AGENCY_STEWARD_DID: 'Th7MpTaRZVRYnPiabds81Y'
       FCLI_STEWARD_SEED: '000000000000000000000000Steward1'
       FCLI_IMPORT_WALLET_FILE: ""
@@ -41,6 +42,7 @@ services:
     image: ghcr.io/findy-network/findy-agent-vault:latest
     volumes:
       - ./cert:/grpc
+      - .data/vault/coverage:/coverage
     depends_on:
       - vault-db
       - core
@@ -49,21 +51,11 @@ services:
       FAV_AGENCY_HOST: 'core'
     ports:
       - '8085:8085'
-    restart: unless-stopped
-    entrypoint: >
-      /bin/sh -c "
-        while ! nc -z vault-db 5432;
-        do
-          echo 'wait for db';
-          sleep 1;
-        done;
-        /start.sh;
-      "
 
   vault-db:
     image: postgres:13.6-alpine
     volumes:
-      - .data/vault:/var/lib/postgresql/data
+      - .data/vault-db:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: 'vault'
       POSTGRES_PASSWORD: 'password'
