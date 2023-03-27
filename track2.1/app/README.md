@@ -16,8 +16,8 @@ that will set the needed environment variables:
 source <(curl <agency_url>/set-env.sh)
 ```
 
-For cloud installation, use the cloud URL e.g. https://agency.example.com
-For local installation, use the web wallet URL: http://localhost:3000
+For cloud installation, use the cloud URL e.g. <https://agency.example.com>
+For local installation, use the web wallet URL: <http://localhost:3000>
 
 This script will create `.envrc` that will contain needed variables.
 If you are working in the dev container or have `direnv` installed,
