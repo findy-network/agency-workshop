@@ -125,7 +125,7 @@ execute the tasks in order. Good luck!
     Add following row to imports:
 
     ```ts
-    import { agencyv1, createAcator, openGRPCConnection } from '@findy-network/findy-common-ts'
+    import { createAcator, openGRPCConnection } from '@findy-network/findy-common-ts'
     ```
 
     Create new function `setupAgentConnection`:
@@ -133,24 +133,59 @@ execute the tasks in order. Good luck!
     ```ts
       const setupAgentConnection = async () => {
         const acatorProps = {
-          authUrl: process.env.FCLI_URL || 'http://localhost:8088',
-          authOrigin: process.env.FCLI_ORIGIN || 'http://localhost:3000',
-          userName,
-          key: process.env.FCLI_KEY || '15308490f1e4026284594dd08d31291bc8ef2aeac730d0daf6ff87bb92d4336c',
+          authUrl: process.env.FCLI_URL!,
+          authOrigin: process.env.FCLI_ORIGIN!,
+          userName: process.env.FCLI_USER!,
+          key: process.env.FCLI_KEY!,
         }
+        // Create authenticator
         const authenticator = createAcator(acatorProps)
 
-        const serverAddress = process.env.AGENCY_API_SERVER || 'localhost'
-        const certPath = process.env.FCLI_TLS_PATH || ''
+        const serverAddress = process.env.AGENCY_API_SERVER!
+        const certPath = process.env.FCLI_TLS_PATH!
         const grpcProps = {
           serverAddress,
-          serverPort: parseInt(process.env.AGENCY_API_SERVER_PORT || '50052', 10),
+          serverPort: parseInt(process.env.AGENCY_API_SERVER_PORT!, 10),
           // NOTE: we currently assume that we do not need certs for cloud installation
           // as the cert is issued by a trusted issuer
           certPath: serverAddress === 'localhost' ? certPath : ''
         }
 
-        // Authenticate and open GRPC connection to agency
+        // Open gRPC connection to agency using authenticator
         return openGRPCConnection(grpcProps, authenticator)
       }
     ```
+
+    This function will open a connection to our agent. Through this connection, we can control
+    the agent and listen for any events the agent produces while handling our credential protocol
+    flows.
+
+    We authenticate the client using a headless FIDO2 authenticator provided by the agency helper
+    library. When opening the connection for the first time, the underlying functionality
+    automatically registers the authenticator to our agent. It is vital to keep the contents
+    of the `FCLI_KEY` variable secret. If someone gets access to the secret key,
+    they can control your agent.
+
+    Add call to `setupAgentConnection` to existing `runApp` function:
+
+    ```ts
+    const runApp = async () => {
+
+      await setupAgentConnection()
+
+      ...
+    }
+    ```
+
+    You should see logs similar to this:
+    ![First login log](./docs/log-first-login.png)
+
+    As you can see from the logs, the authentication fails at first as the client is not yet registered.
+    With further server starts, this error should disappear.
+
+1. **Continue with task 1**
+
+    Congratulations, you have completed task 0 and have
+    a working agency client development environment available!
+
+    You can now continue with [task 1](./task1/README.md).
