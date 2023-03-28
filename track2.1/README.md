@@ -44,7 +44,7 @@ Follow the instructions carefully and execute the tasks in order. Good luck!
     you will likely have a cloud installation of Findy Agency available. Skip this step.
 
       <details>
-      <summary>🤠 The local setup</summary>
+      <summary>🤠 Local setup</summary>
 
       Start local agency instance if you do not have cloud installation available.
       See instructions [here](../agency-local/README.md).
@@ -84,7 +84,7 @@ Follow the instructions carefully and execute the tasks in order. Good luck!
     This URL is provided for you in the guided workshop.
 
     <details>
-    <summary>🤠 The local setup</summary>
+    <summary>🤠 Local setup</summary>
 
     For local agency installation, use the web wallet URL `http://localhost:3000`:
 
