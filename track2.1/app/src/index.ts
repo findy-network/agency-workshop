@@ -4,11 +4,15 @@ const app: Express = express();
 const port = process.env.PORT || 3001;
 
 const runApp = async () => {
-  app.get('/verify', async (req: Request, res: Response) => {
+  app.get('/greet', async (req: Request, res: Response) => {
     throw "IMPLEMENT ME!"
   });
 
   app.get('/issue', async (req: Request, res: Response) => {
+    throw "IMPLEMENT ME!"
+  });
+
+  app.get('/verify', async (req: Request, res: Response) => {
     throw "IMPLEMENT ME!"
   });
 

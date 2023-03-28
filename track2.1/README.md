@@ -1,8 +1,10 @@
 # Track 2.1: Typescript application
 
 In this track, you will learn how to build a Typescript application that utilizes Findy Agency API
-for issuing and verifying credentials. Follow the instructions carefully and
-execute the tasks in order. Good luck!
+for issuing and verifying credentials. The assumption is that you are working in a guided workshop
+with the default tooling. In this case you can skip the sections with symbol 🤠.
+
+Follow the instructions carefully and execute the tasks in order. Good luck!
 
 ## Task 0: Setup environment
 
@@ -21,18 +23,33 @@ execute the tasks in order. Good luck!
       * [VS Code](https://code.visualstudio.com/)
       * [Docker](https://www.docker.com/)
 
-    If you wish to avoid VS Code and Dev Containers, you need to have the following tools available natively:
+      <details>
+      <summary>🤠 Other options</summary>
+
+      You can also set up the tools natively. However, these instructions describe only
+      how to work with the recommended tooling.
+
+      If you still wish to go to the wild side, make sure you have these tools available:
+
       * Code editor of your choice
       * [Node.js](https://nodejs.org/en) (or [nvm](https://github.com/nvm-sh/nvm#intro))
       * [findy-agent-cli](https://github.com/findy-network/findy-agent-cli#installation)
       * [direnv](https://direnv.net/) (*optional*)
 
-1. Install Findy Agency (*optional*)
+      </details>
+
+1. 🤠 Install Findy Agency
 
     If you are participating in a guided workshop,
     you will likely have a cloud installation of Findy Agency available. Skip this step.
 
-    Otherwise, start local agency instance. See instructions [here](../agency-local/README.md).
+      <details>
+      <summary>🤠 The local setup</summary>
+
+      Start local agency instance if you do not have cloud installation available.
+      See instructions [here](../agency-local/README.md).
+
+      </details>
 
 1. **Open the Typescript application in a dev container**
 
@@ -66,12 +83,27 @@ execute the tasks in order. Good luck!
     For cloud installation, use the cloud URL e.g. `https://agency.example.com`
     This URL is provided for you in the guided workshop.
 
-    For local agency installation, use the web wallet URL: `http://localhost:3000`
+    <details>
+    <summary>🤠 The local setup</summary>
+
+    For local agency installation, use the web wallet URL `http://localhost:3000`:
+
+    ```bash
+    source <(curl http://localhost:3000/set-env.sh)
+    ```
+
+    </details>
 
     The script will export the needed environment variables. It will also create file `.envrc`
     that contains these variables. Typing `direnv allow` will ensure that the variables
     are automatically exported when you open a new terminal window in this folder.
+
+    <details>
+    <summary>🤠 No direnv?</summary>
+
     If you don't have direnv installed, you can export the variables by typing `source .envrc`.
+
+    </details>
 
     ![Script output](./docs/environment-direnv.png)
 
@@ -106,8 +138,9 @@ execute the tasks in order. Good luck!
     Click "Open in Browser". The browser should open to URL <http://localhost:3001>
     and display the text "Typescript example".
 
-    Now you have a simple express server running in port 3001 with three endpoints:
-    `/`, `/issue` and `/verify`. Next step is to start adding some actual code to the server skeleton.
+    Now you have a simple express server running in port 3001 with four endpoints:
+    `/`, `/greet`, `/issue` and `/verify`. Next step is to start adding some actual code
+    to the server skeleton.
 
 1. **Create connection to the agency**
 
@@ -162,9 +195,10 @@ execute the tasks in order. Good luck!
 
     We authenticate the client using a headless FIDO2 authenticator provided by the agency helper
     library. When opening the connection for the first time, the underlying functionality
-    automatically registers the authenticator to our agent. It is vital to keep the contents
-    of the `FCLI_KEY` variable secret. If someone gets access to the secret key,
-    they can control your agent.
+    automatically registers the authenticator to our agent. The `FCLI_KEY` variable contains the
+    master key to your authenticator. It is generated during the development environment setup.
+    (In production the key should be naturally generated and handled properly as a secret).
+    If someone gets access to the secret key, they can control your agent.
 
     Add call to `setupAgentConnection` to existing `runApp` function:
 
@@ -177,11 +211,11 @@ execute the tasks in order. Good luck!
     }
     ```
 
-    You should see logs similar to this:
-    ![First login log](./docs/log-first-login.png)
-
     As you can see from the logs, the authentication fails at first as the client is not yet registered.
     With further server starts, this error should disappear.
+
+    Verify that you see logs similar to this:
+    ![First login log](./docs/log-first-login.png)
 
 1. **Continue with task 1**
 
