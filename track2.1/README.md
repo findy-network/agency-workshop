@@ -11,7 +11,7 @@ Follow the instructions carefully and execute the tasks in order. Good luck!
 ### **1. Clone this repository to your workspace**
 
 ```shell
-git clone https://github.com/findy-network/agency-demo.git
+git clone https://github.com/findy-network/agency-workshop.git
 ```
 
 ### **2. Install tooling**

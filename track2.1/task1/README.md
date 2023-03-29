@@ -1,4 +1,4 @@
-# Track 2.1 - Task 1: Create and greet your new connection
+# Track 2.1 - Task 1: Create a new connection
 
 An agent's primary capability is peer-to-peer messaging, which allows for exchanging messages
 between agents. These interactions can range from simple plaintext messages to more complex tasks
@@ -108,7 +108,8 @@ Make sure the server is running (`npm run dev`).
 Open browser to <http://localhost:3001/greet>
 
 *You should see a simple web page with a QR code and a text input with a prefilled string.*
-<<screencapture here>>
+
+![Greet page](./docs/greet-page.png)
 
 ## 5. Register test user to web wallet
 
@@ -125,8 +126,8 @@ If you are using a local agency installation, you should use your desktop browse
 
 </details><br/>
 
-Pick unique username for your web wallet user. Register and login your web wallet user.
-See gif below if in doubt.
+Pick unique username for your web wallet user. Register and login your web wallet user
+using your touch/face id. See gif below if in doubt.
 
 ![Wallet login](https://github.com/findy-network/findy-wallet-pwa/raw/master/docs/wallet-login.gif)
 
@@ -151,4 +152,76 @@ you can copy-paste the invitation string to the "Add connection"-dialog.
 
 ## 8. Add agent listener
 
+Now we have a new pairwise connection to the web wallet user that the agent negotiated for us.
+However, we don't know about it, as we haven't set a listener for our agent. Let's do that next.
+
+Create a new file `src/listener.ts`.
+
+Add following content to the new file:
+
+```ts
+import { AgentClient, ProtocolClient } from '@findy-network/findy-common-ts'
+
+export default async (agentClient: AgentClient, protocolClient: ProtocolClient) => {
+
+  // Options for listener
+  const options = {
+    protocolClient,
+    retryOnError: true,
+  }
+
+  // Listening callback handles agent events
+  await agentClient.startListeningWithHandler(
+    {
+      // New connection is established
+      DIDExchangeDone: async (info, didExchange) => {
+        console.log(`New connection ${didExchange.getTheirLabel()} with id ${info.connectionId}`)
+      },
+    },
+    options
+  )
+}
+```
+
+Open file `src/index.ts`.
+
+Add following row to imports:
+
+```ts
+import listenAgent from './listener'
+```
+
+Next we will modify `runApp`-function to start the listening.
+We will call the newly imported function and provide the needed API clients
+as parameters.
+
+```ts
+const runApp = async () => {
+  const { createAgentClient, createProtocolClient } = await setupAgentConnection()
+
+  // Create API clients using the connection
+  const agentClient = await createAgentClient()
+  const protocolClient = await createProtocolClient()
+
+  // Start listening to agent notifications
+  await listenAgent(agentClient, protocolClient)
+
+  ...
+
+}
+```
+
 ## 9. Check the name of the web wallet user
+
+Refresh the `/greet`-page and create a new connection using the web wallet user.
+
+Check that the server logs print out the web wallet user name.
+
+<<screencapture here>>
+
+## 10. Continue with task 2
+
+Congratulations, you have completed task 1 and you know now how to establish DIDComm connections
+between agents for message exchange!
+
+You can now continue with [task 2](./task2/README.md).
