@@ -224,4 +224,4 @@ Check that the server logs print out the web wallet user name.
 Congratulations, you have completed task 1 and you know now how to establish DIDComm connections
 between agents for message exchange!
 
-You can now continue with [task 2](./task2/README.md).
+You can now continue with [task 2](../task2/README.md).
