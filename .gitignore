@@ -16,3 +16,4 @@ kotlin/install.sh
 
 *.key
 *.crt
+*.bak
