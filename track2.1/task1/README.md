@@ -155,7 +155,7 @@ you can copy-paste the invitation string to the "Add connection"-dialog.
 Now we have a new pairwise connection to the web wallet user that the agent negotiated for us.
 However, we don't know about it, as we haven't set a listener for our agent. Let's do that next.
 
-Create a new file `src/listener.ts`.
+Create a new file `src/listen.ts`.
 
 Add following content to the new file:
 
@@ -188,7 +188,7 @@ Open file `src/index.ts`.
 Add following row to imports:
 
 ```ts
-import listenAgent from './listener'
+import listenAgent from './listen'
 ```
 
 Next we will modify `runApp`-function to start the listening.
