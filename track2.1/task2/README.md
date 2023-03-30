@@ -18,7 +18,7 @@ Open file `src/listen.ts`.
 Add **`agencyv1`** to objects imported from `findy-common-ts`:
 
 ```ts
-import { agencyv1, AgentClient, ProtocolClient } from "@findy-network/findy-common-ts"
+import { agencyv1, AgentClient, ProtocolClient } from '@findy-network/findy-common-ts'
 ```
 
 Modify handler `DIDExchangeDone` to following:
@@ -30,7 +30,7 @@ Modify handler `DIDExchangeDone` to following:
 
         // Greet each new connection with basic message
         const msg = new agencyv1.Protocol.BasicMessageMsg()
-        msg.setContent("Hello world 👋!")
+        msg.setContent('Hello world 👋!')
         await protocolClient.sendBasicMessage(info.connectionId, msg)
       },
 ```

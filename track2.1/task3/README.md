@@ -66,9 +66,9 @@ export default async (agentClient: AgentClient, tag: string) => {
 
     const schemaMsg = new agencyv1.SchemaCreate()
     schemaMsg.setName(schemaName)
-    schemaMsg.setVersion("1.0")
+    schemaMsg.setVersion('1.0')
     // List of dummy attributes
-    schemaMsg.setAttributesList(["foo"])
+    schemaMsg.setAttributesList(['foo'])
 
     const schemaId = (await agentClient.createSchema(schemaMsg)).getId()
     return await createCredDef(schemaId)
@@ -110,8 +110,6 @@ const runApp = async () => {
   // Create API clients using the connection
   const agentClient = await createAgentClient()
   const protocolClient = await createProtocolClient()
-
-...
 
   // Prepare issuing and fetch credential definition id
   const credDefId = await prepare(agentClient, process.env.FCLI_USER!)
