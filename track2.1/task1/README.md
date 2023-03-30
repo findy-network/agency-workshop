@@ -97,7 +97,7 @@ Then, add implementation to the `/greet`-endpoint:
 
 ```ts
 app.get('/greet', async (req: Request, res: Response) => {
-  const { payload } = await createInvitationPage(agentClient, "Greet")
+  const { payload } = await createInvitationPage(agentClient, 'Greet')
   res.send(payload)
 });
 ```
@@ -162,7 +162,10 @@ Add following content to the new file:
 ```ts
 import { AgentClient, ProtocolClient } from '@findy-network/findy-common-ts'
 
-export default async (agentClient: AgentClient, protocolClient: ProtocolClient) => {
+export default async (
+  agentClient: AgentClient,
+  protocolClient: ProtocolClient,
+) => {
 
   // Options for listener
   const options = {
