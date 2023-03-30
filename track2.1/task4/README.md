@@ -138,14 +138,14 @@ Open file `src/index.ts`.
 Add following row to imports:
 
 ```ts
-import issue from './issue'
+import createIssuer from './issue'
 ```
 
 Create `issuer` on server start and give it as a parameter on listener initialization:
 
 ```ts
   // Add logic for issuing
-  const issuer = issue(protocolClient, credDefId)
+  const issuer = createIssuer(protocolClient, credDefId)
 
   // Start listening to agent notifications
   await listenAgent(
@@ -159,7 +159,7 @@ Add implementation to the `/issue`-endpoint:
 
 ```ts
   app.get('/issue', async (req: Request, res: Response) => {
-    const { id, payload } = await createInvitationPage(agentClient, "Issue")
+    const { id, payload } = await createInvitationPage(agentClient, 'Issue')
     // Update issuer with invitation id
     issuer.addInvitation(id)
     res.send(payload)
