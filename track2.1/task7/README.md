@@ -2,4 +2,5 @@
 
 ## 1
 
-- two separate apps, one for issuing and on for verifying
+- verify email credential
+- two separate apps, one for issuing and one for verifying

@@ -10,7 +10,7 @@ Agents send text messages to each other using
 ## 1. Use protocol API client to send text to other agent
 
 In the previous task, we added a handler for new connection notifications.
-Modify this handler so that when a new connection gets created, we send a greeting "Hello world"
+Modify this handler so that when a new connection gets created, we send a greeting
 to the other agent.
 
 Open file `src/listen.ts`.
@@ -30,7 +30,7 @@ Modify handler `DIDExchangeDone` to following:
 
         // Greet each new connection with basic message
         const msg = new agencyv1.Protocol.BasicMessageMsg()
-        msg.setContent('Hello world 👋!')
+        msg.setContent('Hi there 👋!')
         await protocolClient.sendBasicMessage(info.connectionId, msg)
       },
 ```
