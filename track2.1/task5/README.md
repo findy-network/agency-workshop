@@ -136,7 +136,7 @@ Add call to verifier's `handleNewConnection`-function whenever new connection is
 ```
 
 Add new handlers `PresentProofPaused` and `PresentProofDone` to listener.
-`PresentProofPaused` is called when the proof 
+`PresentProofPaused` is called when the proof
 and `PresentProofDone` to listener.
 With both notifications, notify verifier:
 
@@ -216,7 +216,7 @@ Accept proof request.
 
 <<screencapture here>>
 
-## 10. Continue with task 5
+## 8. Continue with task 6
 
 Congratulations, you have completed task 6 and you know now how to verify
 credentials!

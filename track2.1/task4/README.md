@@ -28,17 +28,21 @@ export interface Issuer {
   handleIssueDone: (info: ProtocolInfo, issueCredential: ProtocolStatus.IssueCredentialStatus) => void
 }
 
+interface Connection {
+  id: string
+}
+
 export default (protocolClient: ProtocolClient, credDefId: string) => {
-  // We store here all invitation ids created from /issue-endpoint
-  const invitations: string[] = []
+  const connections: Connection[] = []
 
   const addInvitation = (id: string) => {
-    invitations.push(id)
+    connections.push({ id })
   }
 
   const handleNewConnection = async (info: ProtocolInfo, didExchange: ProtocolStatus.DIDExchangeStatus) => {
     // Skip if this connection was not for issuing
-    if (!invitations.includes(info.connectionId)) {
+    const connection = connections.find(({ id }) => id === info.connectionId)
+    if (!connection) {
       return
     }
 
@@ -46,9 +50,9 @@ export default (protocolClient: ProtocolClient, credDefId: string) => {
     const attributes = new agencyv1.Protocol.IssuingAttributes()
     const attr = new agencyv1.Protocol.IssuingAttributes.Attribute()
     // Attribute name
-    attr.setName("foo")
+    attr.setName('foo')
     // Attribute value
-    attr.setValue("bar")
+    attr.setValue('bar')
     attributes.addAttributes(attr)
 
     const credential = new agencyv1.Protocol.IssueCredentialMsg()
@@ -57,15 +61,15 @@ export default (protocolClient: ProtocolClient, credDefId: string) => {
 
     // Send credential offer to the other agent
     console.log(`Sending credential offer\n${JSON.stringify(credential.toObject())}\nto ${info.connectionId}`)
-    await protocolClient.sendCredentialOffer(info.connectionId, credential)
+    await protocolClient.sendCredentialOffer(connection.id, credential)
   }
 
   const handleIssueDone = (info: ProtocolInfo, issueCredential: ProtocolStatus.IssueCredentialStatus) => {
     console.log(`Credential\n${JSON.stringify(issueCredential.toObject())}\nwith protocol id ${info.protocolId} issued to ${info.connectionId}`)
 
-    // Remove invitation id from cache
-    const index = invitations.indexOf(info.connectionId)
-    invitations.splice(index, 1)
+    // Remove connection from cache
+    const index = connections.findIndex(({ id }) => id === info.connectionId)
+    connections.splice(index, 1)
   }
 
   return {
@@ -192,7 +196,7 @@ Accept credential offer. Check wallet view that the credential is stored there.
 
 <<screencapture here>>
 
-## 10. Continue with task 5
+## 8. Continue with task 5
 
 Congratulations, you have completed task 5 and you know now how to issue
 credentials!
