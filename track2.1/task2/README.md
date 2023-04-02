@@ -1,5 +1,18 @@
 # Track 2.1 - Task 2: Send greetings
 
+## Progress
+
+* [Task 0: Setup environment](../README.md#task-0-setup-environment)
+* [Task 1: Create a new connection](../task1/README.md#track-21---task-1-create-a-new-connection)
+* **Task 2: Send greetings**
+* [Task 3: Prepare for issuing credentials](../task3/README.md#track-21---task-3-prepare-for-issuing-credentials)
+* [Task 4: Issue credential](../task4/README.md#track-21---task-4-issue-credential)
+* [Task 5: Verify credential](../task5/README.md#track-21---task-5-verify-credential)
+* [Task 6: Issue credential for verified information](../task6/README.md#track-21---task-6-issue-credential-for-verified-information)
+* [Task 7: Additional tasks](../task7/README.md#track-21---task-7-additional-tasks)
+
+## Description
+
 In the previous task, we learned how to establish e2e-encrypted messaging pipes between agents. Now
 we send our first messages using this communication pipe.
 
@@ -7,7 +20,7 @@ Agents interact using Hyperledger Aries protocols. There are different protocols
 Agents send text messages to each other using
 [basic message protocol](https://github.com/hyperledger/aries-rfcs/blob/main/features/0095-basic-message/README.md).
 
-## 1. Use protocol API client to send text to other agent
+## 1. Use protocol API client to send a text to the other agent
 
 In the previous task, we added a handler for new connection notifications.
 Modify this handler so that when a new connection gets created, we send a greeting
@@ -37,7 +50,10 @@ Modify handler `DIDExchangeDone` to following:
 
 ## 2. Ensure the message is sent to the web wallet
 
-<<screencapture here>>
+Refresh the `/greet`-page and create a new connection using the web wallet UI.
+Check that the greeting is received in the web wallet UI.
+
+![Receive message in web wallet](./docs/receive-basic-message-web-wallet.png)
 
 ## 3. Add handler for received messages
 
@@ -62,11 +78,17 @@ When receiving messages from other agents, print them to log:
 
 ## 4. Ensure the received message is printed to logs
 
-<<screencapture here>>
+Send a reply from the web wallet UI:
 
-## 10. Continue with task 3
+![Send message in web wallet](./docs/send-basic-message-web-wallet.png)
 
-Congratulations, you have completed task 2 and you know now how to send basic messages
+Check that the sent message is visible in the server logs:
+
+![Server logs](./docs/server-logs-basic-message.png)
+
+## 5. Continue with task 3
+
+Congratulations, you have completed task 2, and now know how to send basic messages
 with the Hyperledger Aries protocol!
 
 You can now continue with [task 3](../task3/README.md).
