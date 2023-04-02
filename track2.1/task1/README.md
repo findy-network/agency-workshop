@@ -83,7 +83,7 @@ const createInvitationPage = async (agentClient: AgentClient, header: string) =>
     }</textarea></html>`;
 
   // Return invitation id and the HTML payload
-  return { id: JSON.parse(invitation.getJson())["@id"], payload }
+  return { id: JSON.parse(invitation.getJson())['@id'], payload }
 }
 ```
 

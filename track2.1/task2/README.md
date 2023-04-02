@@ -88,7 +88,7 @@ Check that the sent message is visible in the server logs:
 
 ## 5. Continue with task 3
 
-Congratulations, you have completed task 2, and now know how to send basic messages
-with the Hyperledger Aries protocol!
+Congratulations, you have completed task 2, and now know how to send and receive
+basic messages with the Hyperledger Aries protocol!
 
 You can now continue with [task 3](../task3/README.md).
