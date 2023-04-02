@@ -1,8 +1,19 @@
 # Track 2.1: Typescript application
 
 In this track, you will learn how to build a Typescript application that utilizes Findy Agency API
-for issuing and verifying credentials. The assumption is that you are working in a guided workshop
-with the default tooling. In this case you can skip the sections with symbol 🤠.
+for issuing and verifying credentials. The assumption is that you work in a guided workshop
+with the default tooling. In this case, you can skip the sections with the symbol 🤠.
+
+The workshop contains seven tasks:
+
+* **[Task 0: Setup environment](#task-0-setup-environment)**
+* [Task 1: Create a new connection](./task1/README.md#track-21---task-1-create-a-new-connection)
+* [Task 2: Send greetings](./task2/README.md#track-21---task-2-send-greetings)
+* [Task 3: Prepare for issuing credentials](./task3/README.md#track-21---task-3-prepare-for-issuing-credentials)
+* [Task 4: Issue credential](./task4/README.md#track-21---task-4-issue-credential)
+* [Task 5: Verify credential](./task5/README.md#track-21---task-5-verify-credential)
+* [Task 6: Issue credential for verified information](./task6/README.md#track-21---task-6-issue-credential-for-verified-information)
+* [Task 7: Additional tasks](./task7/README.md#track-21---task-7-additional-tasks)
 
 Follow the instructions carefully and execute the tasks in order. Good luck!
 
@@ -25,7 +36,7 @@ For the recommended tooling, you need to have the following:
 * [Docker](https://www.docker.com/)
 
 <details>
-<summary>🤠 Other options</summary>
+<summary>🤠 Other options</summary></br>
 
 You can also set up the tools natively. However, these instructions describe only
 how to work with the recommended tooling.
@@ -45,7 +56,7 @@ If you are participating in a guided workshop,
 you will likely have a cloud installation of Findy Agency available. Skip this step.
 
 <details>
-<summary>🤠 Local setup</summary>
+<summary>🤠 Local setup</summary></br>
 
 Start local agency instance if you do not have cloud installation available.
 See instructions [here](../agency-local/README.md).
@@ -54,7 +65,7 @@ See instructions [here](../agency-local/README.md).
 
 ### **4. Open the Typescript application in a dev container**
 
-Open folder `./track2.1/app` to VS Code.
+Open folder `./track2.1/app` in VS Code.
 
 VS Code asks if you want to develop the project in a dev container. Click "Reopen in Container."
 
@@ -66,25 +77,24 @@ on the bottom left corner:
 ![VS Code Button](./docs/dev-container-button.png)
 
 It will take a while for VS Code to pull and set up your dev container.
-When it completes the process, VS Code opens a new Terminal window for you
-to the root of the Typescript application.
+When the process completes, open a new terminal window (*Terminal* > *New terminal*).
 
 ![VS Code Terminal](./docs/dev-container-terminal.png)
 
 ### **5. Set environment variables**
 
-The agency environment provides a script for setting up the needed environment variables automatically.
+The agency environment provides a script for automatically setting up the needed environment variables.
 
-Run following script in the dev container terminal:
+Run the following script in the dev container terminal:
 
 ```bash
 source <(curl <agency_url>/set-env.sh)
 ```
 
-The agency URL is provided for you in the guided workshop. e.g. `https://agency.example.com`
+The agency URL is provided for you in the guided workshop. e.g., `https://agency.example.com`
 
 <details>
-<summary>🤠 Local setup</summary>
+<summary>🤠 Local setup</summary></br>
 
 For local agency installation, use the web wallet URL `http://localhost:3000`:
 
@@ -94,18 +104,18 @@ source <(curl http://localhost:3000/set-env.sh)
 
 </details><br/>
 
-The script will export the needed environment variables. It will also create file `.envrc`
+The script will export the needed environment variables. It will also create a file `.envrc`
 that contains these variables. Typing `direnv allow` will ensure that the variables
 are automatically exported when you open a new terminal window in this folder.
 
+![Script output](./docs/environment-direnv.png)
+
 <details>
-<summary>🤠 No direnv?</summary>
+<summary>🤠 No direnv?</summary></br>
 
 If you don't have direnv installed, you can export the variables by typing `source .envrc`.
 
 </details><br/>
-
-![Script output](./docs/environment-direnv.png)
 
 *Note! By default, the script will generate a generic username for your client.
 If you wish to use a more descriptive name for your app, define it before running the script:*
@@ -118,7 +128,7 @@ source <(curl <agency_url>/set-env.sh)
 
 *The username needs to be unique in the agency context.*
 
-### **6. Start the application** for the first time
+### **6. Start the application for the first time**
 
   When starting the application for the first time, run following commands:
 
@@ -136,13 +146,13 @@ source <(curl <agency_url>/set-env.sh)
   ![Application running](./docs/application-running.png)
 
   Click "Open in Browser". The browser should open to URL <http://localhost:3001>
-  and display the text "Typescript example".
+  and display the text *"Typescript example"*.
 
   Now you have a simple express server running in port 3001 with four endpoints:
-  `/`, `/greet`, `/issue` and `/verify`. Next step is to start adding some actual code
+  `/`, `/greet`, `/issue`, and `/verify`. The next step is to start adding some actual code
   to the server skeleton.
 
-### **7. Create connection to the agency**
+### **7. Create the agency connection**
 
 Add a new dependency to your project:
 
@@ -150,12 +160,13 @@ Add a new dependency to your project:
 npm install @findy-network/findy-common-ts --save
 ```
 
-`findy-common-ts` library has functionality that helps us authenticate to the agency
+[`findy-common-ts`](https://github.com/findy-network/findy-common-ts)
+library has functionality that helps us authenticate to the agency
 or use the agent capabilities.
 
 Open file `src/index.ts`.
 
-Add following row to imports:
+Add the following row to imports:
 
 ```ts
 import { createAcator, openGRPCConnection } from '@findy-network/findy-common-ts'
@@ -198,7 +209,7 @@ library. When opening the connection for the first time, the underlying function
 automatically registers the authenticator to our agent.
 
 The `FCLI_KEY` variable contains the master key to your authenticator. It is generated during
-the development environment setup. (In production the key should be naturally generated and
+the development environment setup. (In production, the key should be naturally generated and
 handled in a secure manner as a secret). If someone gets access to the key,
 they can control your agent.
 

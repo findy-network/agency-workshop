@@ -1,5 +1,18 @@
 # Track 2.1 - Task 6: Issue credential for verified information
 
+## Progress
+
+* [Task 0: Setup environment](#task-0-setup-environment)
+* [Task 1: Create a new connection](./task1/README.md#track-21---task-1-create-a-new-connection)
+* [Task 2: Send greetings](./task2/README.md#track-21---task-2-send-greetings)
+* [Task 3: Prepare for issuing credentials](./task3/README.md#track-21---task-3-prepare-for-issuing-credentials)
+* [Task 4: Issue credential](./task4/README.md#track-21---task-4-issue-credential)
+* [Task 5: Verify credential](./task5/README.md#track-21---task-5-verify-credential)
+* **[Task 6: Issue credential for verified information](./task6/README.md#track-21---task-6-issue-credential-for-verified-information)**
+* [Task 7: Additional tasks](./task7/README.md#track-21---task-7-additional-tasks)
+
+## Description
+
 In our previous issuing example, we issued a `foobar` credential to anyone who connects with us.
 However, this is not a likely real-world scenario. Probably the issuer wishes to issue some
 meaningful data that it knows to be valid.
@@ -17,7 +30,7 @@ In this task, we will utilize SendGrid API for sending the emails. You need an A
 to access the SendGrid API. You will be provided one in the guided workshop.
 
 <details>
-<summary>🤠 Acquire SendGrid API key</summary>
+<summary>🤠 Acquire SendGrid API key</summary></br>
 
 Create a free account to SendGrid and acquire the API key:
 <https://sendgrid.com/solutions/email-api/>
@@ -46,7 +59,7 @@ export SENDGRID_SENDER='<this_value_will_be_provided_for_you_in_the_workshop>'
 Save the file and type `direnv allow`. Restart your server `npm run dev`.
 
 <details>
-<summary>🤠 Configure own SendGrid account</summary>
+<summary>🤠 Configure own SendGrid account</summary></br>
 
 Create API key with SendGrid UI and replace the value to `SENDGRID_API_KEY` variable.
 Configure the verified sender email to `SENDGRID_SENDER` variable.
@@ -325,3 +338,10 @@ The function asks issuer to send a credential offer if the connection is valid a
 ## 7. Testing
 
 <<screencapture here>>
+
+## 8. Continue with task 7
+
+Congratulations, you have completed task 7 and you know now a little bit more
+how to build the application logic for issuers!
+
+You can now continue with [task 7](../task7/README.md).

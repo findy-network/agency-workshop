@@ -1,5 +1,18 @@
 # Track 2.1 - Task 1: Create a new connection
 
+## Progress
+
+* [Task 0: Setup environment](#task-0-setup-environment)
+* **[Task 1: Create a new connection](./task1/README.md#track-21---task-1-create-a-new-connection)**
+* [Task 2: Send greetings](./task2/README.md#track-21---task-2-send-greetings)
+* [Task 3: Prepare for issuing credentials](./task3/README.md#track-21---task-3-prepare-for-issuing-credentials)
+* [Task 4: Issue credential](./task4/README.md#track-21---task-4-issue-credential)
+* [Task 5: Verify credential](./task5/README.md#track-21---task-5-verify-credential)
+* [Task 6: Issue credential for verified information](./task6/README.md#track-21---task-6-issue-credential-for-verified-information)
+* [Task 7: Additional tasks](./task7/README.md#track-21---task-7-additional-tasks)
+
+## Description
+
 An agent's primary capability is peer-to-peer messaging, which allows for exchanging messages
 between agents. These interactions can range from simple plaintext messages to more complex tasks
 such as negotiating the issuance of a credential or presenting proof. The peer-to-peer
@@ -120,7 +133,7 @@ Navigate to the web wallet URL either with your mobile device or open a new tab 
 Navigate with browser to the URL that is stored to the `FCLI_ORIGIN`-variable.*
 
 <details>
-<summary>🤠 Local setup</summary>
+<summary>🤠 Local setup</summary></br>
 
 If you are using a local agency installation, you should use your desktop browser only.
 
@@ -132,7 +145,7 @@ using your touch/face id. See gif below if in doubt.
 ![Wallet login](https://github.com/findy-network/findy-wallet-pwa/raw/master/docs/wallet-login.gif)
 
 <details>
-<summary>🤠 Authenticator emulation</summary>
+<summary>🤠 Authenticator emulation</summary></br>
 
 FIDO2 authenticators can also be emulated. See [Chrome instructions](https://developer.chrome.com/docs/devtools/webauthn/)
 for more information.
