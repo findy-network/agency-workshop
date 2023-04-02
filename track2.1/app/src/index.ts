@@ -5,15 +5,15 @@ const port = process.env.PORT || 3001;
 
 const runApp = async () => {
   app.get('/greet', async (req: Request, res: Response) => {
-    throw "IMPLEMENT ME!"
+    throw 'IMPLEMENT ME!'
   });
 
   app.get('/issue', async (req: Request, res: Response) => {
-    throw "IMPLEMENT ME!"
+    throw 'IMPLEMENT ME!'
   });
 
   app.get('/verify', async (req: Request, res: Response) => {
-    throw "IMPLEMENT ME!"
+    throw 'IMPLEMENT ME!'
   });
 
   app.get('/', (req: Request, res: Response) => {

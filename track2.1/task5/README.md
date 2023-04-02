@@ -14,14 +14,14 @@
 ## Description
 
 Your web wallet user should now have their first credential in their wallet.
-Now we can build functionality that will verify that credential.
+Now we can build the functionality that will verify that credential.
 
-In a real world implementation we would naturally have two applications and two separate
+In a real-world implementation, we would naturally have two applications and two separate
 agents, one for issuing and one for verifying. The wallet user would first acquire a credential
-using the issuer application and after that use the credential, i.e. prove the data,
+using the issuer application and then use the credential, i.e., prove the data,
 in another application.
 
-For simplicity we build the verification functionality into the same application
+For simplicity, we build the verification functionality into the same application
 we have been working on. The underlying protocol for requesting and presenting proofs is
 [the present proof protocol](https://github.com/hyperledger/aries-rfcs/blob/main/features/0037-present-proof/README.md).
 
@@ -29,7 +29,7 @@ we have been working on. The underlying protocol for requesting and presenting p
 
 Create a new file `src/verify.ts`.
 
-Add following content to the new file:
+Add the following content to the new file:
 
 ```ts
 import { agencyv1, ProtocolClient, ProtocolInfo } from '@findy-network/findy-common-ts'
@@ -108,12 +108,12 @@ export default (protocolClient: ProtocolClient, credDefId: string) => {
 
 ## 2. Hook verifier to agent listener
 
-The verifier module we created in the previous step needs also the relevant agent notifications.
-Add calls from listener to the verifier to keep it updated.
+The verifier module we created in the previous step also needs the relevant agent notifications.
+Add calls from the listener to the verifier to keep it updated.
 
 Open file `src/listen.ts`.
 
-Add following row to imports:
+Add the following row to imports:
 
 ```ts
 import { Verifier } from './verify'
@@ -134,7 +134,7 @@ export default async (
 }
 ```
 
-Add call to verifier's `handleNewConnection`-function whenever new connection is established:
+Add call to verifier's `handleNewConnection`-function whenever a new connection is established:
 
 ```ts
       // New connection is established
@@ -148,7 +148,7 @@ Add call to verifier's `handleNewConnection`-function whenever new connection is
 
 ```
 
-Add new handlers `PresentProofPaused` and `PresentProofDone` to listener.
+Add new handlers `PresentProofPaused` and `PresentProofDone` to the listener.
 `PresentProofPaused` is called when the proof
 and `PresentProofDone` to listener.
 With both notifications, notify verifier:
@@ -171,13 +171,14 @@ With both notifications, notify verifier:
 
 Open file `src/index.ts`.
 
-Add following row to imports:
+Add the following row to imports:
 
 ```ts
 import createVerifier from './verify'
 ```
 
-Create `verifier` on server start and give it as a parameter on listener initialization:
+Modify function `runApp`.
+Create the `verifier` and give it as a parameter on listener initialization:
 
 ```ts
   // Add logic for verifying
@@ -203,35 +204,36 @@ Add implementation to the `/verify`-endpoint:
   });
 ```
 
-## 4. Test the `/verifier`-endpoint
+## 4. Test the `/verify`-endpoint
 
 Make sure the server is running (`npm run dev`).
-Open browser to <http://localhost:3001/verify>
+Open your browser to <http://localhost:3001/verify>
 
 *You should see a simple web page with a QR code and a text input with a prefilled string.*
 
-<<screencapture here>>
+![Verify page](./docs/verify-page.png)
 
-## 5. Read QR code with the web wallet
+## 5. Read the QR code with the web wallet
 
-Tap "Add connection" button in web wallet and read the QR code with your mobile device. Alternatively,
+Add the connection in the same way as in [task 1](../task1/README.md#6-read-the-qr-code-with-the-web-wallet):
+Tap the "Add connection" button in your web wallet and read the QR code with your mobile device. Alternatively,
 you can copy-paste the invitation string to the "Add connection"-dialog.
-
-<<screencapture here>>
 
 ## 6. Ensure proof request is received in the web wallet
 
 Accept proof request.
 
-<<screencapture here>>
+![Accept proof request](./docs/accept-proof-web-wallet.png)
 
 ## 7. Check server logs
 
-<<screencapture here>>
+Ensure that server logs display the success for the proof protocol:
+
+![Server logs](./docs/server-logs-verify-proof.png)
 
 ## 8. Continue with task 6
 
-Congratulations, you have completed task 6 and you know now how to verify
+Congratulations, you have completed task 6, and now know how to verify
 credentials!
 
 You can now continue with [task 6](../task6/README.md).
