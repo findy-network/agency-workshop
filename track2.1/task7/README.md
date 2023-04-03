@@ -13,7 +13,14 @@
 
 ## Description
 
-## 1
+Great job, you have completed all guided tasks of this workshop 🏆
+Now it's time to start implementing stuff independently.
 
-* verify email credential
-* two separate apps, one for issuing and one for verifying
+How about figuring out
+
+* How to verify the email credential issued in the previous step?
+* How to issue credentials that have multiple attribute values?
+* Separate the issuing and verifying logic to different applications.
+* Build logic for the email credential:
+how would you use it for user registration and authentication for a web service?
+* Build your use case. Do you have a problem that could be solved using verifiable credentials?

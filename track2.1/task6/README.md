@@ -19,14 +19,14 @@ meaningful data that it knows to be valid.
 
 Let's change our issuer so that it issues credentials for a verified email. The issuer displays
 a QR code as before, but when the connection is established, it will ask for the user's email address.
-It sends an email with a verification URL to this address. Only when a user opens the verification URL,
+It sends an email with a verification URL to this address. Only when a user opens the verification URL
 issuer will send the credential offer.
 
-We need to create new schema and credential definition to issue email credentials. We also
-need to create logic for asking the email address. In addition, a new endpoint needs to be added for
-the verification URL.
+We must create a new schema and credential definition to issue email credentials. We also
+need to create logic for asking for the email address. In addition, a new endpoint needs to be added
+for the verification URL.
 
-In this task, we will utilize SendGrid API for sending the emails. You need an API key
+In this task, we will utilize SendGrid API for sending emails. You need an API key
 to access the SendGrid API. You will be provided one in the guided workshop.
 
 <details>
@@ -40,6 +40,8 @@ Configure and verify also a sender identity for your email address.
 </details></br>
 
 ## 1. Install SendGrid dependency
+
+Stop your server (C-c).
 
 Add a new dependency to your project:
 
@@ -56,10 +58,10 @@ export SENDGRID_API_KEY='<this_value_will_be_provided_for_you_in_the_workshop>'
 export SENDGRID_SENDER='<this_value_will_be_provided_for_you_in_the_workshop>'
 ```
 
-Save the file and type `direnv allow`. Restart your server `npm run dev`.
+Save the file and type `direnv allow`.
 
 <details>
-<summary>🤠 Configure own SendGrid account</summary></br>
+<summary>🤠 Configure your own SendGrid account</summary></br>
 
 Create API key with SendGrid UI and replace the value to `SENDGRID_API_KEY` variable.
 Configure the verified sender email to `SENDGRID_SENDER` variable.
@@ -68,7 +70,7 @@ Configure the verified sender email to `SENDGRID_SENDER` variable.
 
 ## 3. Create new credential definition
 
-In [task 3](../task3/README.md) we created a schema and credential definition for `foobar`-credentials.
+In [task 3](../task3/README.md), we created a schema and credential definition for `foobar`-credentials.
 Now we need another schema and credential definition for our email credential.
 
 Let's modify our code for creating the schema and the credential definition.
@@ -95,20 +97,25 @@ Modify function `prepareIssuing`. Change the `schemaName` to `'email'` and attri
 ```
 
 Then delete (or rename) file `CRED_DEF_ID` from the workspace root.
-This ensures that the schema and credential definition creation code is executed on server startup
+This ensures that the schema and credential definition creation code is executed on server startup,
 as there is no cached credential definition id.
 
 ```bash
 mv CRED_DEF_ID foobar_CRED_DEF_ID
 ```
 
+Restart your server `npm run dev`.
+
 ## 4. Ensure credential definition for email schema is created
 
-<<screencapture>>
+Note! It will take a while for the agency to create a new credential definition.
+Wait patiently.
+
+![Server logs](./docs/server-logs-cred-def.png)
 
 ## 5. Modify issuer for email changes
 
-Open file `src/issuer.ts`.
+Open file `src/issue.ts`.
 
 Add following row to imports:
 
@@ -139,7 +146,7 @@ interface Connection {
 ```
 
 Configure SendGrid API and add new utility functions `askForEmail` and `sendEmail`
-for sending messages to default exported function:
+for sending messages to the default exported function:
 
 ```ts
 export default (protocolClient: ProtocolClient, credDefId: string) => {
@@ -176,11 +183,11 @@ export default (protocolClient: ProtocolClient, credDefId: string) => {
 }
 ```
 
-Instead of issuing the credential when new connection is established,
-we want to ask user for their email, and send the credential offer
-only when they have verified their email. So when a new connection is established,
-we send a basic message asking the email.
-Replace contents of `handleNewConnection` to following:
+Instead of issuing the credential when a new connection is established,
+we want to ask the user for their email and send the credential offer
+only after verifying their email. So when a new connection is established,
+we send a basic message asking for the email.
+Replace the contents of `handleNewConnection` with following:
 
 ```ts
   const handleNewConnection = async (info: ProtocolInfo, didExchange: ProtocolStatus.DIDExchangeStatus) => {
@@ -197,8 +204,8 @@ Replace contents of `handleNewConnection` to following:
   }
 ```
 
-Add new function `handleBasicMessageDone`. This function will handle the basic messages user
-is sending from the other end. If user replies with an email address, a verification email is sent
+Add new function `handleBasicMessageDone`. This function will handle the basic messages the user
+is sending from the other end. If the user replies with an email address, a verification email is sent
 to the provided address.
 
 ```ts
@@ -291,10 +298,10 @@ export default (protocolClient: ProtocolClient, credDefId: string) => {
 
 Open file `src/listen.ts`.
 
-We need to notify also issuer for the received basic messages so that
-the issuer can handle user provider email address.
+We need to notify also issuer of the received basic messages so that
+the issuer can handle the user-provided email address.
 
-Replace the contents for `BasicMessageDone` to following:
+Replace the contents for `BasicMessageDone` with the following:
 
 ```ts
       ...
@@ -318,7 +325,7 @@ Replace the contents for `BasicMessageDone` to following:
 Open file `src/index.ts`.
 
 Add a new endpoint that handles email URL clicks.
-The function asks issuer to send a credential offer if the connection is valid and found.
+The function asks the issuer to send a credential offer if the connection is valid and found.
 
 ```ts
   app.get('/email/:connectionId', async (req: Request, res: Response) => {
@@ -337,11 +344,33 @@ The function asks issuer to send a credential offer if the connection is valid a
 
 ## 7. Testing
 
-<<screencapture here>>
+Now you should have the needed bits and pieces in place. Let's test if it works.
+
+Navigate to page <http://localhost:3001/issue> and
+create a new pairwise connection to your web wallet user.
+The app should ask you for your email. Input a valid email address that you have access to.
+
+![Input email](./docs/email-web-wallet.png)
+
+The application sends the verification email and basic message telling the user to check their inbox.
+
+![Email sent](./docs/email-sent-web-wallet.png)
+
+Check your inbox and navigate to the verification link with your desktop browser.
+
+![Email inbox](./docs/email-inbox.png)
+
+Check the web wallet view and accept the credential offer.
+
+![Credential received](./docs/credential-received-web-wallet.png)
+
+Review server logs.
+
+![Server logs](./docs/server-logs-email.png)
 
 ## 8. Continue with task 7
 
-Congratulations, you have completed task 7 and you know now a little bit more
+Congratulations, you have completed task 7 and now know a little more about
 how to build the application logic for issuers!
 
 You can now continue with [task 7](../task7/README.md).
