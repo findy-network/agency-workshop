@@ -24,3 +24,17 @@ How about figuring out
 * Build logic for the email credential:
 how would you use it for user registration and authentication for a web service?
 * Build your use case. Do you have a problem that could be solved using verifiable credentials?
+
+## More material
+
+You can find more inspiration and tips by checking this additional material:
+
+* [Getting Started with SSI Service Agent Development](https://findy-network.github.io/blog/2023/01/30/getting-started-with-ssi-service-agent-development/)
+* [How to Equip Your App with VC Superpowers](https://findy-network.github.io/blog/2023/02/06/how-to-equip-your-app-with-vc-superpowers/)
+* [The Findy Agency API](https://findy-network.github.io/blog/2022/08/29/the-findy-agency-api/)
+* [SSI-Empowered Identity Provider](https://findy-network.github.io/blog/2022/04/07/ssi-empowered-identity-provider/)
+* [Trust in Your Wallet](https://findy-network.github.io/blog/2022/04/27/trust-in-your-wallet/)
+* Samples and reference implementations for TS/JS:
+  * [Decentralized identity demo](https://github.com/findy-network/agency-demo)
+  * [Issuer tool](https://github.com/findy-network/findy-issuer-tool)
+  * [OIDC IdP](https://github.com/findy-network/findy-oidc-provider)
