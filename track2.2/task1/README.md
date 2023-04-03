@@ -1,4 +1,4 @@
-# Track 2.1 - Task 1: Create a new connection
+# Track 2.2 - Task 1: Create a new connection
 
 ## Progress
 
@@ -30,60 +30,64 @@ communication pipeline that they can use to transmit other protocol messages.
 Add a new dependency to your project:
 
 ```bash
-npm install qrcode --save
-npm install @types/qrcode --save-dev
+go get github.com/skip2/go-qrcode
 ```
 
 This library will enable us to transform strings into QR codes.
 
-Open file `src/index.ts`.
+Open file `main.go`.
 
-Add following row to imports:
+Add following rows to imports:
 
-```ts
-import QRCode from 'qrcode'
+```go
+import (
+
+  ...
+  agency "github.com/findy-network/findy-common-go/grpc/agency/v1"
+  qrcode "github.com/skip2/go-qrcode"
+)
 ```
 
 ## 2. Create a connection invitation
 
-Add **`agencyv1`** and **`AgentClient`** to objects imported from `findy-common-ts`:
-
-```ts
-import { agencyv1, AgentClient, createAcator, openGRPCConnection } from '@findy-network/findy-common-ts'
-```
-
-`agencyv1` will provide us with the namespace for the agency API structures.
-`AgentClient` provides us access to the agency agent API.
-
 Add new function `createInvitationPage` for creating an HTML page
 with connection invitation information:
 
-```ts
-const createInvitationPage = async (agentClient: AgentClient, header: string) => {
-  // Invitation input
-  const msg = new agencyv1.InvitationBase()
-  // Whichever name we want to expose from ourselves to the other end
-  msg.setLabel(process.env.FCLI_USER!)
+```go
+func createInvitationPage(
+  agentClient agency.AgentServiceClient,
+  header string,
+) (html, invitationID string, err error) {
+  defer err2.Handle(&err)
 
   // Agency API call for creating the DIDComm connection invitation
-  const invitation = await agentClient.createInvitation(msg)
+  res := try.To1(agentClient.CreateInvitation(
+    context.TODO(),
+    // Whichever name we want to expose from ourselves to the other end
+    &agency.InvitationBase{Label: os.Getenv("FCLI_USER")},
+  ))
 
-  console.log(`Created invitation with Findy Agency: ${invitation.getUrl()}`)
+  var invitationMap map[string]any
+  try.To(json.Unmarshal([]byte(res.GetJSON()), &invitationMap))
+
+  url := res.URL
+  log.Printf("Created invitation\n %s\n", url)
+
   // Convert invitation string to QR code
-  const qrData = await QRCode.toDataURL(invitation.getUrl())
+  png, err := qrcode.Encode(url, qrcode.Medium, 512)
+  imgSrc := "data:image/png;base64," + base64.StdEncoding.EncodeToString([]byte(png))
 
   // Create HTML payload
-  const payload = `<html>
-  <h1>${header}</h1>
-  <p>Read the QR code with the wallet application:</p>
-  <img src="${qrData}"/>
-  <p>or copy-paste the invitation:</p>
-  <textarea onclick="this.focus();this.select()" readonly="readonly" rows="10" cols="60">${
-    invitation.getUrl()
-    }</textarea></html>`;
+  html = `<html>
+      <h1>` + header + `</h1>
+      <p>Read the QR code with the wallet application:</p>
+      <img src="` + imgSrc + `"/>
+      <p>or copy-paste the invitation:</p>
+      <textarea onclick="this.focus();this.select()" readonly="readonly" rows="10" cols="60">` +
+    url + `</textarea></html>`
 
   // Return invitation id and the HTML payload
-  return { id: JSON.parse(invitation.getJson())['@id'], payload }
+  return invitationMap["@id"].(string), html, nil
 }
 ```
 
@@ -92,27 +96,40 @@ const createInvitationPage = async (agentClient: AgentClient, header: string) =>
 Let's add implementation to the `/greet`-endpoint.
 The function should respond with an HTML page that renders a QR code for a DIDComm connection invitation.
 
-First, create the agent API client using the agency connection.
-Modify `runApp`-function to the following:
+First, store the agent API client reference returned when opening the agency connection.
+Add new field `agentClient` to `appState`-struct:
 
-```ts
-const runApp = async () => {
-  const { createAgentClient } = await setupAgentConnection()
-
-  // Create API client using the connection
-  const agentClient = await createAgentClient()
-
-  ...
+```go
+type appState struct {
+  agentClient agency.AgentServiceClient
 }
+```
+
+Modify `LoginAgent`-call to the following:
+
+```go
+  // Login agent
+  agentClient, _ := try.To2(agent.LoginAgent())
+  app := appState{
+    agentClient: agentClient,
+  }
+
 ```
 
 Then, add implementation to the `/greet`-endpoint:
 
-```ts
-app.get('/greet', async (req: Request, res: Response) => {
-  const { payload } = await createInvitationPage(agentClient, 'Greet')
-  res.send(payload)
-});
+```go
+// Show pairwise invitation. Once connection is established, send greeting.
+func greetHandler(app appState) http.HandlerFunc {
+  return func(response http.ResponseWriter, r *http.Request) {
+    defer err2.Catch(func(err error) {
+      log.Println(err)
+      http.Error(response, err.Error(), http.StatusInternalServerError)
+    })
+    _, html := try.To2(createInvitationPage(app.agentClient, "Greet"))
+    try.To1(response.Write([]byte(html)))
+  }
+}
 ```
 
 ## 4. Test the `/greet`-endpoint

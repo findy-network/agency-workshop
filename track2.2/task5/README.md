@@ -1,4 +1,4 @@
-# Track 2.1 - Task 5: Verify credential
+# Track 2.2 - Task 5: Verify credential
 
 ## Progress
 

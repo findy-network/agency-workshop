@@ -1,4 +1,4 @@
-# Track 2.1 - Task 2: Send greetings
+# Track 2.2 - Task 2: Send greetings
 
 ## Progress
 

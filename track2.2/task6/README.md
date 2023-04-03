@@ -1,4 +1,4 @@
-# Track 2.1 - Task 6: Issue credential for verified information
+# Track 2.2 - Task 6: Issue credential for verified information
 
 ## Progress
 

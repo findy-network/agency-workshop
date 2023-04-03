@@ -1,6 +1,6 @@
-# Track 2.1: Typescript application
+# Track 2.2: Go application
 
-In this track, you will learn how to build a Typescript application that utilizes Findy Agency API
+In this track, you will learn how to build a Go application that utilizes Findy Agency API
 for issuing and verifying credentials. The assumption is that you work in a guided workshop
 with the default tooling. In this case, you can skip the sections with the symbol 🤠.
 
@@ -44,7 +44,7 @@ how to work with the recommended tooling.
 If you still wish to go to the wild side, make sure you have these tools available:
 
 * Code editor of your choice
-* [Node.js](https://nodejs.org/en) (or [nvm](https://github.com/nvm-sh/nvm#intro))
+* [Go](https://go.dev/dl/)
 * [findy-agent-cli](https://github.com/findy-network/findy-agent-cli#installation)
 * [direnv](https://direnv.net/) (*optional*)
 
@@ -63,9 +63,9 @@ See instructions [here](../agency-local/README.md).
 
 </details><br/>
 
-### **4. Open the Typescript application in a dev container**
+### **4. Open the Go application in a dev container**
 
-Open folder `./track2.1/app` in VS Code.
+Open folder `./track2.2/app` in VS Code.
 
 VS Code asks if you want to develop the project in a dev container. Click "Reopen in Container."
 
@@ -128,25 +128,20 @@ source <(curl <agency_url>/set-env.sh)
 
 *The username needs to be unique in the agency context.*
 
-### **6. Start the application for the first time**
+### **6. Start the application**
 
-  When starting the application for the first time, run following commands:
+  Run the following command:
 
   ```bash
-  nvm use
-  npm install
-  npm run build
-  npm run dev     # start server in watch mode
+  go run .
   ```
-
-  After the first start, you can use just `npm run dev`.
 
   When the server is started, VS Code displays a dialog telling where to find the app.
 
   ![Application running](./docs/application-running.png)
 
   Click "Open in Browser". The browser should open to URL <http://localhost:3001>
-  and display the text *"Typescript example"*.
+  and display the text *"Go example"*.
 
   Now you have a simple express server running in port 3001 with four endpoints:
   `/`, `/greet`, `/issue`, and `/verify`. The next step is to start adding some actual code
@@ -154,53 +149,99 @@ source <(curl <agency_url>/set-env.sh)
 
 ### **7. Create the agency connection**
 
-Add a new dependency to your project:
+Add a new dependencies to your project:
 
 ```bash
-npm install @findy-network/findy-common-ts --save
+go get github.com/findy-network/findy-agent-auth
+go get github.com/findy-network/findy-common-go
 ```
 
-[`findy-common-ts`](https://github.com/findy-network/findy-common-ts)
-library has functionality that helps us authenticate to the agency
-or use the agent capabilities.
+[`findy-agent-auth`](https://github.com/findy-network/findy-agent-auth)
+library has functionality that helps us authenticate to the agency.
 
-Open file `src/index.ts`.
+[`findy-common-go`](https://github.com/findy-network/findy-common-go)
+library has functionality that helps us control our agent.
 
-Add the following row to imports:
+Create folder `agent`.
+Create a new file `agent/auth.go`.
 
-```ts
-import { createAcator, openGRPCConnection } from '@findy-network/findy-common-ts'
-```
+Add the following content to the new file:
 
-Create new function `setupAgentConnection`:
+```go
+package agent
 
-```ts
-  const setupAgentConnection = async () => {
-    const acatorProps = {
-      authUrl: process.env.FCLI_URL!,
-      authOrigin: process.env.FCLI_ORIGIN!,
-      userName: process.env.FCLI_USER!,
-      key: process.env.FCLI_KEY!,
-    }
-    // Create authenticator
-    const authenticator = createAcator(acatorProps)
+import (
+ "log"
+ "os"
+ "strconv"
 
-    const serverAddress = process.env.AGENCY_API_SERVER!
-    const certPath = process.env.FCLI_TLS_PATH!
-    const grpcProps = {
-      serverAddress,
-      serverPort: parseInt(process.env.AGENCY_API_SERVER_PORT!, 10),
-      // NOTE: we currently assume that we do not need certs for cloud installation
-      // as the cert is issued by a trusted issuer
-      certPath: serverAddress === 'localhost' ? certPath : ''
-    }
+ "github.com/findy-network/findy-agent-auth/acator/authn"
+ "github.com/findy-network/findy-common-go/agency/client"
+ agency "github.com/findy-network/findy-common-go/grpc/agency/v1"
+ "github.com/lainio/err2"
+ "github.com/lainio/err2/try"
+ "google.golang.org/grpc"
+)
 
-    // Open gRPC connection to agency using authenticator
-    return openGRPCConnection(grpcProps, authenticator)
+const (
+ subCmdLogin    = "login"
+ subCmdRegister = "register"
+)
+
+func execAuthCmd(cmd string) (res authn.Result, err error) {
+ defer err2.Handle(&err)
+
+ myCmd := authn.Cmd{
+  SubCmd:   subCmdLogin,
+  UserName: os.Getenv("FCLI_USER"),
+  Url:      os.Getenv("FCLI_URL"),
+  AAGUID:   "12c85a48-4baf-47bd-b51f-f192871a1511",
+  Key:      os.Getenv("FCLI_KEY"),
+  Counter:  0,
+  Token:    "",
+  Origin:   os.Getenv("FCLI_ORIGIN"),
+ }
+
+ myCmd.SubCmd = cmd
+
+ try.To(myCmd.Validate())
+
+ return myCmd.Exec(os.Stdout)
+}
+
+func LoginAgent() (
+  agent agency.AgentServiceClient,
+  protocol agency.ProtocolServiceClient,
+  err error,
+) {
+  defer err2.Handle(&err)
+
+  // first try to login
+  res, firstTryErr := execAuthCmd(subCmdLogin)
+  if firstTryErr != nil {
+    // if login fails, try to register and relogin
+    _ = try.To1(execAuthCmd(subCmdRegister))
+    res = try.To1(execAuthCmd(subCmdLogin))
+  }
+
+  log.Println("Agent login succeeded")
+
+  token := res.Token
+  // set up API connection
+  conf := client.BuildClientConnBase(
+    os.Getenv("FCLI_TLS_PATH"),
+    os.Getenv("AGENCY_API_SERVER"),
+    try.To1(strconv.Atoi(os.Getenv("AGENCY_API_SERVER_PORT"))),
+    []grpc.DialOption{},
+  )
+
+  conn := client.TryAuthOpen(token, conf)
+
+  return agency.NewAgentServiceClient(conn), agency.NewProtocolServiceClient(conn), nil
   }
 ```
 
-This function will open a connection to our agent. Through this connection, we can control
+The `LoginAgent` function will open a connection to our agent. Through this connection, we can control
 the agent and listen for any events the agent produces while handling our credential protocol
 flows.
 
@@ -213,14 +254,21 @@ the development environment setup. (In production, the key should be naturally g
 handled in a secure manner as a secret). If someone gets access to the key,
 they can control your agent.
 
-Add call to `setupAgentConnection` to existing `runApp` function:
+Open file `main.go`
 
-```ts
-const runApp = async () => {
+Add call to `LoginAgent` to existing `main` function:
 
-  await setupAgentConnection()
+```go
+func main() {
+  defer err2.Catch(func(err error) {
+    log.Fatal(err)
+  })
+
+  // Login agent
+  _, _ = try.To2(agent.LoginAgent())
 
   ...
+
 }
 ```
 

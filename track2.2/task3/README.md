@@ -1,4 +1,4 @@
-# Track 2.1 - Task 3: Prepare for issuing credentials
+# Track 2.2 - Task 3: Prepare for issuing credentials
 
 ## Progress
 

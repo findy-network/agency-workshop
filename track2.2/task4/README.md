@@ -1,4 +1,4 @@
-# Track 2.1 - Task 4: Issue credential
+# Track 2.2 - Task 4: Issue credential
 
 ## Progress
 

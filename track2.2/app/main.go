@@ -9,40 +9,50 @@ import (
 	"github.com/lainio/err2/try"
 )
 
+type appState struct{}
+
 // Routes
-func homeHandler(response http.ResponseWriter, r *http.Request) {
-	defer err2.Catch(func(err error) {
-		log.Println(err)
-		http.Error(response, err.Error(), http.StatusInternalServerError)
-	})
-	try.To1(response.Write([]byte("Go example")))
+func homeHandler(app appState) http.HandlerFunc {
+	return func(response http.ResponseWriter, r *http.Request) {
+		defer err2.Catch(func(err error) {
+			log.Println(err)
+			http.Error(response, err.Error(), http.StatusInternalServerError)
+		})
+		try.To1(response.Write([]byte("Go example")))
+	}
 }
 
 // Show pairwise invitation. Once connection is established, send greeting.
-func greetHandler(response http.ResponseWriter, r *http.Request) {
-	defer err2.Catch(func(err error) {
-		log.Println(err)
-		http.Error(response, err.Error(), http.StatusInternalServerError)
-	})
-	try.To1(response.Write([]byte("IMPLEMENT ME")))
+func greetHandler(app appState) http.HandlerFunc {
+	return func(response http.ResponseWriter, r *http.Request) {
+		defer err2.Catch(func(err error) {
+			log.Println(err)
+			http.Error(response, err.Error(), http.StatusInternalServerError)
+		})
+		try.To1(response.Write([]byte("IMPLEMENT ME")))
+	}
 }
 
 // Show pairwise invitation. Once connection is established, issue credential.
-func issueHandler(response http.ResponseWriter, r *http.Request) {
-	defer err2.Catch(func(err error) {
-		log.Println(err)
-		http.Error(response, err.Error(), http.StatusInternalServerError)
-	})
-	try.To1(response.Write([]byte("IMPLEMENT ME")))
+func issueHandler(app appState) http.HandlerFunc {
+	return func(response http.ResponseWriter, r *http.Request) {
+		defer err2.Catch(func(err error) {
+			log.Println(err)
+			http.Error(response, err.Error(), http.StatusInternalServerError)
+		})
+		try.To1(response.Write([]byte("IMPLEMENT ME")))
+	}
 }
 
 // Show pairwise invitation. Once connection is established, verify credential.
-func verifyHandler(response http.ResponseWriter, r *http.Request) {
-	defer err2.Catch(func(err error) {
-		log.Println(err)
-		http.Error(response, err.Error(), http.StatusInternalServerError)
-	})
-	try.To1(response.Write([]byte("IMPLEMENT ME")))
+func verifyHandler(app appState) http.HandlerFunc {
+	return func(response http.ResponseWriter, r *http.Request) {
+		defer err2.Catch(func(err error) {
+			log.Println(err)
+			http.Error(response, err.Error(), http.StatusInternalServerError)
+		})
+		try.To1(response.Write([]byte("IMPLEMENT ME")))
+	}
 }
 
 func main() {
@@ -50,12 +60,14 @@ func main() {
 		log.Fatal(err)
 	})
 
+	app := appState{}
+
 	router := http.NewServeMux()
 
-	router.HandleFunc("/", homeHandler)
-	router.HandleFunc("/greet", greetHandler)
-	router.HandleFunc("/issue", issueHandler)
-	router.HandleFunc("/verify", verifyHandler)
+	router.HandleFunc("/", homeHandler(app))
+	router.HandleFunc("/greet", greetHandler(app))
+	router.HandleFunc("/issue", issueHandler(app))
+	router.HandleFunc("/verify", verifyHandler(app))
 
 	addr := ":3001"
 	log.Printf("Starting server at %s", addr)
