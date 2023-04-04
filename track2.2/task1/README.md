@@ -97,10 +97,10 @@ Let's add implementation to the `/greet`-endpoint.
 The function should respond with an HTML page that renders a QR code for a DIDComm connection invitation.
 
 First, store the agent API client reference returned when opening the agency connection.
-Add new field `agentClient` to `appState`-struct:
+Add new field `agentClient` to `app`-struct:
 
 ```go
-type appState struct {
+type app struct {
   agentClient agency.AgentServiceClient
 }
 ```
@@ -110,7 +110,7 @@ Modify `LoginAgent`-call to the following:
 ```go
   // Login agent
   agentClient, _ := try.To2(agent.LoginAgent())
-  app := appState{
+  myApp := app{
     agentClient: agentClient,
   }
 
@@ -120,15 +120,15 @@ Then, add implementation to the `/greet`-endpoint:
 
 ```go
 // Show pairwise invitation. Once connection is established, send greeting.
-func greetHandler(app appState) http.HandlerFunc {
-  return func(response http.ResponseWriter, r *http.Request) {
-    defer err2.Catch(func(err error) {
-      log.Println(err)
-      http.Error(response, err.Error(), http.StatusInternalServerError)
-    })
-    _, html := try.To2(createInvitationPage(app.agentClient, "Greet"))
-    try.To1(response.Write([]byte(html)))
-  }
+func (a *app) greetHandler(response http.ResponseWriter, r *http.Request) {
+  defer err2.Catch(func(err error) {
+    log.Println(err)
+    http.Error(response, err.Error(), http.StatusInternalServerError)
+  })
+  // Create HTML payload
+  _, html := try.To2(createInvitationPage(a.agentClient, "Greet"))
+  // Render HTML
+  try.To1(response.Write([]byte(html)))
 }
 ```
 
@@ -188,63 +188,131 @@ and a messaging UI is visible for you.
 Now we have a new pairwise connection to the web wallet user that the agent negotiated for us.
 However, we don't know about it, as we haven't set a listener for our agent. Let's do that next.
 
-Create a new file `src/listen.ts`.
+Create a new file `agent/listen.go`.
 
 Add the following content to the new file:
 
-```ts
-import { AgentClient, ProtocolClient } from '@findy-network/findy-common-ts'
+```go
+package agent
 
-export default async (
-  agentClient: AgentClient,
-  protocolClient: ProtocolClient,
-) => {
+import (
+  "context"
+  "log"
 
-  // Options for listener
-  const options = {
-    protocolClient,
-    retryOnError: true,
-  }
+  agency "github.com/findy-network/findy-common-go/grpc/agency/v1"
+  "github.com/google/uuid"
+  "github.com/lainio/err2/try"
+)
+
+type Listener interface {
+  HandleNewConnection(*agency.Notification, *agency.ProtocolStatus_DIDExchangeStatus)
+}
+
+func (agencyClient *AgencyClient) Listen(listeners []Listener) {
 
   // Listening callback handles agent events
-  await agentClient.startListeningWithHandler(
-    {
-      // New connection is established
-      DIDExchangeDone: async (info, didExchange) => {
-        console.log(`New connection ${didExchange.getTheirLabel()} with id ${info.connectionId}`)
-      },
-    },
-    options
+  ch := try.To1(
+    agencyClient.Conn.ListenStatus(
+    context.TODO(),
+    &agency.ClientID{ID: uuid.New().String()},
+    ),
   )
+
+  // Go routine for listening event channel
+  go func() {
+    for {
+    chRes, ok := <-ch
+    if !ok {
+      panic("Listening failed")
+    }
+
+    notification := chRes.GetNotification()
+    log.Printf("Received agent notification %v\n", notification)
+
+    // Fetch detailed status information for notification
+    status := try.To1(
+      agencyClient.ProtocolClient.Status(
+      context.TODO(),
+      &agency.ProtocolID{
+        ID:     notification.ProtocolID,
+        TypeID: notification.ProtocolType,
+      },
+      ),
+    )
+
+    // Notify listeners of protocol events
+    switch notification.GetTypeID() {
+    case agency.Notification_STATUS_UPDATE:
+      if status.State.State == agency.ProtocolState_OK {
+        switch notification.GetProtocolType() {
+        case agency.Protocol_DIDEXCHANGE:
+          for _, listener := range listeners {
+            listener.HandleNewConnection(notification, status.GetDIDExchange())
+          }
+        default:
+          log.Printf("No handler for protocol message %s\n", notification.GetProtocolType())
+        }
+      } else {
+        log.Printf("Status NOK %v for %s\n", status, notification.GetProtocolType())
+      }
+    default:
+      log.Printf("No handler for notification %s\n", notification.GetTypeID())
+    }
+
+    }
+  }()
+
 }
+
 ```
 
-Open file `src/index.ts`.
+Create folder `handlers`.
+Create a new file `handlers/greeter.go`.
 
-Add the following row to imports:
+This module will handle our greeting functionality: for now,
+we just print the name of the other agent to logs.
+Add the following content to the new file:
 
-```ts
-import listenAgent from './listen'
+```go
+package handlers
+
+import (
+  "log"
+
+  agency "github.com/findy-network/findy-common-go/grpc/agency/v1"
+)
+
+type Greeter struct{}
+
+func (g *Greeter) HandleNewConnection(
+  notification *agency.Notification,
+  status *agency.ProtocolStatus_DIDExchangeStatus,
+) {
+  // Print their label to logs
+  log.Printf("New connection %s with id %s", status.TheirLabel, notification.ConnectionID)
+}
+
 ```
 
-Next, we will modify `runApp`-function to start the listening.
-We will call the newly imported function and provide the needed API clients
-as parameters.
+Open file `main.go`.
 
-```ts
-const runApp = async () => {
-  const { createAgentClient, createProtocolClient } = await setupAgentConnection()
+Next, we will modify `main`-function to start the listening.
+We will provide an instance of the newly created struct `Greeter` as the parameter to the listener.
 
-  // Create API clients using the connection
-  const agentClient = await createAgentClient()
-  const protocolClient = await createProtocolClient()
-
-  // Start listening to agent notifications
-  await listenAgent(agentClient, protocolClient)
-
+```go
   ...
 
-}
+  // Login agent
+  myApp := app{
+    agencyClient: try.To1(agent.LoginAgent()),
+  }
+
+  // Start listening
+  myApp.agencyClient.Listen([]agent.Listener{
+    &handlers.Greeter{},
+  })
+
+  ...
 ```
 
 ## 9. Check the name of the web wallet user
