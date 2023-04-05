@@ -32,24 +32,24 @@ Modify handler `HandleNewConnection` to following:
 
 ```go
 func (g *Greeter) HandleNewConnection(
-  notification *agency.Notification,
-  status *agency.ProtocolStatus_DIDExchangeStatus,
-) (err error) {
-  defer err2.Handle(&err)
+ notification *agency.Notification,
+ status *agency.ProtocolStatus_DIDExchangeStatus,
+) {
+  defer err2.Catch(func(err error) {
+    log.Printf("Error handling new connection: %v", err)
+  })
 
   log.Printf("New connection %s with id %s", status.TheirLabel, notification.ConnectionID)
 
   // Greet each new connection with basic message
   pw := async.NewPairwise(g.conn, notification.ConnectionID)
   _ = try.To1(pw.BasicMessage(context.TODO(), "Hi there 👋!"))
-
-  return err
 }
 ```
 
 ## 2. Ensure the message is sent to the web wallet
 
-Refresh the `/greet`-page and create a new connection using the web wallet UI.
+Restart the server, refresh the `/greet`-page and create a new connection using the web wallet UI.
 Check that the greeting is received in the web wallet UI.
 
 ![Receive message in web wallet](./docs/receive-basic-message-web-wallet.png)
@@ -58,13 +58,13 @@ Check that the greeting is received in the web wallet UI.
 
 Open file `agent/listen.go`.
 
-Add new method `HandleBasicMesssageDone` to listener interface:
+Add new method `HandleBasicMesssageDone` to `Listener` interface:
 
 ```go
 type Listener interface {
-  HandleNewConnection(*agency.Notification, *agency.ProtocolStatus_DIDExchangeStatus) error
+  HandleNewConnection(*agency.Notification, *agency.ProtocolStatus_DIDExchangeStatus)
   // Send notification to listener when basic message protocol is completed
-  HandleBasicMesssageDone(*agency.Notification, *agency.ProtocolStatus_BasicMessageStatus) error
+  HandleBasicMesssageDone(*agency.Notification, *agency.ProtocolStatus_BasicMessageStatus)
 }
 ```
 
@@ -103,7 +103,8 @@ func (agencyClient *AgencyClient) Listen(listeners []Listener) {
 ```
 
 Open file `handlers/greeter.go`.
-Handle basic messages in Greeter module by printing them to log:
+Handle basic messages in Greeter module. Add new function `HandleBasicMesssageDone`
+and print messages to log:
 
 ```go
 func (g *Greeter) HandleBasicMesssageDone(
@@ -119,7 +120,7 @@ func (g *Greeter) HandleBasicMesssageDone(
 
 ## 4. Ensure the received message is printed to logs
 
-Send a reply from the web wallet UI:
+Restart server. Send a reply from the web wallet UI:
 
 ![Send message in web wallet](./docs/send-basic-message-web-wallet.png)
 

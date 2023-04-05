@@ -100,20 +100,12 @@ First, store the agent API client reference returned when opening the agency con
 Add new field `agentClient` to `app`-struct:
 
 ```go
-import (
-  ...
-
-  "github.com/findy-network/agency-workshop/agent"
-
-  ...
-)
-
 type app struct {
   agencyClient *agent.AgencyClient
 }
 ```
 
-Modify `LoginAgent`-call to the following:
+Modify `main`-call to the following:
 
 ```go
 func main() {
@@ -133,7 +125,7 @@ func main() {
 
 ```
 
-Then, add implementation to the `/greet`-endpoint:
+Then, replace the implementation of the `/greet`-endpoint to the following:
 
 ```go
 // Show pairwise invitation. Once connection is established, send greeting.
@@ -143,7 +135,7 @@ func (a *app) greetHandler(response http.ResponseWriter, r *http.Request) {
     http.Error(response, err.Error(), http.StatusInternalServerError)
   })
   // Create HTML payload
-  _, html := try.To2(createInvitationPage(a.agentClient, "Greet"))
+  _, html := try.To2(createInvitationPage(a.agencyClient.AgentClient, "Greet"))
   // Render HTML
   try.To1(response.Write([]byte(html)))
 }
@@ -297,6 +289,7 @@ import (
   "log"
 
   "github.com/findy-network/agency-workshop/agent"
+  "github.com/findy-network/findy-common-go/agency/client"
   agency "github.com/findy-network/findy-common-go/grpc/agency/v1"
 )
 
@@ -349,7 +342,7 @@ func main() {
   // Login agent
   agencyClient := try.To1(agent.LoginAgent())
 
-// Create handlers
+  // Create handlers
   myApp := app{
     agencyClient: agencyClient,
     greeter:      handlers.NewGreeter(agencyClient.Conn),
@@ -368,7 +361,7 @@ func main() {
 
 ## 9. Check the name of the web wallet user
 
-Refresh the `/greet`-page and create a new connection using the web wallet UI.
+Restart the server, refresh the `/greet`-page and create a new connection using the web wallet UI.
 
 Check that the server logs print out the web wallet user name.
 
