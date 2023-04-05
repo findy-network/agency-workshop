@@ -26,26 +26,25 @@ In the previous task, we added a handler for new connection notifications.
 Modify this handler so that when a new connection gets created, we send a greeting
 to the other agent.
 
-Open file `src/listen.ts`.
+Open file `handlers/greeter.go`.
 
-Add **`agencyv1`** to objects imported from `findy-common-ts`:
+Modify handler `HandleNewConnection` to following:
 
-```ts
-import { agencyv1, AgentClient, ProtocolClient } from '@findy-network/findy-common-ts'
-```
+```go
+func (g *Greeter) HandleNewConnection(
+  notification *agency.Notification,
+  status *agency.ProtocolStatus_DIDExchangeStatus,
+) (err error) {
+  defer err2.Handle(&err)
 
-Modify handler `DIDExchangeDone` to following:
+  log.Printf("New connection %s with id %s", status.TheirLabel, notification.ConnectionID)
 
-```ts
-      // New connection is established
-      DIDExchangeDone: async (info, didExchange) => {
-        console.log(`New connection: ${didExchange.getTheirLabel()} with id ${info.connectionId}`)
+  // Greet each new connection with basic message
+  pw := async.NewPairwise(g.Conn, notification.ConnectionID)
+  _ = try.To1(pw.BasicMessage(context.TODO(), "Hi there 👋!"))
 
-        // Greet each new connection with basic message
-        const msg = new agencyv1.Protocol.BasicMessageMsg()
-        msg.setContent('Hi there 👋!')
-        await protocolClient.sendBasicMessage(info.connectionId, msg)
-      },
+  return err
+}
 ```
 
 ## 2. Ensure the message is sent to the web wallet
@@ -57,23 +56,59 @@ Check that the greeting is received in the web wallet UI.
 
 ## 3. Add handler for received messages
 
-Continue editing file `src/listen.ts`.
+Open file `agent/listen.go`.
 
-Add new handler `BasicMessageDone` to listener.
-When receiving messages from other agents, print them to log:
+Add new method `HandleBasicMesssageDone` to listener interface:
 
-```ts
-      DIDExchangeDone: async (info, didExchange) => {
-        ...
-      },
+```go
+type Listener interface {
+  HandleNewConnection(*agency.Notification, *agency.ProtocolStatus_DIDExchangeStatus) error
+  // Send notification to listener when basic message protocol is completed
+  HandleBasicMesssageDone(*agency.Notification, *agency.ProtocolStatus_BasicMessageStatus) error
+}
+```
 
-      BasicMessageDone: async (info, basicMessage) => {
-        // Print out greeting sent from the other agent
-        if (!basicMessage.getSentByMe()) {
-          const msg = basicMessage.getContent()
-          console.log(`Received basic message ${msg} from ${info.connectionId}`)
-        }
-      },
+When receiving messages from other agents, notify listeners via the new method.
+Edit `Listen`-function:
+
+```go
+
+  ...
+
+   // Notify listeners of protocol events
+   switch notification.GetTypeID() {
+   case agency.Notification_STATUS_UPDATE:
+    if status.State.State == agency.ProtocolState_OK {
+     switch notification.GetProtocolType() {
+     case agency.Protocol_DIDEXCHANGE:
+      for _, listener := range listeners {
+       listener.HandleNewConnection(notification, status.GetDIDExchange())
+      }
+      // Notify basic message protocol events
+     case agency.Protocol_BASIC_MESSAGE:
+      for _, listener := range listeners {
+       listener.HandleBasicMesssageDone(notification, status.GetBasicMessage())
+      }
+    
+      ... 
+   }
+
+  ...
+```
+
+Open file `handlers/greeter.go`.
+Handle basic messages in Greeter module by printing them to log:
+
+```go
+func (g *Greeter) HandleBasicMesssageDone(
+  notification *agency.Notification,
+  status *agency.ProtocolStatus_BasicMessageStatus,
+) {
+  // Print out greeting sent from the other agent
+  if !status.SentByMe {
+    log.Printf("Received basic message %s from %s", status.Content, notification.ConnectionID)
+  }
+}
 ```
 
 ## 4. Ensure the received message is printed to logs

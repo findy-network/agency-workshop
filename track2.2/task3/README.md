@@ -30,104 +30,98 @@ ensure that your and only your agent has issued the credential.
 The creation of the credential definition is only needed then when we start
 to issue new types of credentials. So we don't need to do it too often.
 
-Create a new file `src/prepare.ts`.
+Create a new file `agent/prepare.go`.
 
 Add the following content to the new file:
 
-```ts
-import { agencyv1, AgentClient } from '@findy-network/findy-common-ts'
-import { existsSync, readFileSync, writeFileSync } from 'fs';
+```go
+package agent
 
-export default async (agentClient: AgentClient, tag: string) => {
+import (
+  "context"
+  "log"
+  "os"
+  "time"
 
-  const waitForSchema = async (schemaId: string) => new Promise<void>((resolve) => {
-    const getSchema = async () => {
-      const schemaMsg = new agencyv1.Schema();
-      schemaMsg.setId(schemaId)
-      try {
-        await agentClient.getSchema(schemaMsg)
-        resolve()
-      } catch {
-        setTimeout(getSchema, 1000, schemaId)
-        return
-      }
+  agency "github.com/findy-network/findy-common-go/grpc/agency/v1"
+  "github.com/lainio/err2"
+  "github.com/lainio/err2/try"
+)
+
+func (a *AgencyClient) PrepareIssuing() (credDefID string, err error) {
+  defer err2.Handle(&err)
+
+  const credDefIDFileName = "CRED_DEF_ID"
+  const schemaName = "foobar"
+  schemaAttributes := []string{"foo"}
+
+  credDefIDBytes, credDefReadErr := os.ReadFile(credDefIDFileName)
+  if credDefReadErr == nil {
+    credDefID = string(credDefIDBytes)
+    log.Printf("Credential definition %s exists already", credDefID)
+    return
+  }
+
+  schemaRes := try.To1(a.AgentClient.CreateSchema(
+      context.TODO(),
+      &agency.SchemaCreate{
+      Name:       schemaName,
+      Version:    "1.0",
+      Attributes: schemaAttributes,
+    },
+  ))
+
+  // wait for schema to be readable before creating cred def
+  schemaGet := &agency.Schema{
+    ID: schemaRes.ID,
+  }
+  schemaFound := false
+  for !schemaFound {
+    if _, err := a.AgentClient.GetSchema(context.TODO(), schemaGet); err == nil {
+      schemaFound = true
+    } else {
+      time.Sleep(1 * time.Second)
     }
-    return getSchema()
-  })
-
-  const createCredDef = async (schemaId: string): Promise<string> => {
-    // wait for schema to be found on the ledger
-    // note: in real applications the schema would exist already
-    await waitForSchema(schemaId)
-
-    // Create cred def for the provided tag
-    console.log(`Creating cred def for schema ID ${schemaId} and tag ${tag}`)
-    const msg = new agencyv1.CredDefCreate()
-    msg.setSchemaid(schemaId)
-    msg.setTag(tag)
-
-    const res = await agentClient.createCredDef(msg)
-    console.log(`Cred def created ${res.getId()}`)
-
-    return res.getId()
   }
 
-  const prepareIssuing = async (): Promise<string> => {
-    // A dummy schema name
-    const schemaName = 'foobar'
-    console.log(`Creating schema ${schemaName}`)
+  log.Printf("Schema %s created successfully", schemaRes.ID)
 
-    const schemaMsg = new agencyv1.SchemaCreate()
-    schemaMsg.setName(schemaName)
-    schemaMsg.setVersion('1.0')
-    // List of dummy attributes
-    schemaMsg.setAttributesList(['foo'])
+  res := try.To1(a.AgentClient.CreateCredDef(
+      context.TODO(),
+      &agency.CredDefCreate{
+      SchemaID: schemaRes.ID,
+      Tag:      os.Getenv("FCLI_USER"),
+    },
+  ))
+  credDefID = res.GetID()
 
-    const schemaId = (await agentClient.createSchema(schemaMsg)).getId()
-    return await createCredDef(schemaId)
-  }
+  log.Printf("Credential definition %s created successfully", res.ID)
+  try.To(os.WriteFile(credDefIDFileName, []byte(credDefID), 0666))
 
-  // We store the cred def id to a text file
-  const credDefIdFilePath = 'CRED_DEF_ID'
-  const credDefCreated = existsSync(credDefIdFilePath)
-  // Skip cred def creation if it is already created
-  const credDefId = credDefCreated ? readFileSync(credDefIdFilePath).toString() : await prepareIssuing()
-  if (!credDefCreated) {
-    // Store id in order to avoid unnecessary creations
-    writeFileSync(credDefIdFilePath, credDefId)
-  }
-  console.log(`Credential definition available: ${credDefId}`)
-
-  return credDefId
+  return
 }
 ```
 
 ## 2. Create credential definition on server start
 
-Open file `src/index.ts`.
+Open file `main.go`.
 
-Add the following row to imports:
+Modify the `main`-function to create the credential definition on server start.
 
-```ts
-import prepare from './prepare'
-```
+```go
+func main() {
 
-Next, we will modify the `runApp`-function to create the credential definition on server start.
-We will call the newly imported function and provide the needed API client
-as parameters.
+  ...
 
-```ts
-const runApp = async () => {
-  const { createAgentClient, createProtocolClient } = await setupAgentConnection()
+  // Login agent
+  myApp := app{
+    agencyClient: try.To1(agent.LoginAgent()),
+  }
 
-  // Create API clients using the connection
-  const agentClient = await createAgentClient()
-  const protocolClient = await createProtocolClient()
+  // Create credential definition
+  myApp.agencyClient.PrepareIssuing()
 
-  // Prepare issuing and fetch credential definition id
-  const credDefId = await prepare(agentClient, process.env.FCLI_USER!)
-
-...
+  ...
 
 }
 ```

@@ -100,6 +100,14 @@ First, store the agent API client reference returned when opening the agency con
 Add new field `agentClient` to `app`-struct:
 
 ```go
+import (
+  ...
+
+  "github.com/findy-network/agency-workshop/agent"
+
+  ...
+)
+
 type app struct {
   agentClient agency.AgentServiceClient
 }
@@ -282,7 +290,9 @@ import (
   agency "github.com/findy-network/findy-common-go/grpc/agency/v1"
 )
 
-type Greeter struct{}
+type Greeter struct{
+  Conn client.Conn
+}
 
 func (g *Greeter) HandleNewConnection(
   notification *agency.Notification,
@@ -300,6 +310,14 @@ Next, we will modify `main`-function to start the listening.
 We will provide an instance of the newly created struct `Greeter` as the parameter to the listener.
 
 ```go
+import (
+  ...
+
+  "github.com/findy-network/agency-workshop/handlers"
+
+  ...
+)
+
   ...
 
   // Login agent
@@ -309,7 +327,8 @@ We will provide an instance of the newly created struct `Greeter` as the paramet
 
   // Start listening
   myApp.agencyClient.Listen([]agent.Listener{
-    &handlers.Greeter{},
+    // Greeter handles the greeting logic
+    &handlers.Greeter{Conn: myApp.agencyClient.Conn},
   })
 
   ...
