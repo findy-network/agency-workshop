@@ -149,7 +149,7 @@ source <(curl <agency_url>/set-env.sh)
 
 ### **7. Create the agency connection**
 
-Add a new dependencies to your project:
+Add new dependencies to your project. Type to terminal:
 
 ```bash
 go get github.com/findy-network/findy-agent-auth
@@ -170,47 +170,52 @@ Add the following content to the new file:
 package agent
 
 import (
- "log"
- "os"
- "strconv"
+  "log"
+  "os"
+  "strconv"
 
- "github.com/findy-network/findy-agent-auth/acator/authn"
- "github.com/findy-network/findy-common-go/agency/client"
- agency "github.com/findy-network/findy-common-go/grpc/agency/v1"
- "github.com/lainio/err2"
- "github.com/lainio/err2/try"
- "google.golang.org/grpc"
+  "github.com/findy-network/findy-agent-auth/acator/authn"
+  "github.com/findy-network/findy-common-go/agency/client"
+  agency "github.com/findy-network/findy-common-go/grpc/agency/v1"
+  "github.com/lainio/err2"
+  "github.com/lainio/err2/try"
+  "google.golang.org/grpc"
 )
 
 const (
- subCmdLogin    = "login"
- subCmdRegister = "register"
+  subCmdLogin    = "login"
+  subCmdRegister = "register"
 )
 
+type AgencyClient struct {
+  Conn           client.Conn
+  AgentClient    agency.AgentServiceClient
+  ProtocolClient agency.ProtocolServiceClient
+}
+
 func execAuthCmd(cmd string) (res authn.Result, err error) {
- defer err2.Handle(&err)
+  defer err2.Handle(&err)
 
- myCmd := authn.Cmd{
-  SubCmd:   subCmdLogin,
-  UserName: os.Getenv("FCLI_USER"),
-  Url:      os.Getenv("FCLI_URL"),
-  AAGUID:   "12c85a48-4baf-47bd-b51f-f192871a1511",
-  Key:      os.Getenv("FCLI_KEY"),
-  Counter:  0,
-  Token:    "",
-  Origin:   os.Getenv("FCLI_ORIGIN"),
- }
+  myCmd := authn.Cmd{
+    SubCmd:   subCmdLogin,
+    UserName: os.Getenv("FCLI_USER"),
+    Url:      os.Getenv("FCLI_URL"),
+    AAGUID:   "12c85a48-4baf-47bd-b51f-f192871a1511",
+    Key:      os.Getenv("FCLI_KEY"),
+    Counter:  0,
+    Token:    "",
+    Origin:   os.Getenv("FCLI_ORIGIN"),
+  }
 
- myCmd.SubCmd = cmd
+  myCmd.SubCmd = cmd
 
- try.To(myCmd.Validate())
+  try.To(myCmd.Validate())
 
- return myCmd.Exec(os.Stdout)
+  return myCmd.Exec(os.Stdout)
 }
 
 func LoginAgent() (
-  agent agency.AgentServiceClient,
-  protocol agency.ProtocolServiceClient,
+  agencyClient *AgencyClient,
   err error,
 ) {
   defer err2.Handle(&err)
@@ -236,8 +241,13 @@ func LoginAgent() (
 
   conn := client.TryAuthOpen(token, conf)
 
-  return agency.NewAgentServiceClient(conn), agency.NewProtocolServiceClient(conn), nil
-  }
+  return &AgencyClient{
+    Conn:           conn,
+    AgentClient:    agency.NewAgentServiceClient(conn),
+    ProtocolClient: agency.NewProtocolServiceClient(conn),
+  }, nil
+}
+
 ```
 
 The `LoginAgent` function will open a connection to our agent. Through this connection, we can control
@@ -245,8 +255,8 @@ the agent and listen for any events the agent produces while handling our creden
 flows.
 
 We authenticate the client using a headless FIDO2 authenticator provided by the agency helper
-library. When opening the connection for the first time, the underlying functionality
-automatically registers the authenticator to our agent.
+library. When opening the connection for the first time, the functionality in
+the `LoginAgent`-function registers the authenticator to our agent.
 
 The `FCLI_KEY` variable contains the master key to your authenticator. It is generated during
 the development environment setup. (In production, the key should be naturally generated and
@@ -258,6 +268,16 @@ Open file `main.go`
 Add call to `LoginAgent` to existing `main` function:
 
 ```go
+import (
+
+  ...
+
+  "github.com/findy-network/agency-workshop/agent"
+
+  ...
+
+)
+
 func main() {
   defer err2.Catch(func(err error) {
     log.Fatal(err)
@@ -271,10 +291,7 @@ func main() {
 }
 ```
 
-As you can see from the logs, the authentication fails at first as the client is not yet registered.
-With further server starts, this error should disappear.
-
-Verify that you see logs similar to this:
+Verify that you see text *"Agent login succeeded"*:
 ![First login log](./docs/log-first-login.png)
 
 ### **8. Continue with task 1**
