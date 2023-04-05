@@ -13,6 +13,7 @@ During the workshop, you will learn
 3. how your client can **create pairwise invitations and connect** to other agents,
 4. how your client can *issue credentials* to other agents, and
 5. how your client can *verify credentials* presented by other agents.
+6. how your clienst can *run own FSM* as well. [Option}
 
 This repository contains all of the needed material for the workshop.
 You can do the workshop at your own pace, either in a guided workshop session
