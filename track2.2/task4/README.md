@@ -25,163 +25,232 @@ Agents use [the issue credential protocol](https://github.com/hyperledger/aries-
 when handling the issuing process. Luckily, Findy Agency handles the execution of this complex
 protocol for us (similarly to other Hyperledger Aries protocols).
 
-## 1. Add code for issuing logic
+## 1. Listen to issue credential protocol
 
-Create a new file `src/issue.ts`.
+Open file `agent/listen.go`.
+Add new method `HandleIssueCredentialDone` to listener interface:
+
+```go
+type Listener interface {
+  HandleNewConnection(*agency.Notification, *agency.ProtocolStatus_DIDExchangeStatus)
+  HandleBasicMesssageDone(*agency.Notification, *agency.ProtocolStatus_BasicMessageStatus)
+  // Send notification to listener when issue credential protocol is completed
+  HandleIssueCredentialDone(*agency.Notification, *agency.ProtocolStatus_IssueCredentialStatus)
+}
+```
+
+When receiving notification for the issue credential protocol, notify listeners via the new method.
+Edit `Listen`-function:
+
+```go
+
+  ...
+
+func (agencyClient *AgencyClient) Listen(listeners []Listener) {
+
+  ...
+
+   // Notify listeners of protocol events
+   switch notification.GetTypeID() {
+   case agency.Notification_STATUS_UPDATE:
+      if status.State.State == agency.ProtocolState_OK {
+      switch notification.GetProtocolType() {
+
+    ...
+
+      case agency.Protocol_BASIC_MESSAGE:
+        for _, listener := range listeners {
+          listener.HandleBasicMesssageDone(notification, status.GetBasicMessage())
+        }
+      // Notify issue credential protocol events
+      case agency.Protocol_ISSUE_CREDENTIAL:
+        for _, listener := range listeners {
+          listener.HandleIssueCredentialDone(notification, status.GetIssueCredential())
+        }
+
+      ... 
+   }
+
+  ...
+
+}
+```
+
+## 2. Add code for issuing logic
+
+Create a new file `handlers/issuer.go`.
 
 Add the following content to the new file:
 
-```ts
-import { agencyv1, ProtocolClient, ProtocolInfo } from '@findy-network/findy-common-ts'
-import { ProtocolStatus } from '@findy-network/findy-common-ts/dist/idl/protocol_pb'
+```go
+package handlers
 
-export interface Issuer {
-  addInvitation: (id: string) => void
-  handleNewConnection: (info: ProtocolInfo, didExchange: ProtocolStatus.DIDExchangeStatus) => Promise<void>
-  handleIssueDone: (info: ProtocolInfo, issueCredential: ProtocolStatus.IssueCredentialStatus) => void
+import (
+  "context"
+  "log"
+  "sync"
+
+  "github.com/findy-network/agency-workshop/agent"
+  "github.com/findy-network/findy-common-go/agency/client"
+  "github.com/findy-network/findy-common-go/agency/client/async"
+  agency "github.com/findy-network/findy-common-go/grpc/agency/v1"
+  "github.com/lainio/err2"
+  "github.com/lainio/err2/try"
+)
+
+type Issuer struct {
+  agent.DefaultListener
+  conn        client.Conn
+  connections sync.Map
+  credDefID   string
 }
 
-interface Connection {
-  id: string
+type connection struct {
+  id string
 }
 
-export default (protocolClient: ProtocolClient, credDefId: string) => {
-  const connections: Connection[] = []
-
-  const addInvitation = (id: string) => {
-    connections.push({ id })
+func NewIssuer(conn client.Conn, credDefID string) *Issuer {
+  return &Issuer{
+    conn:      conn,
+    credDefID: credDefID,
   }
+}
 
-  const handleNewConnection = async (info: ProtocolInfo, didExchange: ProtocolStatus.DIDExchangeStatus) => {
-    // Skip if this connection was not for issuing
-    const connection = connections.find(({ id }) => id === info.connectionId)
-    if (!connection) {
-      return
+func (i *Issuer) getConnection(id string) *connection {
+  if anyConn, ok := i.connections.Load(id); ok {
+    if conn, ok := anyConn.(*connection); ok {
+      return conn
     }
-
-    // Create credential content
-    const attributes = new agencyv1.Protocol.IssuingAttributes()
-    const attr = new agencyv1.Protocol.IssuingAttributes.Attribute()
-    // Attribute name
-    attr.setName('foo')
-    // Attribute value
-    attr.setValue('bar')
-    attributes.addAttributes(attr)
-
-    const credential = new agencyv1.Protocol.IssueCredentialMsg()
-    credential.setCredDefid(credDefId)
-    credential.setAttributes(attributes)
-
-    // Send credential offer to the other agent
-    console.log(`Sending credential offer\n${JSON.stringify(credential.toObject())}\nto ${info.connectionId}`)
-    await protocolClient.sendCredentialOffer(connection.id, credential)
   }
-
-  const handleIssueDone = (info: ProtocolInfo, issueCredential: ProtocolStatus.IssueCredentialStatus) => {
-    console.log(`Credential\n${JSON.stringify(issueCredential.toObject())}\nwith protocol id ${info.protocolId} issued to ${info.connectionId}`)
-
-    // Remove connection from cache
-    const index = connections.findIndex(({ id }) => id === info.connectionId)
-    connections.splice(index, 1)
-  }
-
-  return {
-    addInvitation,
-    handleNewConnection,
-    handleIssueDone
-  }
+  return nil
 }
-```
 
-## 2. Hook issuer to agent listener
-
-The issuer module we created in the previous step also needs the relevant agent notifications.
-Add calls from the listener to the issuer to keep it updated.
-
-Open file `src/listen.ts`.
-
-Add the following row to imports:
-
-```ts
-import { Issuer } from './issue'
-```
-
-Add a new parameter `issuer` to the default exported function:
-
-```ts
-export default async (
-  agentClient: AgentClient,
-  protocolClient: ProtocolClient,
-  issuer: Issuer,
-) => {
-
-...
-
+func (i *Issuer) AddInvitation(id string) {
+  i.connections.Store(id, &connection{id})
 }
-```
 
-Add call to issuer's `handleNewConnection`-function whenever a new connection is established:
+func (i *Issuer) HandleNewConnection(
+  notification *agency.Notification,
+  status *agency.ProtocolStatus_DIDExchangeStatus,
+) {
+  defer err2.Catch(func(err error) {
+    log.Printf("Error handling new connection: %v", err)
+  })
 
-```ts
-      // New connection is established
-      DIDExchangeDone: async (info, didExchange) => {
+  conn := i.getConnection(notification.ConnectionID)
 
-        ...
+  if conn == nil {
+    // Connection was not for issuing, skip
+    return
+  }
 
-        // Notify issuer of new connection
-        issuer.handleNewConnection(info, didExchange)
-      },
+  // Create credential content
+  attributes := make([]*agency.Protocol_IssuingAttributes_Attribute, 1)
+  attributes[0] = &agency.Protocol_IssuingAttributes_Attribute{
+    Name:  "foo",
+    Value: "bar",
+  }
 
-```
+  log.Printf(
+    "Offer credential, conn id: %s, credDefID: %s, attrs: %v",
+    notification.ConnectionID,
+    i.credDefID,
+    attributes,
+  )
 
-Add new handler `IssueCredentialDone` to listener.
-When issuing completes, notify issuer:
+  // Send credential offer to the other agent
+  pw := async.NewPairwise(i.conn, notification.ConnectionID)
+  res := try.To1(pw.IssueWithAttrs(
+    context.TODO(),
+    i.credDefID,
+    &agency.Protocol_IssuingAttributes{
+    Attributes: attributes,
+    }),
+  )
 
-```ts
-      BasicMessageDone: async (info, basicMessage) => {
-        ...
-      },
+  log.Printf("Credential offered: %s", res.GetID())
+}
 
-      IssueCredentialDone: (info, issueCredential) => {
-        // Notify issuer of issue protocol success
-        issuer.handleIssueDone(info, issueCredential)
-      },
+func (i *Issuer) HandleIssueCredentialDone(
+  notification *agency.Notification,
+  status *agency.ProtocolStatus_IssueCredentialStatus,
+) {
+  conn := i.getConnection(notification.ConnectionID)
+
+  if conn == nil {
+    // Connection was not for issuing, skip
+    return
+  }
+
+  log.Printf(
+    "Credential issued to: %s, with id: %s",
+    notification.ConnectionID,
+    notification.ProtocolID,
+  )
+
+  i.connections.Delete(notification.ConnectionID)
+}
+
 ```
 
 ## 3. Implement the `/issue`-endpoint
 
-Open file `src/index.ts`.
+Open file `main.go`.
 
-Add the following row to imports:
+Add new field to `app` state struct:
 
-```ts
-import createIssuer from './issue'
+```go
+type app struct {
+  agencyClient *agent.AgencyClient
+  greeter      *handlers.Greeter
+  // Issuer handles the issuing logic
+  issuer       *handlers.Issuer
+}
 ```
 
-Modify function `runApp`.
+Modify function `main`.
 Create the `issuer` and give it as a parameter on listener initialization:
 
-```ts
-  // Add logic for issuing
-  const issuer = createIssuer(protocolClient, credDefId)
+```go
+func main() {
 
-  // Start listening to agent notifications
-  await listenAgent(
-    agentClient,
-    protocolClient,
-    issuer
-  )
+  ...
+
+  // Create credential definition
+  credDefId := try.To1(agencyClient.PrepareIssuing())
+
+  // Create handlers
+  myApp := app{
+    agencyClient: agencyClient,
+    greeter:      handlers.NewGreeter(agencyClient.Conn),
+    issuer:       handlers.NewIssuer(agencyClient.Conn, credDefId),
+  }
+
+  // Start listening
+  myApp.agencyClient.Listen([]agent.Listener{
+    myApp.greeter,
+    // Issuer handles the issuing logic
+    myApp.issuer,
+  })
+
+  ...
+
+}
 ```
 
 Add implementation to the `/issue`-endpoint:
 
-```ts
-  app.get('/issue', async (req: Request, res: Response) => {
-    const { id, payload } = await createInvitationPage(agentClient, 'Issue')
-    // Update issuer with invitation id
-    issuer.addInvitation(id)
-    res.send(payload)
-  });
+```go
+// Show pairwise invitation. Once connection is established, issue credential.
+func (a *app) issueHandler(response http.ResponseWriter, r *http.Request) {
+  defer err2.Catch(func(err error) {
+    log.Println(err)
+    http.Error(response, err.Error(), http.StatusInternalServerError)
+  })
+  id, html := try.To2(createInvitationPage(a.agencyClient.AgentClient, "Issue"))
+  a.issuer.AddInvitation(id)
+  try.To1(response.Write([]byte(html)))
+}
 ```
 
 ## 4. Test the `/issue`-endpoint

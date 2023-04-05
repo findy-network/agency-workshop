@@ -40,7 +40,7 @@ func (g *Greeter) HandleNewConnection(
   log.Printf("New connection %s with id %s", status.TheirLabel, notification.ConnectionID)
 
   // Greet each new connection with basic message
-  pw := async.NewPairwise(g.Conn, notification.ConnectionID)
+  pw := async.NewPairwise(g.conn, notification.ConnectionID)
   _ = try.To1(pw.BasicMessage(context.TODO(), "Hi there 👋!"))
 
   return err
@@ -75,25 +75,31 @@ Edit `Listen`-function:
 
   ...
 
+func (agencyClient *AgencyClient) Listen(listeners []Listener) {
+
+  ...
+
    // Notify listeners of protocol events
-   switch notification.GetTypeID() {
-   case agency.Notification_STATUS_UPDATE:
-    if status.State.State == agency.ProtocolState_OK {
-     switch notification.GetProtocolType() {
-     case agency.Protocol_DIDEXCHANGE:
-      for _, listener := range listeners {
-       listener.HandleNewConnection(notification, status.GetDIDExchange())
-      }
-      // Notify basic message protocol events
-     case agency.Protocol_BASIC_MESSAGE:
-      for _, listener := range listeners {
-       listener.HandleBasicMesssageDone(notification, status.GetBasicMessage())
-      }
-    
+    switch notification.GetTypeID() {
+    case agency.Notification_STATUS_UPDATE:
+      if status.State.State == agency.ProtocolState_OK {
+      switch notification.GetProtocolType() {
+        case agency.Protocol_DIDEXCHANGE:
+          for _, listener := range listeners {
+            listener.HandleNewConnection(notification, status.GetDIDExchange())
+          }
+          // Notify basic message protocol events
+        case agency.Protocol_BASIC_MESSAGE:
+          for _, listener := range listeners {
+            listener.HandleBasicMesssageDone(notification, status.GetBasicMessage())
+          }
+
       ... 
    }
 
   ...
+
+}
 ```
 
 Open file `handlers/greeter.go`.

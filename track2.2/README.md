@@ -162,7 +162,6 @@ library has functionality that helps us authenticate to the agency.
 [`findy-common-go`](https://github.com/findy-network/findy-common-go)
 library has functionality that helps us control our agent.
 
-Create folder `agent`.
 Create a new file `agent/auth.go`.
 
 Add the following content to the new file:
@@ -265,7 +264,7 @@ func main() {
   })
 
   // Login agent
-  _, _ = try.To2(agent.LoginAgent())
+  _ = try.To1(agent.LoginAgent())
 
   ...
 

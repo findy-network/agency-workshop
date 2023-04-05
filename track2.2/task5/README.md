@@ -25,183 +25,259 @@ For simplicity, we build the verification functionality into the same applicatio
 we have been working on. The underlying protocol for requesting and presenting proofs is
 [the present proof protocol](https://github.com/hyperledger/aries-rfcs/blob/main/features/0037-present-proof/README.md).
 
+## 1. Listen to present proof protocol
+
+Open file `agent/listen.go`.
+Add new methods `HandlePresentProofPaused` and `HandlePresentProofDone` to listener interface:
+
+```go
+type Listener interface {
+  HandleNewConnection(*agency.Notification, *agency.ProtocolStatus_DIDExchangeStatus)
+  HandleBasicMesssageDone(*agency.Notification, *agency.ProtocolStatus_BasicMessageStatus)
+  HandleIssueCredentialDone(*agency.Notification, *agency.ProtocolStatus_IssueCredentialStatus)
+  // Send notification to listener when present proof protocol is paused
+  HandlePresentProofPaused(*agency.Notification, *agency.ProtocolStatus_PresentProofStatus)
+  // Send notification to listener when present proof protocol is completed
+  HandlePresentProofDone(*agency.Notification, *agency.ProtocolStatus_PresentProofStatus)
+}
+```
+
+When receiving notification for the issue credential protocol, notify listeners via the new method.
+Edit `Listen`-function:
+
+```go
+
+  ...
+
+func (agencyClient *AgencyClient) Listen(listeners []Listener) {
+
+  ...
+
+    // Notify listeners of protocol events
+    switch notification.GetTypeID() {
+    case agency.Notification_STATUS_UPDATE:
+      if status.State.State == agency.ProtocolState_OK {
+        switch notification.GetProtocolType() {
+        case agency.Protocol_DIDEXCHANGE:
+          for _, listener := range listeners {
+            listener.HandleNewConnection(notification, status.GetDIDExchange())
+          }
+        case agency.Protocol_BASIC_MESSAGE:
+          for _, listener := range listeners {
+            listener.HandleBasicMesssageDone(notification, status.GetBasicMessage())
+          }
+        case agency.Protocol_ISSUE_CREDENTIAL:
+          for _, listener := range listeners {
+            listener.HandleIssueCredentialDone(notification, status.GetIssueCredential())
+          }
+          // Notify listener when present proof protocol is completed
+        case agency.Protocol_PRESENT_PROOF:
+          for _, listener := range listeners {
+            listener.HandlePresentProofDone(notification, status.GetPresentProof())
+          }
+        default:
+          log.Printf("No handler for protocol message %s\n", notification.GetProtocolType())
+        }
+      } else {
+        log.Printf("Status NOK %v for %s\n", status, notification.GetProtocolType())
+      }
+      // Notify listener when present proof protocol is paused
+    case agency.Notification_PROTOCOL_PAUSED:
+      for _, listener := range listeners {
+        listener.HandlePresentProofPaused(notification, status.GetPresentProof())
+      }
+    default:
+      log.Printf("No handler for notification %s\n", notification.GetTypeID())
+    }
+
+  ...
+
+}
+```
+
 ## 1. Add code for verifying logic
 
 Create a new file `src/verify.ts`.
 
 Add the following content to the new file:
 
-```ts
-import { agencyv1, ProtocolClient, ProtocolInfo } from '@findy-network/findy-common-ts'
-import { ProtocolStatus } from '@findy-network/findy-common-ts/dist/idl/protocol_pb'
+```go
+package handlers
 
-export interface Verifier {
-  addInvitation: (id: string) => void
-  handleNewConnection: (info: ProtocolInfo, didExchange: ProtocolStatus.DIDExchangeStatus) => Promise<void>
-  handleProofPaused: (info: ProtocolInfo, presentProof: ProtocolStatus.PresentProofStatus) => void
-  handleProofDone: (info: ProtocolInfo, presentProof: ProtocolStatus.PresentProofStatus) => void
+import (
+  "context"
+  "log"
+  "sync"
+
+  "github.com/findy-network/agency-workshop/agent"
+  "github.com/findy-network/findy-common-go/agency/client"
+  "github.com/findy-network/findy-common-go/agency/client/async"
+  agency "github.com/findy-network/findy-common-go/grpc/agency/v1"
+  "github.com/lainio/err2"
+  "github.com/lainio/err2/try"
+)
+
+type Verifier struct {
+  agent.DefaultListener
+  conn        client.Conn
+  connections sync.Map
+  credDefID   string
 }
 
-export default (protocolClient: ProtocolClient, credDefId: string) => {
-  const invitations: string[] = []
-
-  const addInvitation = (id: string) => {
-    invitations.push(id)
+func NewVerifier(conn client.Conn, credDefID string) *Verifier {
+  return &Verifier{
+    conn:      conn,
+    credDefID: credDefID,
   }
+}
 
-  const handleNewConnection = async (info: ProtocolInfo, didExchange: ProtocolStatus.DIDExchangeStatus) => {
-    // Skip if this connection was not for verifying
-    if (!invitations.includes(info.connectionId)) {
-      return
+func (v *Verifier) getConnection(id string) *connection {
+  if anyConn, ok := v.connections.Load(id); ok {
+    if conn, ok := anyConn.(*connection); ok {
+      return conn
     }
-
-    // Create proof request
-    const attributes = new agencyv1.Protocol.Proof()
-    const attr = new agencyv1.Protocol.Proof.Attribute()
-    attr.setName("foo")
-    attr.setCredDefid(credDefId)
-    attributes.addAttributes(attr)
-
-    const proofRequest = new agencyv1.Protocol.PresentProofMsg()
-    proofRequest.setAttributes(attributes)
-
-    // Send proof request to the other agent
-    console.log(`Sending proof request\n${JSON.stringify(proofRequest.toObject())}\nto ${info.connectionId}`)
-    await protocolClient.sendProofRequest(info.connectionId, proofRequest)
   }
-
-  const handleProofPaused = async (info: ProtocolInfo, presentProof: ProtocolStatus.PresentProofStatus) => {
-    console.log(`Proof\n${JSON.stringify(presentProof.toObject())}\nwith protocol id ${info.protocolId} paused from ${info.connectionId}`)
-
-    // This function is called after proof is verified cryptographically.
-    // The application can execute its business logic and reject the proof
-    // if the attribute values are not valid.
-    const protocolID = new agencyv1.ProtocolID()
-    protocolID.setId(info.protocolId)
-    protocolID.setTypeid(agencyv1.Protocol.Type.PRESENT_PROOF)
-    protocolID.setRole(agencyv1.Protocol.Role.RESUMER)
-    const msg = new agencyv1.ProtocolState()
-    msg.setProtocolid(protocolID)
-
-    // We have no special logic here - accept all received values
-    msg.setState(agencyv1.ProtocolState.State.ACK)
-    console.log(`Resuming proof with for protocol ${info.protocolId} with payload ${JSON.stringify(msg.toObject())}`)
-    await protocolClient.resume(msg)
-  }
-
-  const handleProofDone = (info: ProtocolInfo, presentProof: ProtocolStatus.PresentProofStatus) => {
-    console.log(`Proof\n${JSON.stringify(presentProof.toObject())}\nwith protocol id ${info.protocolId} verified from ${info.connectionId}`)
-
-    // Remove invitation id from cache
-    const index = invitations.indexOf(info.connectionId)
-    invitations.splice(index, 1)
-  }
-
-  return {
-    addInvitation,
-    handleNewConnection,
-    handleProofPaused,
-    handleProofDone
-  }
+  return nil
 }
-```
 
-## 2. Hook verifier to agent listener
-
-The verifier module we created in the previous step also needs the relevant agent notifications.
-Add calls from the listener to the verifier to keep it updated.
-
-Open file `src/listen.ts`.
-
-Add the following row to imports:
-
-```ts
-import { Verifier } from './verify'
-```
-
-Add a new parameter `verifier` to the default exported function:
-
-```ts
-export default async (
-  agentClient: AgentClient,
-  protocolClient: ProtocolClient,
-  issuer: Issuer,
-  verifier: Verifier,
-) => {
-
-...
-
+func (v *Verifier) AddInvitation(id string) {
+  v.connections.Store(id, &connection{id})
 }
-```
 
-Add call to verifier's `handleNewConnection`-function whenever a new connection is established:
+func (v *Verifier) HandleNewConnection(
+  notification *agency.Notification,
+  status *agency.ProtocolStatus_DIDExchangeStatus,
+) {
+  defer err2.Catch(func(err error) {
+    log.Printf("Error handling new connection: %v", err)
+  })
 
-```ts
-      // New connection is established
-      DIDExchangeDone: async (info, didExchange) => {
+  conn := v.getConnection(notification.ConnectionID)
 
-        ...
+  if conn == nil {
+    // Connection was not for verifying, skip
+    return
+  }
 
-        // Notify verifier of new connection
-        verifier.handleNewConnection(info, didExchange)
-      },
+  // Create proof request content
+  attributes := make([]*agency.Protocol_Proof_Attribute, 1)
+  attributes[0] = &agency.Protocol_Proof_Attribute{
+    CredDefID: v.credDefID,
+    Name:      "foo",
+  }
 
-```
+  log.Printf("Request proof, conn id: %s, attrs: %v", notification.ConnectionID, attributes)
 
-Add new handlers `PresentProofPaused` and `PresentProofDone` to the listener.
-`PresentProofPaused` is called when the proof
-and `PresentProofDone` to listener.
-With both notifications, notify verifier:
+  // Send the proof request
+  pw := async.NewPairwise(v.conn, notification.ConnectionID)
+  res := try.To1(pw.ReqProofWithAttrs(context.TODO(), &agency.Protocol_Proof{
+    Attributes: attributes,
+  }))
 
-```ts
-      IssueCredentialDone: async (info, issueCredential) => {
-        ...
-      },
+  log.Printf("Proof request sent: %s", res.GetID())
+}
 
-      PresentProofPaused: (info, presentProof) => {
-        verifier.handleProofPaused(info, presentProof)
-      },
+// This function is called after proof is verified cryptographically.
+// The application can execute its business logic and reject the proof
+// if the attribute values are not valid.
+func (v *Verifier) HandlePresentProofPaused(
+  notification *agency.Notification,
+  status *agency.ProtocolStatus_PresentProofStatus,
+) {
 
-      PresentProofDone: (info, presentProof) => {
-        verifier.handleProofDone(info, presentProof)
-      },
+  pw := async.NewPairwise(v.conn, notification.ConnectionID)
+
+  // we have no special logic here - accept all received values
+  res := try.To1(pw.Resume(
+    context.TODO(),
+    notification.ProtocolID,
+    agency.Protocol_PRESENT_PROOF,
+    agency.ProtocolState_ACK,
+  ))
+
+  log.Printf("Proof continued: %s", res.GetID())
+}
+
+func (v *Verifier) HandlePresentProofDone(
+  notification *agency.Notification,
+  status *agency.ProtocolStatus_PresentProofStatus,
+) {
+  conn := v.getConnection(notification.ConnectionID)
+
+  if conn == nil {
+    // Connection was not for issuing, skip
+    return
+  }
+
+  log.Printf(
+    "Proof verified from: %s, with id: %s",
+    notification.ConnectionID,
+    notification.ProtocolID,
+  )
+
+  v.connections.Delete(notification.ConnectionID)
+}
+
 ```
 
 ## 3. Implement the `/verify`-endpoint
 
-Open file `src/index.ts`.
+Open file `main.go`.
 
-Add the following row to imports:
+Add new field `verifier` to `app` state struct:
 
-```ts
-import createVerifier from './verify'
+```go
+type app struct {
+  agencyClient *agent.AgencyClient
+  greeter      *handlers.Greeter
+  issuer       *handlers.Issuer
+  // Verifier handles the verifying logic
+  verifier     *handlers.Verifier
+}
 ```
 
-Modify function `runApp`.
+Modify function `main`.
 Create the `verifier` and give it as a parameter on listener initialization:
 
-```ts
-  // Add logic for verifying
-  const verifier = createVerifier(protocolClient, credDefId)
+```go
+func main() {
 
-  // Start listening to agent notifications
-  await listenAgent(
-    agentClient,
-    protocolClient,
-    issuer,
-    verifier
-  )
+  ...
+
+  // Create handlers
+  myApp := app{
+    agencyClient: agencyClient,
+    greeter:      handlers.NewGreeter(agencyClient.Conn),
+    issuer:       handlers.NewIssuer(agencyClient.Conn, credDefId),
+    // Handler for verifying logic
+    verifier:     handlers.NewVerifier(agencyClient.Conn, credDefId),
+  }
+
+// Start listening
+  myApp.agencyClient.Listen([]agent.Listener{
+    myApp.greeter,
+    myApp.issuer,
+    // Add verifier to listener array
+    myApp.verifier,
+  })
+
+  ...
+}
 ```
 
 Add implementation to the `/verify`-endpoint:
 
-```ts
-  app.get('/verify', async (req: Request, res: Response) => {
-    const { id, payload } = await createInvitationPage(agentClient, 'Verify')
-    // Update verifier with invitation id
-    verifier.addInvitation(id)
-    res.send(payload)
-  });
+```go
+// Show pairwise invitation. Once connection is established, verify credential.
+func (a *app) verifyHandler(response http.ResponseWriter, r *http.Request) {
+  defer err2.Catch(func(err error) {
+    log.Println(err)
+    http.Error(response, err.Error(), http.StatusInternalServerError)
+  })
+  id, html := try.To2(createInvitationPage(a.agencyClient.AgentClient, "Verify"))
+  a.verifier.AddInvitation(id)
+  try.To1(response.Write([]byte(html)))
+}
 ```
 
 ## 4. Test the `/verify`-endpoint

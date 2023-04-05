@@ -109,18 +109,27 @@ import (
 )
 
 type app struct {
-  agentClient agency.AgentServiceClient
+  agencyClient *agent.AgencyClient
 }
 ```
 
 Modify `LoginAgent`-call to the following:
 
 ```go
+func main() {
+
+  ...
+
   // Login agent
-  agentClient, _ := try.To2(agent.LoginAgent())
+  agencyClient := try.To1(agent.LoginAgent())
+
   myApp := app{
-    agentClient: agentClient,
+    agencyClient: agencyClient,
   }
+
+  ...
+
+}
 
 ```
 
@@ -287,11 +296,17 @@ package handlers
 import (
   "log"
 
+  "github.com/findy-network/agency-workshop/agent"
   agency "github.com/findy-network/findy-common-go/grpc/agency/v1"
 )
 
-type Greeter struct{
-  Conn client.Conn
+type Greeter struct {
+  agent.DefaultListener
+  conn client.Conn
+}
+
+func NewGreeter(conn client.Conn) *Greeter {
+  return &Greeter{conn: conn}
 }
 
 func (g *Greeter) HandleNewConnection(
@@ -318,20 +333,37 @@ import (
   ...
 )
 
+type app struct {
+  agencyClient *agent.AgencyClient
+  // Store greeter handler to app state
+  greeter      *handlers.Greeter
+}
+
+
+  ...
+
+func main() {
+
   ...
 
   // Login agent
+  agencyClient := try.To1(agent.LoginAgent())
+
+// Create handlers
   myApp := app{
-    agencyClient: try.To1(agent.LoginAgent()),
+    agencyClient: agencyClient,
+    greeter:      handlers.NewGreeter(agencyClient.Conn),
   }
 
   // Start listening
   myApp.agencyClient.Listen([]agent.Listener{
     // Greeter handles the greeting logic
-    &handlers.Greeter{Conn: myApp.agencyClient.Conn},
+    myApp.greeter,
   })
 
   ...
+
+}
 ```
 
 ## 9. Check the name of the web wallet user

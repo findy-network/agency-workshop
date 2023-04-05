@@ -114,12 +114,10 @@ func main() {
   ...
 
   // Login agent
-  myApp := app{
-    agencyClient: try.To1(agent.LoginAgent()),
-  }
+  agencyClient := try.To1(agent.LoginAgent())
 
   // Create credential definition
-  myApp.agencyClient.PrepareIssuing()
+  _ = try.To1(agencyClient.PrepareIssuing())
 
   ...
 
