@@ -265,7 +265,7 @@ func main() {
 }
 ```
 
-Add implementation to the `/verify`-endpoint:
+Replace the implementation in the `/verify`-endpoint with the following:
 
 ```go
 // Show pairwise invitation. Once connection is established, verify credential.
@@ -282,7 +282,7 @@ func (a *app) verifyHandler(response http.ResponseWriter, r *http.Request) {
 
 ## 4. Test the `/verify`-endpoint
 
-Make sure the server is running (`npm run dev`).
+Make sure the server is restarted (`go run .`).
 Open your browser to <http://localhost:3001/verify>
 
 *You should see a simple web page with a QR code and a text input with a prefilled string.*
