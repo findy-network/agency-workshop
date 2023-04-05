@@ -74,6 +74,8 @@ export default async (agentClient: AgentClient, tag: string) => {
 
   const prepareIssuing = async (): Promise<string> => {
     // A dummy schema name
+    // Note: creation of schema may fail, if it already exists
+    // If this happens, pick a new unique schema name or version and retry
     const schemaName = 'foobar'
     console.log(`Creating schema ${schemaName}`)
 
@@ -83,8 +85,14 @@ export default async (agentClient: AgentClient, tag: string) => {
     // List of dummy attributes
     schemaMsg.setAttributesList(['foo'])
 
-    const schemaId = (await agentClient.createSchema(schemaMsg)).getId()
-    return await createCredDef(schemaId)
+    try {
+      const schemaId = (await agentClient.createSchema(schemaMsg)).getId()
+      return await createCredDef(schemaId)
+    } catch (err) {
+      console.log(`Schema creation failed. Are you trying to recreate an existing schema? ` +
+         `Pick an unique schema name or version instead.`)
+      process.exit(1)
+    }
   }
 
   // We store the cred def id to a text file
