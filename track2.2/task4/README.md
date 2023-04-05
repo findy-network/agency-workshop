@@ -238,7 +238,7 @@ func main() {
 }
 ```
 
-Add implementation to the `/issue`-endpoint:
+Replace the implementation in the `/issue`-endpoint with the following:
 
 ```go
 // Show pairwise invitation. Once connection is established, issue credential.
@@ -255,7 +255,7 @@ func (a *app) issueHandler(response http.ResponseWriter, r *http.Request) {
 
 ## 4. Test the `/issue`-endpoint
 
-Make sure the server is running (`npm run dev`).
+Make sure the server is restarted (`go run .`).
 Open your browser to <http://localhost:3001/issue>
 
 *You should see a simple web page with a QR code and a text input with a prefilled string.*

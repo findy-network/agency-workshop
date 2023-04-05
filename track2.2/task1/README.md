@@ -143,7 +143,7 @@ func (a *app) greetHandler(response http.ResponseWriter, r *http.Request) {
 
 ## 4. Test the `/greet`-endpoint
 
-Make sure the server is running (`npm run dev`).
+Make sure the server is restarted (`go run .`).
 Open a browser window to <http://localhost:3001/greet>
 
 *You should see a simple web page with a QR code and a text input with a prefilled string.*
