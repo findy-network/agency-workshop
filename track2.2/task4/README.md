@@ -238,7 +238,7 @@ func main() {
 }
 ```
 
-Add implementation to the `/issue`-endpoint:
+Replace the implementation in the `/issue`-endpoint with the following:
 
 ```go
 // Show pairwise invitation. Once connection is established, issue credential.
