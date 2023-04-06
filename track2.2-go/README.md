@@ -65,7 +65,7 @@ See instructions [here](../agency-local/README.md).
 
 ### **4. Open the Go application in a dev container**
 
-Open folder `./track2.2/app` in VS Code.
+Open folder `./track2.2-go/app` in VS Code.
 
 VS Code asks if you want to develop the project in a dev container. Click "Reopen in Container."
 

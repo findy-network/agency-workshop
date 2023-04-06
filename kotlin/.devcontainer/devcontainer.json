@@ -26,5 +26,7 @@
   "containerEnv": {
     "USERNAME": "${localEnv:USERNAME}",
     "TOKEN": "${localEnv:TOKEN}"
-  }
+  },
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+  "workspaceFolder": "/workspace"
 }
