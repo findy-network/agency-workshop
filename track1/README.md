@@ -49,14 +49,15 @@ Unix terminal & shell.
 You can also set up some extra tools. However, these instructions describe only
 how to work with the recommended tooling.
 
-If you still wish to go to the wild side, make sure you have these tools available:
+If you still wish to go to the dark side, make sure you have these tools available:
 
-* FIDO2 capable Web browser of your choice
-* [direnv](https://direnv.net/) (*optional*, but useful)
+- tmux or screen
+- [direnv](https://direnv.net/) (*optional*, but useful)
+- FIDO2 capable Web browser of your choice
 
 </details><br/>
 
-### **3. 🤠 Install Findy Agency**
+### 3. 🤠 Install Findy Agency
 
 If you are participating in a guided workshop, you will likely have a cloud
 installation of Findy Agency available. Skip this step.
@@ -69,28 +70,10 @@ See instructions [here](../agency-local/README.md).
 
 </details><br/>
 
-### **4. Open the Typescript application in a dev container**
+### 4. Set environment variables
 
-Open folder `./track2.1/app` to VS Code.
-
-VS Code asks if you want to develop the project in a dev container. Click "Reopen in Container."
-
-![VS Code Dialog](./docs/dev-container-dialog.png)
-
-If you do not see this dialog, activate the dev container menu using the dev container button
-on the bottom left corner:
-
-![VS Code Button](./docs/dev-container-button.png)
-
-It will take a while for VS Code to pull and set up your dev container.
-When it completes the process, VS Code opens a new Terminal window for you
-to the root of the Typescript application.
-
-![VS Code Terminal](./docs/dev-container-terminal.png)
-
-### **5. Set environment variables**
-
-The agency environment provides a script for setting up the needed environment variables automatically.
+The agency environment provides a script for setting up the needed environment
+variables automatically.
 
 Run following script in the dev container terminal:
 
@@ -98,12 +81,22 @@ Run following script in the dev container terminal:
 source <(curl <agency_url>/set-env.sh)
 ```
 
-The agency URL is provided for you in the guided workshop. e.g. `https://agency.example.com`
+The agency URL is provided for you in the guided workshop. e.g.
+`https://agency.example.com`
+
+The script will export the needed environment variables. It will also create
+file `.envrc` that contains these variables. Typing `direnv allow` will ensure
+that the variables are automatically exported when you open a new terminal
+window in this folder.
+
+If you don't have direnv installed, you can export the variables by typing `source .envrc`.
 
 <details>
-<summary>🤠 Local setup</summary>
+<summary>🤠 Local setup (WebServer&docker)</summary>
 
-For local agency installation, use the web wallet URL `http://localhost:3000`:
+For [local agency
+installation](https://github.com/findy-network/findy-wallet-pwa/blob/master/tools/env/README.md#agency-setup-for-local-development),
+use the web wallet URL `http://localhost:3000`:
 
 ```bash
 source <(curl http://localhost:3000/set-env.sh)
@@ -111,14 +104,89 @@ source <(curl http://localhost:3000/set-env.sh)
 
 </details><br/>
 
-The script will export the needed environment variables. It will also create file `.envrc`
-that contains these variables. Typing `direnv allow` will ensure that the variables
-are automatically exported when you open a new terminal window in this folder.
+<details>
+<summary>🤠 Local setup (Native from sources)</summary>
+
+You need to have Go 1.20 installed to run needed Agency services from sources:
+**but you don't need docker and network access**.
+
+Clone the needed Agency service source repos:
+```console
+git clone https://github.com/findy-network/findy-wrapper-go.git
+git clone https://github.com/findy-network/findy-agent-auth.git
+git clone https://github.com/findy-network/findy-agent.git
+git clone https://github.com/findy-network/findy-agent-cli.git
+```
+
+Start the FIDO2 Server:
+```console
+cd <findy-agent-auth-repo>
+cd scripts; ./mem-dev-server.sh
+```
+
+Start the Agency Core Server:
+```console
+cd <findy-agent-repo>
+cd scripts/test
+no_clean=1 enclave=MEMORY_enclave.bolt ./mem-server --reset-register --grpc-cert-path ../../grpc/cert
+```
+
+Start the Findy Agent CLI to command your local agency (in a new terminal/window/tab):
+```console
+cd <findy-agent-cli-repo>
+make cli # builds and installs binary named cli in your path
+cd scripts/fullstack
+source ./setup-cli-env-local.sh
+admin/register && . admin/login
+cli agency count # tells how many cloud agent/wallet is running/onboarded
+```
+
+After you have verified that everything above works with:
+```console
+# continue in findy-agent-cli/scripts/fullstack 
+./make-play-agent.sh test-alice test-bob
+pushd test-alice
+cli agent ping
+# do something else with `test-alice` and `test-bob` like:
+cd $(./invitation | ../test-bob/connect)
+cli connection trustping
+popd
+./rm-play-agent.sh test-alice test-bob # cleanup wallets and client stores
+# typically you shutdown FIDO2 and Core servers at this point
+```
+
+Now you can build whole new starting script to bring your local Findy Agency up
+and open some windows to play with it. Below is a `tmuxinator` example to use
+with `tmux`:
+
+```yaml
+# tmuxinator file to start local Findy Agency playground
+name: play
+# In this example findy-network is in GOPATH but you should use the common root
+# of your previously cloned 3 findy repos.
+root: ~/go/src/github.com/findy-network
+
+windows:
+  - devops:
+      layout: main-vertical
+      panes:
+        - # empty shell
+        - # empty shell
+  - running:
+      layout: tiled
+      panes:
+        - cd findy-agent-auth/scripts; ./mem-dev-run.sh
+        - cd findy-agent/scripts/test; no_clean=1 enclave=MEMORY_enclave.bolt ./mem-server --reset-register
+        - cd findy-agent-cli/scripts/fullstack; source ./setup-cli-env-local.sh
+        - cd findy-agent-cli/scripts/fullstack; source ./setup-cli-env-local.sh
+        - cd findy-agent-cli/scripts/fullstack; source ./setup-cli-env-local.sh
+        - cd findy-agent-cli/scripts/fullstack; source ./setup-cli-env-local.sh
+```
+</details><br/>
 
 <details>
 <summary>🤠 No direnv?</summary>
 
-If you don't have direnv installed, you can export the variables by typing `source .envrc`.
 
 </details><br/>
 
@@ -135,7 +203,7 @@ source <(curl <agency_url>/set-env.sh)
 
 *The username needs to be unique in the agency context.*
 
-### **6. Start the application** for the first time
+### 6. Start the application for the first time
 
   When starting the application for the first time, run following commands:
 
@@ -159,7 +227,7 @@ source <(curl <agency_url>/set-env.sh)
   `/`, `/greet`, `/issue` and `/verify`. Next step is to start adding some actual code
   to the server skeleton.
 
-### **7. Create connection to the agency**
+### 7. Create connection to the agency
 
 Add a new dependency to your project:
 
@@ -236,7 +304,7 @@ With further server starts, this error should disappear.
 Verify that you see logs similar to this:
 ![First login log](./docs/log-first-login.png)
 
-### **8. Continue with task 1**
+### 8. Continue with task 1
 
 Congratulations, you have completed task 0 and have
 a working agency client development environment available!
