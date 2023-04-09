@@ -68,7 +68,7 @@ build_agency() {
 
 build_cli() {
 	pushd "$install_root/findy-agent-cli" > /dev/null
-	# git checkout <branch>
+	git checkout playground-tuning-for-workshop
 	make cli
 	popd > /dev/null
 }
@@ -144,6 +144,10 @@ bind X confirm-before kill-session
 EOF
 }
 
+install_uuid_runtime() {
+	sudo apt install -y uuid-runtime
+}
+
 install_tmuxinator_play() {
 	mkdir "$HOME/.config/tmuxinator"
 	sudo apt install -y tmuxinator
@@ -191,6 +195,7 @@ build_cli
 build_auth
 install_tmux_conf
 install_tmuxinator_play
+install_uuid_runtime
 
 # steward creation: DONE
 # don't use mem/ -dir for findy.json or create it: DONE
