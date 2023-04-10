@@ -2,17 +2,18 @@
 
 ## Introduction
 
-Welcome to [Findy Agency](https://findy-network.github.io) Workshop! This workshop is for those
-who wish to learn how to build
-applications that utilize verifiable credentials through the Findy Agency platform.
+Welcome to [Findy Agency](https://findy-network.github.io) Workshop! This
+workshop is for those who wish to learn how to build applications that utilize
+verifiable credentials through the Findy Agency platform.
 
 During the workshop, you will learn
 
-* how to setup the development environment for your Findy Agency client,
-* how your client can onboard and authenticate to the agency,
-* how your client can create pairwise invitations and connect to other agents,
-* how your client can issue credentials to other agents, and
-* how your client can verify credentials presented by other agents.
+1. how to *setup the development environment* for your Findy Agency client,
+2. how your client can *onboard and authenticate* to the agency,
+3. how your client can *create pairwise invitations and connect* to other agents,
+4. how your client can *issue credentials* to other agents, and
+5. how your client can *verify credentials* presented by other agents.
+6. how your clients can *run own FSM* as well. [Option]
 
 This repository contains all of the needed material for the workshop.
 You can do the workshop at your own pace, either in a guided workshop session
