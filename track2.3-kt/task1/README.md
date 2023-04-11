@@ -319,7 +319,7 @@ class AppController {
 
 ## 9. Check the name of the web wallet user
 
-Refresh the `/greet`-page and create a new connection using the web wallet UI.
+Restart the server, refresh the `/greet`-page and create a new connection using the web wallet UI.
 
 Check that the server logs print out the web wallet user name.
 

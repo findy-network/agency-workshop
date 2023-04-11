@@ -210,7 +210,7 @@ Replace the implementation in the `/verify`-endpoint with the following:
 
 ## 4. Test the `/verify`-endpoint
 
-Make sure the server is restarted (`go run .`).
+Make sure the server is restarted (`gradle bootRun`).
 Open your browser to <http://localhost:3001/verify>
 
 *You should see a simple web page with a QR code and a text input with a prefilled string.*
