@@ -1,4 +1,4 @@
-# Track 2.1 - Task 1: Create a new connection
+# Track 1.1 - Task 1: Create a new connection
 
 An agent's primary capability is peer-to-peer messaging, which allows for exchanging messages
 between agents. These interactions can range from simple plaintext messages to more complex tasks
