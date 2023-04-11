@@ -11,50 +11,33 @@ development.
 
 ## Task 0: Setup environment
 
-### 1. Clone this repository to your workspace
+### 1. Clone these repositories to your GOPATH/src or what you prefer
 
 ```shell
 git clone https://github.com/findy-network/agency-workshop.git
-```
-
-<details>
-<summary>🤠 Extra scripts</summary>
-
-Also clone `findy-agent-cli` to get *the actual helper scripts* for your use.
-```shell
 git clone https://github.com/findy-network/findy-agent-cli.git
 ```
+
+As you noticed, you are cloning the `findy-agent-cli` repo as well to get *the
+actual helper scripts* for your use.
+
 The scripts are located `scripts/fullstack/`. The directory contains `README.md`
 where some of the scripts are documented. It presents few examples as well.
-
-</details><br/>
 
 ### 2. Install The Tooling
 
 The prerequisites for the FSM track are:
-1. You should have a Unix and terminal access. The shell can be what ever, but
-  `bash` is preferred because it's mostly used by the dev team.
+1. You should have a Unix and terminal access. The shell can be whatever, but
+  `bash` is preferred because it's mostly tested by the dev team.
 2. [`findy-agent-cli`](https://github.com/findy-network/findy-agent-cli#installation)
    installed.
 3. And most importantly, you should have access to [Findy
    Agency](https://findy-network.github.io). After CLI is successfully installed
    you need to setup it's execution environment, i.e. bind it to the Findy Agency.
 
-Everything presented here can be executed just by using `findy-agent-cli` and
-Unix terminal & shell.
-
-<details>
-<summary>🤠 Other options</summary>
-
-You can also set up some extra tools. However, these instructions describe only
-how to work with the recommended tooling.
-
-If you still wish to go to the dark side, make sure you have these tools available:
-
-- tmux & tmuxinator or screen
-- [direnv](https://direnv.net/) (*optional*, but useful)
-
-</details><br/>
+Everything presented here can be executed just by using `findy-agent-cli` (later
+just `cli`) and Unix terminal & shell. (Terminal multiplexers and tiling window 
+managers might help you during these tasks.)
 
 ### 3. 🤠 Install Findy Agency
 
@@ -88,9 +71,8 @@ file `.envrc` that contains these variables. Typing `direnv allow` will ensure
 that the variables are automatically exported when you open a new terminal
 window in this folder.
 
-If you don't have direnv installed, you can export the variables by typing
+If you don't have `direnv` installed, you can export the variables by typing
 `source .envrc`.
-
 <details>
 <summary>🤠 Local setup (WebServer&docker)</summary>
 
@@ -101,9 +83,7 @@ use the web wallet URL `http://localhost:3000`:
 ```bash
 source <(curl http://localhost:3000/set-env.sh)
 ```
-
 </details><br/>
-
 <details>
 <summary>🤠 Local setup (Native from sources)</summary>
 
@@ -112,9 +92,9 @@ You need to have Go 1.20 installed to run needed Agency services from sources:
 
 In case you want to play with the sources or you want to get touch of how the
 whole system feels to run locally from sources. 
-See instructions [here](../agency-native/README.md). There is one script
-(`setup.sh`) which installs all the needed repos and tmuxinator script to start
-the system playground. The script target Debian Linux.
+See instructions [here](../agency-native/README.md). There is a script
+(`setup.sh`) which installs all the needed repos and a tmuxinator script to start
+the system playground. The script targets a Debian Linux.
 
 Clone the needed Agency service source repos:
 ```console
@@ -169,8 +149,9 @@ script includes tmuxinator configuration that is installed by it with the name
 ```console
 tmuxinator play
 ```
+</details><br/>
 
-### 8. Continue with task 1
+### 5. Continue with task 1
 
 Congratulations, you have completed task 0 and have
 a working agency client development environment available!

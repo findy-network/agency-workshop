@@ -1,1 +1,36 @@
 # Track 1.1 - Task 2: Send greetings
+
+In the previous task, we learned how to establish e2e-encrypted messaging pipes
+between agents. Now we send our first messages using this communication pipe.
+
+Agents interact using Hyperledger Aries protocols. There are different protocols
+for different purposes. Agents send text messages to each other using [basic
+message
+protocol](https://github.com/hyperledger/aries-rfcs/blob/main/features/0095-basic-message/README.md).
+
+## 0. Receive a text message
+
+In the terminal window 1:
+```shell
+cd $FCLI_PATH/findy-agent-cli/scripts/fullstack
+cd play/hello/<UUID-from-task1>
+cli agent ping # you should see the message: Agent register by name: hello
+cli bot read # now, leave this here until ALL the tasks are done
+```
+
+## 1. Send a text message
+
+In the terminal window 2:
+```shell
+# execute next 2 commands only if you have to.
+cd $FCLI_PATH/findy-agent-cli/scripts/fullstack
+cd play/world/<UUID-from-task1>
+echo "Hello world!" | cli bot chat    # look at terminal 1
+```
+
+## 2. Continue with task 3
+
+Congratulations, you have completed task 2 and you know now how to send a basic
+text message over a DIDComm connection.
+
+You can now continue with [task 3](../task3/README.md).
