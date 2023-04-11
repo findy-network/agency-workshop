@@ -42,7 +42,7 @@ type Listener interface {
 }
 ```
 
-When receiving notification for the issue credential protocol, notify listeners via the new method.
+When receiving notification for the present proof protocol, notify listeners via the new methods.
 Edit `Listen`-function:
 
 ```go
@@ -95,7 +95,7 @@ func (agencyClient *AgencyClient) Listen(listeners []Listener) {
 }
 ```
 
-## 1. Add code for verifying logic
+## 2. Add code for verifying logic
 
 Create a new file `src/verify.ts`.
 

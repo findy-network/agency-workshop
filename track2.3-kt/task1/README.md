@@ -27,63 +27,109 @@ communication pipeline that they can use to transmit other protocol messages.
 
 ## 1. Add library for creating QR codes
 
+Open file `build.gradle.kts`.
+
 Add a new dependency to your project:
 
-```bash
-npm install qrcode --save
-npm install @types/qrcode --save-dev
+```kotlin
+dependencies {
+    // add library for creating QR codes
+    implementation("com.google.zxing:core:3.5.1")
+
+    implementation("org.findy_network:findy-common-kt-client:0.0.13")
+    implementation("org.findy_network:findy-common-kt-stub:0.0.13")
+
+    ...
+}
 ```
 
 This library will enable us to transform strings into QR codes.
 
-Open file `src/index.ts`.
+Open file `src/main/kotlin/fi/oplab/findyagency/workshop/WorkshopApplication.kt`.
 
-Add following row to imports:
+Add following rows to imports:
 
-```ts
-import QRCode from 'qrcode'
+```kotlin
+import kotlinx.serialization.decodeFromString
+import org.findy_network.findy_common_kt.*
+
+...
+
 ```
 
 ## 2. Create a connection invitation
 
-Add **`agencyv1`** and **`AgentClient`** to objects imported from `findy-common-ts`:
+Continue editing file `WorkshopApplication.kt`.
 
-```ts
-import { agencyv1, AgentClient, createAcator, openGRPCConnection } from '@findy-network/findy-common-ts'
+Add new declaration for data class `InvitationData`:
+
+```kotlin
+@kotlinx.serialization.Serializable data class InvitationData(
+  @kotlinx.serialization.SerialName("@id") val id: String
+)
 ```
 
-`agencyv1` will provide us with the namespace for the agency API structures.
-`AgentClient` provides us access to the agency agent API.
+Modify class `AppController`.
+Add new functions `createInvitationPage`, `createInvitation` and `createQRCode` for
+creating an HTML page with connection invitation information:
 
-Add new function `createInvitationPage` for creating an HTML page
-with connection invitation information:
+```kotlin
+class AppController {
+  ...
 
-```ts
-const createInvitationPage = async (agentClient: AgentClient, header: string) => {
-  // Invitation input
-  const msg = new agencyv1.InvitationBase()
-  // Whichever name we want to expose from ourselves to the other end
-  msg.setLabel(process.env.FCLI_USER!)
+  fun createInvitationPage(header: String): Pair<String, String> {
 
-  // Agency API call for creating the DIDComm connection invitation
-  const invitation = await agentClient.createInvitation(msg)
+    // Create invitation to our agent
+    val invitation = createInvitation()
 
-  console.log(`Created invitation with Findy Agency: ${invitation.getUrl()}`)
-  // Convert invitation string to QR code
-  const qrData = await QRCode.toDataURL(invitation.getUrl())
+    // Parse invitation id
+    val data = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
+      .decodeFromString<InvitationData>(invitation.getJSON())
+    println("Created invitation with id ${data.id}")
 
-  // Create HTML payload
-  const payload = `<html>
-  <h1>${header}</h1>
-  <p>Read the QR code with the wallet application:</p>
-  <img src="${qrData}"/>
-  <p>or copy-paste the invitation:</p>
-  <textarea onclick="this.focus();this.select()" readonly="readonly" rows="10" cols="60">${
-    invitation.getUrl()
-    }</textarea></html>`;
+    val imgSrc = "data:image/png;base64," + createQRCode(invitation.url)
+    val html = """<html>
+    <h1>${header}</h1>
+    <p>Read the QR code with the wallet application:</p>
+    <img src="${imgSrc}"/>
+    <p>or copy-paste the invitation:</p>
+    <textarea onclick="this.focus();this.select()" readonly="readonly" rows="10" cols="60">${invitation.url}</textarea></html>"""
 
-  // Return invitation id and the HTML payload
-  return { id: JSON.parse(invitation.getJson())['@id'], payload }
+    // return both html page and invitation id
+    return Pair(html, data.id)
+  }
+
+  fun createInvitation(): Invitation = kotlinx.coroutines.runBlocking {
+    // Use as label whichever name we want to expose from ourselves to the other end
+    agent.connection.agentClient.createInvitation(label = System.getenv("FCLI_USER"))
+  }
+
+  // Utility for converting string to QR code
+  fun createQRCode(value: String): String {
+    val writer = com.google.zxing.qrcode.QRCodeWriter()
+    val bitMatrix = writer.encode(value, com.google.zxing.BarcodeFormat.QR_CODE, 512, 512)
+    val width = bitMatrix.width
+    val height = bitMatrix.height
+    val bitmap = java.awt.image.BufferedImage(
+      width,
+      height,
+      java.awt.image.BufferedImage.TYPE_USHORT_565_RGB
+    )
+    for (x in 0 until width) {
+      for (y in 0 until height) {
+        bitmap.setRGB(
+          x,
+          y,
+          if (bitMatrix.get(x, y)) java.awt.Color.BLACK.getRGB() else java.awt.Color.WHITE.getRGB()
+        )
+      }
+    }
+    val out = java.io.ByteArrayOutputStream()
+    javax.imageio.ImageIO.write(bitmap, "PNG", out)
+    return java.util.Base64.getEncoder().encodeToString(out.toByteArray())
+  }
+
+...
 }
 ```
 
@@ -92,32 +138,22 @@ const createInvitationPage = async (agentClient: AgentClient, header: string) =>
 Let's add implementation to the `/greet`-endpoint.
 The function should respond with an HTML page that renders a QR code for a DIDComm connection invitation.
 
-First, create the agent API client using the agency connection.
-Modify `runApp`-function to the following:
+Replace the implementation of the `/greet`-endpoint:
 
-```ts
-const runApp = async () => {
-  const { createAgentClient } = await setupAgentConnection()
+```kotlin
+...
 
-  // Create API client using the connection
-  const agentClient = await createAgentClient()
+  @GetMapping("/greet") fun greet(): String {
+    val (html) = createInvitationPage("Greet")
+    return html
+  }
 
-  ...
-}
-```
-
-Then, add implementation to the `/greet`-endpoint:
-
-```ts
-app.get('/greet', async (req: Request, res: Response) => {
-  const { payload } = await createInvitationPage(agentClient, 'Greet')
-  res.send(payload)
-});
+...
 ```
 
 ## 4. Test the `/greet`-endpoint
 
-Make sure the server is running (`npm run dev`).
+Make sure the server is running (`gradle bootRun`).
 Open a browser window to <http://localhost:3001/greet>
 
 *You should see a simple web page with a QR code and a text input with a prefilled string.*
@@ -171,59 +207,110 @@ and a messaging UI is visible for you.
 Now we have a new pairwise connection to the web wallet user that the agent negotiated for us.
 However, we don't know about it, as we haven't set a listener for our agent. Let's do that next.
 
-Create a new file `src/listen.ts`.
-
-Add the following content to the new file:
-
-```ts
-import { AgentClient, ProtocolClient } from '@findy-network/findy-common-ts'
-
-export default async (
-  agentClient: AgentClient,
-  protocolClient: ProtocolClient,
-) => {
-
-  // Options for listener
-  const options = {
-    protocolClient,
-    retryOnError: true,
-  }
-
-  // Listening callback handles agent events
-  await agentClient.startListeningWithHandler(
-    {
-      // New connection is established
-      DIDExchangeDone: async (info, didExchange) => {
-        console.log(`New connection ${didExchange.getTheirLabel()} with id ${info.connectionId}`)
-      },
-    },
-    options
-  )
-}
-```
-
-Open file `src/index.ts`.
+Open file `src/main/kotlin/fi/oplab/findyagency/workshop/Agent.kt`.
 
 Add the following row to imports:
 
-```ts
-import listenAgent from './listen'
+```kotlin
+...
+import kotlinx.coroutines.launch
+...
 ```
 
-Next, we will modify `runApp`-function to start the listening.
-We will call the newly imported function and provide the needed API clients
-as parameters.
+Declare new interface for the agent listeners:
 
-```ts
-const runApp = async () => {
-  const { createAgentClient, createProtocolClient } = await setupAgentConnection()
+```kotlin
+interface Listener {
+  suspend fun handleNewConnection(
+    notification: Notification,
+    status: ProtocolStatus.DIDExchangeStatus
+  ) {}
+}
+```
 
-  // Create API clients using the connection
-  const agentClient = await createAgentClient()
-  const protocolClient = await createProtocolClient()
+Add new a new function `listen` to the class `agent`
+that will listen for the agent events and notify registered listeners:
 
-  // Start listening to agent notifications
-  await listenAgent(agentClient, protocolClient)
+```kotlin
+class Agent {
+
+  ...
+
+  fun listen(listeners: List<Listener>) {
+    kotlinx.coroutines.GlobalScope.launch {
+      connection.agentClient.listen().collect {
+        println("Received from Agency:\n$it")
+        val status = it.notification
+        when (status.typeID) {
+          Notification.Type.STATUS_UPDATE -> {
+            // info contains the protocol related information
+            val info = connection.protocolClient.status(status.protocolID)
+            val getType =
+                fun(): Protocol.Type =
+                    if (info.state.state == ProtocolState.State.OK) status.protocolType
+                    else Protocol.Type.NONE
+
+            when (getType()) {
+              // New connection established
+              Protocol.Type.DIDEXCHANGE -> {
+                listeners.map{ it.handleNewConnection(status, info.didExchange) }
+              }
+              else -> println("no handler for protocol type: ${status.protocolType}")
+            }
+          }
+          else -> println("no handler for notification type: ${status.typeID}")
+        }
+      }
+    }
+  }
+
+  ...
+}
+
+```
+
+Add a new file `src/main/kotlin/fi/oplab/findyagency/workshop/Greeter.kt`.
+
+This module will handle our greeting functionality: for now,
+we just print the name of the other agent to logs.
+Add the following content to the new file:
+
+```kotlin
+package fi.oplab.findyagency.workshop
+
+import org.findy_network.findy_common_kt.*
+
+class Greeter(connection: Connection) : Listener {
+  val connection = connection
+
+  override suspend fun handleNewConnection(
+    notification: Notification,
+    status: ProtocolStatus.DIDExchangeStatus
+  ) {
+    println("New connection ${status.theirLabel} with id ${notification.connectionID}")
+  }
+}
+```
+
+Next, we will modify `AppController`-class to start the listening.
+We will create instance of `Greeter` and add it to the listener array.
+
+Open file `WorkshopApplication.kt`.
+Add new member `greeter` to `AppController` class and start
+listening in constructor:
+
+```kotlin
+@RestController
+class AppController {
+  var agent = Agent()
+  var greeter = Greeter(agent.connection)
+
+  init {
+    val listeners = ArrayList<Listener>()
+    listeners.add(greeter)
+    // Start listening to agent notifications 
+    agent.listen(listeners)
+  }
 
   ...
 

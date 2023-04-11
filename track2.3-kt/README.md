@@ -172,9 +172,14 @@ source <(curl <agency_url>/set-env.sh)
 
 Open file `build.gradle.kts`.
 
-Add new repository to your build configuration:
+Fetching maven packages from GitHub Packages needs authentication.
+Add new repository to your repositories configuration:
 
 ```kotlin
+repositories {
+    mavenCentral()
+
+    // findy-common-kt from GitHub Packages
     maven {
         name = "GitHubPackages"
         url = uri("https://maven.pkg.github.com/findy-network/findy-common-kt")
@@ -183,6 +188,7 @@ Add new repository to your build configuration:
             password = System.getenv("GITHUB_PACKAGES_TOKEN")
         }
     }
+}
 ```
 
 Add new dependencies to your project:
@@ -196,48 +202,31 @@ dependencies {
 }
 ```
 
-```bash
-npm install @findy-network/findy-common-ts --save
-```
-
-[`findy-common-ts`](https://github.com/findy-network/findy-common-ts)
+[`findy-common-kt`](https://github.com/findy-network/findy-common-kt)
 library has functionality that helps us authenticate to the agency
-or use the agent capabilities.
+and use the agent capabilities.
 
-Open file `src/index.ts`.
+Create a new file `src/main/kotlin/fi/oplab/findyagency/workshop/Agent.kt`
 
-Add the following row to imports:
+Add the following content to the new file:
 
-```ts
-import { createAcator, openGRPCConnection } from '@findy-network/findy-common-ts'
-```
+```kotlin
+package fi.oplab.findyagency.workshop
 
-Create new function `setupAgentConnection`:
+import org.findy_network.findy_common_kt.*
 
-```ts
-  const setupAgentConnection = async () => {
-    const acatorProps = {
-      authUrl: process.env.FCLI_URL!,
-      authOrigin: process.env.FCLI_ORIGIN!,
-      userName: process.env.FCLI_USER!,
-      key: process.env.FCLI_KEY!,
-    }
-    // Create authenticator
-    const authenticator = createAcator(acatorProps)
-
-    const serverAddress = process.env.AGENCY_API_SERVER!
-    const certPath = process.env.FCLI_TLS_PATH!
-    const grpcProps = {
-      serverAddress,
-      serverPort: parseInt(process.env.AGENCY_API_SERVER_PORT!, 10),
-      // NOTE: we currently assume that we do not need certs for cloud installation
-      // as the cert is issued by a trusted issuer
-      certPath: serverAddress === 'localhost' ? certPath : ''
-    }
-
-    // Open gRPC connection to agency using authenticator
-    return openGRPCConnection(grpcProps, authenticator)
-  }
+class Agent {
+  public val connection: Connection = Connection(
+    authOrigin = System.getenv("FCLI_ORIGIN"),
+    authUrl = System.getenv("FCLI_URL"),
+    certFolderPath = System.getenv("FCLI_TLS_PATH"),
+    key = System.getenv("FCLI_KEY"),
+    port = Integer.parseInt(System.getenv("AGENCY_API_SERVER_PORT")),
+    seed = "",
+    server = System.getenv("AGENCY_API_SERVER"),
+    userName = System.getenv("FCLI_USER"),
+  )
+}
 ```
 
 This function will open a connection to our agent. Through this connection, we can control
@@ -253,19 +242,20 @@ the development environment setup. (In production, the key should be naturally g
 handled in a secure manner as a secret). If someone gets access to the key,
 they can control your agent.
 
-Add call to `setupAgentConnection` to existing `runApp` function:
+Open file `src/main/kotlin/fi/oplab/findyagency/workshop/WorkshopApplication.kt`
 
-```ts
-const runApp = async () => {
+Add a new variable `agent` to your `AppController`:
 
-  await setupAgentConnection()
+```kotlin
+...
+
+@RestController
+class AppController {
+  var agent = Agent()
 
   ...
 }
 ```
-
-As you can see from the logs, the authentication fails at first as the client is not yet registered.
-With further server starts, this error should disappear.
 
 Verify that you see logs similar to this:
 ![First login log](./docs/log-first-login.png)

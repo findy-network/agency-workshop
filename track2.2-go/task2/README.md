@@ -103,7 +103,7 @@ func (agencyClient *AgencyClient) Listen(listeners []Listener) {
 ```
 
 Open file `handlers/greeter.go`.
-Handle basic messages in Greeter module. Add new function `HandleBasicMesssageDone`
+Handle basic messages in `Greeter` module. Add new function `HandleBasicMesssageDone`
 and print messages to log:
 
 ```go

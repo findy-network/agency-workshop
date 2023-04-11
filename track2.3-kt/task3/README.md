@@ -30,113 +30,67 @@ ensure that your and only your agent has issued the credential.
 The creation of the credential definition is only needed then when we start
 to issue new types of credentials. So we don't need to do it too often.
 
-Create a new file `src/prepare.ts`.
+Open file `Agent.kt`.
 
-Add the following content to the new file:
+Add new function `createCredentialDefinition` to class `Agent`:
 
-```ts
-import { agencyv1, AgentClient } from '@findy-network/findy-common-ts'
-import { existsSync, readFileSync, writeFileSync } from 'fs';
-
-export default async (agentClient: AgentClient, tag: string) => {
-
-  const waitForSchema = async (schemaId: string) => new Promise<void>((resolve) => {
-    const getSchema = async () => {
-      const schemaMsg = new agencyv1.Schema();
-      schemaMsg.setId(schemaId)
-      try {
-        await agentClient.getSchema(schemaMsg)
-        resolve()
-      } catch {
-        setTimeout(getSchema, 1000, schemaId)
-        return
-      }
-    }
-    return getSchema()
-  })
-
-  const createCredDef = async (schemaId: string): Promise<string> => {
-    // wait for schema to be found on the ledger
-    // note: in real applications the schema would exist already
-    await waitForSchema(schemaId)
-
-    // Create cred def for the provided tag
-    console.log(`Creating cred def for schema ID ${schemaId} and tag ${tag}`)
-    const msg = new agencyv1.CredDefCreate()
-    msg.setSchemaid(schemaId)
-    msg.setTag(tag)
-
-    const res = await agentClient.createCredDef(msg)
-    console.log(`Cred def created ${res.getId()}`)
-
-    return res.getId()
-  }
-
-  const prepareIssuing = async (): Promise<string> => {
-    // A dummy schema name
-    // Note: creation of schema may fail, if it already exists
-    // If this happens, pick a new unique schema name or version and retry
-    const schemaName = 'foobar'
-    console.log(`Creating schema ${schemaName}`)
-
-    const schemaMsg = new agencyv1.SchemaCreate()
-    schemaMsg.setName(schemaName)
-    schemaMsg.setVersion('1.0')
-    // List of dummy attributes
-    schemaMsg.setAttributesList(['foo'])
-
+```kotlin
+  private fun createCredentialDefinition(): String = kotlinx.coroutines.runBlocking {
+    var credDefId = ""
     try {
-      const schemaId = (await agentClient.createSchema(schemaMsg)).getId()
-      return await createCredDef(schemaId)
-    } catch (err) {
-      console.log(`Schema creation failed. Are you trying to recreate an existing schema? ` +
-         `Pick an unique schema name or version instead.`)
-      process.exit(1)
+      credDefId = java.io.File("CRED_DEF_ID").readLines()[0]
+    } catch (e: Exception) {}
+
+    // Create cred def only if it does not exist already
+    if (credDefId == "") {
+      // Note: if schema creation fails, you have probably created
+      // the same schema already with the same name and version number.
+      // If this happens, change the version number and retry the creation
+      val schemaRes =
+          connection.agentClient.createSchema(
+              name = "foobar",
+              attributes = listOf("foo"),
+              version = "1.0"
+          )
+      do {
+        var schemaCreated = false
+        try {
+          val schema = connection.agentClient.getSchema(id = schemaRes.id)
+          println("Created schema ${schema.id}")
+          schemaCreated = true
+        } catch (e: Exception) {
+          println("Waiting for the schema to be created...")
+          Thread.sleep(1_000 * 1)
+        }
+      } while (!schemaCreated)
+
+      println("Starting to create credential definition (may take a while)...")
+      val credDef = connection.agentClient.createCredDef(
+        schemaId = schemaRes.id,
+        tag = System.getenv("FCLI_USER")
+      )
+      credDefId = credDef.id
+      java.io.File("CRED_DEF_ID").writeText(credDefId)
+      println("Cred def ${credDefId} created successfully!")
     }
+    credDefId
   }
 
-  // We store the cred def id to a text file
-  const credDefIdFilePath = 'CRED_DEF_ID'
-  const credDefCreated = existsSync(credDefIdFilePath)
-  // Skip cred def creation if it is already created
-  const credDefId = credDefCreated ? readFileSync(credDefIdFilePath).toString() : await prepareIssuing()
-  if (!credDefCreated) {
-    // Store id in order to avoid unnecessary creations
-    writeFileSync(credDefIdFilePath, credDefId)
-  }
-  console.log(`Credential definition available: ${credDefId}`)
-
-  return credDefId
-}
 ```
 
-## 2. Create credential definition on server start
+## 2. Create credential definition on `Agent` creation
 
-Open file `src/index.ts`.
+Continue editing file `Agent.kt`.
 
-Add the following row to imports:
+Add call to `createCredentialDefinition` function to `Agent` initialization:
 
-```ts
-import prepare from './prepare'
-```
+```kotlin
+class Agent {
+  ...
 
-Next, we will modify the `runApp`-function to create the credential definition on server start.
-We will call the newly imported function and provide the needed API client
-as parameters.
+  public val credDefId = createCredentialDefinition()
 
-```ts
-const runApp = async () => {
-  const { createAgentClient, createProtocolClient } = await setupAgentConnection()
-
-  // Create API clients using the connection
-  const agentClient = await createAgentClient()
-  const protocolClient = await createProtocolClient()
-
-  // Prepare issuing and fetch credential definition id
-  const credDefId = await prepare(agentClient, process.env.FCLI_USER!)
-
-...
-
+  ...
 }
 ```
 

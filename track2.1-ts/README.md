@@ -162,7 +162,7 @@ npm install @findy-network/findy-common-ts --save
 
 [`findy-common-ts`](https://github.com/findy-network/findy-common-ts)
 library has functionality that helps us authenticate to the agency
-or use the agent capabilities.
+and use the agent capabilities.
 
 Open file `src/index.ts`.
 

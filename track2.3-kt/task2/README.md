@@ -26,26 +26,23 @@ In the previous task, we added a handler for new connection notifications.
 Modify this handler so that when a new connection gets created, we send a greeting
 to the other agent.
 
-Open file `src/listen.ts`.
+Open file `Greeter.kt`.
 
-Add **`agencyv1`** to objects imported from `findy-common-ts`:
+Modify handler `handleNewConnection` to following:
 
-```ts
-import { agencyv1, AgentClient, ProtocolClient } from '@findy-network/findy-common-ts'
-```
+```kotlin
+  override suspend fun handleNewConnection(
+    notification: Notification,
+    status: ProtocolStatus.DIDExchangeStatus
+  ) {
+    println("New connection ${status.theirLabel} with id ${notification.connectionID}")
 
-Modify handler `DIDExchangeDone` to following:
-
-```ts
-      // New connection is established
-      DIDExchangeDone: async (info, didExchange) => {
-        console.log(`New connection: ${didExchange.getTheirLabel()} with id ${info.connectionId}`)
-
-        // Greet each new connection with basic message
-        const msg = new agencyv1.Protocol.BasicMessageMsg()
-        msg.setContent('Hi there 👋!')
-        await protocolClient.sendBasicMessage(info.connectionId, msg)
-      },
+    // Greet each new connection with basic message
+    connection.protocolClient.sendMessage(
+      notification.connectionID,
+      "Hi there 👋!"
+    )
+  }
 ```
 
 ## 2. Ensure the message is sent to the web wallet
@@ -57,23 +54,75 @@ Check that the greeting is received in the web wallet UI.
 
 ## 3. Add handler for received messages
 
-Continue editing file `src/listen.ts`.
+Open file `Agent.kt`.
 
-Add new handler `BasicMessageDone` to listener.
-When receiving messages from other agents, print them to log:
+Add new method `handleBasicMesssageDone` to `Listener` interface:
 
-```ts
-      DIDExchangeDone: async (info, didExchange) => {
-        ...
-      },
+```kotlin
+interface Listener {
+  suspend fun handleNewConnection(
+    notification: Notification,
+    status: ProtocolStatus.DIDExchangeStatus
+  ) {}
 
-      BasicMessageDone: async (info, basicMessage) => {
-        // Print out greeting sent from the other agent
-        if (!basicMessage.getSentByMe()) {
-          const msg = basicMessage.getContent()
-          console.log(`Received basic message ${msg} from ${info.connectionId}`)
+  // Send notification to listener when basic message protocol is completed
+  suspend fun handleBasicMessageDone(
+    notification: Notification,
+    status: ProtocolStatus.BasicMessageStatus
+  ) {}
+}
+```
+
+When receiving messages from other agents, notify listeners via the new method.
+Edit `listen`-function:
+
+```kotlin
+
+  ...
+
+  fun listen(listeners: List<Listener>) {
+
+  ...
+
+        when (status.typeID) {
+          Notification.Type.STATUS_UPDATE -> {
+
+            ...
+
+            when (getType()) {
+              Protocol.Type.DIDEXCHANGE -> {
+                listeners.map{ it.handleNewConnection(status, info.didExchange) }
+              }
+              // Notify basic message protocol events
+              Protocol.Type.BASIC_MESSAGE -> {
+                listeners.map{ it.handleBasicMessageDone(status, info.basicMessage) }
+              }
+              else -> println("no handler for protocol type: ${status.protocolType}")
+            }
+          }
+          ...
         }
-      },
+      }
+
+  ...
+
+  }
+```
+
+Open file `Greeter.kt`.
+Handle basic messages in `Greeter` implementation. Add new function `handleBasicMesssageDone`
+and print messages to log:
+
+```kotlin
+  override suspend fun handleBasicMessageDone(
+    notification: Notification,
+    status: ProtocolStatus.BasicMessageStatus
+  ) {
+
+    if (!status.sentByMe) {
+      println("Received basic message ${status.content} from ${notification.connectionID}")
+    }
+  }
 ```
 
 ## 4. Ensure the received message is printed to logs

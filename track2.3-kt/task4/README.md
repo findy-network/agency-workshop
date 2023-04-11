@@ -27,166 +27,162 @@ protocol for us (similarly to other Hyperledger Aries protocols).
 
 ## 1. Add code for issuing logic
 
-Create a new file `src/issue.ts`.
+Open file `Agent.kt`.
+Add new method `handleIssueCredentialDone` to listener interface:
+
+```kotlin
+interface Listener {
+
+  ...
+
+  // Send notification to listener when issue credential protocol is completed
+  suspend fun handleIssueCredentialDone(
+    notification: Notification,
+    status: ProtocolStatus.IssueCredentialStatus
+  ) {}
+}
+
+```
+
+When receiving notification for the issue credential protocol, notify listeners via the new method.
+Edit `listen`-function:
+
+```kotlin
+
+  ...
+
+  fun listen(listeners: List<Listener>) {
+
+  ...
+
+        when (status.typeID) {
+          Notification.Type.STATUS_UPDATE -> {
+
+            ...
+
+            when (getType()) {
+              ...
+
+              // Notify issue credential protocol events
+              Protocol.Type.ISSUE_CREDENTIAL -> {
+                listeners.map{ it.handleIssueCredentialDone(status, info.issueCredential) }
+              }
+
+              else -> println("no handler for protocol type: ${status.protocolType}")
+            }
+          }
+          ...
+        }
+      }
+
+  ...
+
+  }
+```
+
+## 2. Add code for issuing logic
+
+Create a new file `src/main/kotlin/fi/oplab/findyagency/workshop/Issuer.kt`.
 
 Add the following content to the new file:
 
-```ts
-import { agencyv1, ProtocolClient, ProtocolInfo } from '@findy-network/findy-common-ts'
-import { ProtocolStatus } from '@findy-network/findy-common-ts/dist/idl/protocol_pb'
+```kotlin
+package fi.oplab.findyagency.workshop
 
-export interface Issuer {
-  addInvitation: (id: string) => void
-  handleNewConnection: (info: ProtocolInfo, didExchange: ProtocolStatus.DIDExchangeStatus) => Promise<void>
-  handleIssueDone: (info: ProtocolInfo, issueCredential: ProtocolStatus.IssueCredentialStatus) => void
+import org.findy_network.findy_common_kt.*
+
+class Pairwise(id: String) {
+  val id: String = id
 }
 
-interface Connection {
-  id: string
-}
+class Issuer(
+  connection: Connection,
+  credDefId: String
+) : Listener {
+  val connection = connection
+  val pwConnections: MutableMap<String, Pairwise> =
+    java.util.Collections.synchronizedMap(mutableMapOf<String, Pairwise>())
+  val credDefId: String = credDefId
 
-export default (protocolClient: ProtocolClient, credDefId: string) => {
-  const connections: Connection[] = []
-
-  const addInvitation = (id: string) => {
-    connections.push({ id })
+  fun addInvitation(id: String) {
+    pwConnections.put(id, Pairwise(id = id))
   }
 
-  const handleNewConnection = async (info: ProtocolInfo, didExchange: ProtocolStatus.DIDExchangeStatus) => {
-    // Skip if this connection was not for issuing
-    const connection = connections.find(({ id }) => id === info.connectionId)
-    if (!connection) {
+  override suspend fun handleNewConnection(
+    notification: Notification,
+    status: ProtocolStatus.DIDExchangeStatus
+  ) {
+    if (!pwConnections.contains(notification.connectionID)) {
+      // Connection was not for issuing, skip
       return
     }
 
-    // Create credential content
-    const attributes = new agencyv1.Protocol.IssuingAttributes()
-    const attr = new agencyv1.Protocol.IssuingAttributes.Attribute()
-    // Attribute name
-    attr.setName('foo')
-    // Attribute value
-    attr.setValue('bar')
-    attributes.addAttributes(attr)
+    val attrs = mapOf("foo" to "bar")
 
-    const credential = new agencyv1.Protocol.IssueCredentialMsg()
-    credential.setCredDefid(credDefId)
-    credential.setAttributes(attributes)
+    println("Offer credential, conn id: ${notification.connectionID}, credDefID: ${credDefId}, attrs: ${attrs}")
 
     // Send credential offer to the other agent
-    console.log(`Sending credential offer\n${JSON.stringify(credential.toObject())}\nto ${info.connectionId}`)
-    await protocolClient.sendCredentialOffer(connection.id, credential)
+    connection.protocolClient.sendCredentialOffer(
+      notification.connectionID,
+      attrs,
+      credDefId
+    )
   }
 
-  const handleIssueDone = (info: ProtocolInfo, issueCredential: ProtocolStatus.IssueCredentialStatus) => {
-    console.log(`Credential\n${JSON.stringify(issueCredential.toObject())}\nwith protocol id ${info.protocolId} issued to ${info.connectionId}`)
+  override suspend fun handleIssueCredentialDone(
+    notification: Notification,
+    status: ProtocolStatus.IssueCredentialStatus
+  ) {
+    println("Credential issued, conn id: ${notification.connectionID} with id ${notification.protocolID}")
 
-    // Remove connection from cache
-    const index = connections.findIndex(({ id }) => id === info.connectionId)
-    connections.splice(index, 1)
-  }
-
-  return {
-    addInvitation,
-    handleNewConnection,
-    handleIssueDone
+    pwConnections.remove(notification.connectionID)
   }
 }
-```
 
-## 2. Hook issuer to agent listener
-
-The issuer module we created in the previous step also needs the relevant agent notifications.
-Add calls from the listener to the issuer to keep it updated.
-
-Open file `src/listen.ts`.
-
-Add the following row to imports:
-
-```ts
-import { Issuer } from './issue'
-```
-
-Add a new parameter `issuer` to the default exported function:
-
-```ts
-export default async (
-  agentClient: AgentClient,
-  protocolClient: ProtocolClient,
-  issuer: Issuer,
-) => {
-
-...
-
-}
-```
-
-Add call to issuer's `handleNewConnection`-function whenever a new connection is established:
-
-```ts
-      // New connection is established
-      DIDExchangeDone: async (info, didExchange) => {
-
-        ...
-
-        // Notify issuer of new connection
-        issuer.handleNewConnection(info, didExchange)
-      },
-
-```
-
-Add new handler `IssueCredentialDone` to listener.
-When issuing completes, notify issuer:
-
-```ts
-      BasicMessageDone: async (info, basicMessage) => {
-        ...
-      },
-
-      IssueCredentialDone: (info, issueCredential) => {
-        // Notify issuer of issue protocol success
-        issuer.handleIssueDone(info, issueCredential)
-      },
 ```
 
 ## 3. Implement the `/issue`-endpoint
 
-Open file `src/index.ts`.
+Open file `WorkshopApplication.kt`.
 
-Add the following row to imports:
+Create new member `issuer` and add it to the listeners list:
 
-```ts
-import createIssuer from './issue'
+```kotlin
+@RestController
+class AppController {
+  val agent = Agent()
+  val greeter = Greeter(agent.connection)
+  // Create issuer instance
+  val issuer = Issuer(agent.connection, agent.credDefId)
+
+  init {
+    val listeners = ArrayList<Listener>()
+    listeners.add(greeter)
+    // Add issuer to the listener array
+    listeners.add(issuer)
+    agent.listen(listeners)
+  }
+
+  ...
+
+}
+
 ```
 
-Modify function `runApp`.
-Create the `issuer` and give it as a parameter on listener initialization:
+Replace the implementation in the `/issue`-endpoint with the following:
 
-```ts
-  // Add logic for issuing
-  const issuer = createIssuer(protocolClient, credDefId)
-
-  // Start listening to agent notifications
-  await listenAgent(
-    agentClient,
-    protocolClient,
-    issuer
-  )
-```
-
-Add implementation to the `/issue`-endpoint:
-
-```ts
-  app.get('/issue', async (req: Request, res: Response) => {
-    const { id, payload } = await createInvitationPage(agentClient, 'Issue')
-    // Update issuer with invitation id
+```kotlin
+  // Show pairwise invitation. Once connection is established, issue credential.
+  @GetMapping("/issue") fun issue(): String {
+    val (html, id) = createInvitationPage("Issue")
     issuer.addInvitation(id)
-    res.send(payload)
-  });
+    return html
+  }
 ```
 
 ## 4. Test the `/issue`-endpoint
 
-Make sure the server is running (`npm run dev`).
+Make sure the server is running (`gradle bootRun`).
 Open your browser to <http://localhost:3001/issue>
 
 *You should see a simple web page with a QR code and a text input with a prefilled string.*

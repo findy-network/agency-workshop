@@ -25,188 +25,192 @@ For simplicity, we build the verification functionality into the same applicatio
 we have been working on. The underlying protocol for requesting and presenting proofs is
 [the present proof protocol](https://github.com/hyperledger/aries-rfcs/blob/main/features/0037-present-proof/README.md).
 
-## 1. Add code for verifying logic
+## 1. Listen to present proof protocol
 
-Create a new file `src/verify.ts`.
+Open file `Agent.kt`.
+Add new methods `handlePresentProofPaused` and `handlePresentProofDone` to listener interface:
+
+```kotlin
+interface Listener {
+  ...
+
+  // Send notification to listener when present proof protocol is paused
+  suspend fun handlePresentProofPaused(
+    notification: Notification,
+    status: ProtocolStatus.PresentProofStatus
+  ) {}
+
+  // Send notification to listener when present proof protocol is completed
+  suspend fun handlePresentProofDone(
+    notification: Notification,
+    status: ProtocolStatus.PresentProofStatus
+  ) {}
+}
+```
+
+When receiving notification for the present proof protocol, notify listeners via the new methods.
+Replace the implementation of `listen`-function with the following:
+
+```kotlin
+
+  fun listen(listeners: List<Listener>) {
+    kotlinx.coroutines.GlobalScope.launch {
+      connection.agentClient.listen().collect {
+        println("Received from Agency:\n$it")
+        val status = it.notification
+        when (status.typeID) {
+          Notification.Type.STATUS_UPDATE -> {
+            // info contains the protocol related information
+            val info = connection.protocolClient.status(status.protocolID)
+            val getType =
+                fun(): Protocol.Type =
+                    if (info.state.state == ProtocolState.State.OK) status.protocolType
+                    else Protocol.Type.NONE
+
+            when (getType()) {
+              // New connection established
+              Protocol.Type.DIDEXCHANGE -> {
+                listeners.map{ it.handleNewConnection(status, info.didExchange) }
+              }
+              // Notify basic message protocol events
+              Protocol.Type.BASIC_MESSAGE -> {
+                listeners.map{ it.handleBasicMessageDone(status, info.basicMessage) }
+              }
+              // Notify issue credential protocol events
+              Protocol.Type.ISSUE_CREDENTIAL -> {
+                listeners.map{ it.handleIssueCredentialDone(status, info.issueCredential) }
+              }
+              // Notify listener when present proof protocol is completed
+              Protocol.Type.PRESENT_PROOF -> {
+                listeners.map{ it.handlePresentProofDone(status, info.presentProof) }
+              }
+              else -> println("no handler for protocol type: ${status.protocolType}")
+            }
+          }
+          // Notify listener when present proof protocol is paused
+          Notification.Type.PROTOCOL_PAUSED -> {
+            val info = connection.protocolClient.status(status.protocolID)
+            listeners.map{ it.handlePresentProofPaused(status, info.presentProof) }
+          }
+          else -> println("no handler for notification type: ${status.typeID}")
+        }
+      }
+    }
+  }
+```
+
+## 2. Add code for verifying logic
+
+Create a new file `src/main/kotlin/fi/oplab/findyagency/workshop/Verifier.kt`.
 
 Add the following content to the new file:
 
-```ts
-import { agencyv1, ProtocolClient, ProtocolInfo } from '@findy-network/findy-common-ts'
-import { ProtocolStatus } from '@findy-network/findy-common-ts/dist/idl/protocol_pb'
+```kotlin
+package fi.oplab.findyagency.workshop
 
-export interface Verifier {
-  addInvitation: (id: string) => void
-  handleNewConnection: (info: ProtocolInfo, didExchange: ProtocolStatus.DIDExchangeStatus) => Promise<void>
-  handleProofPaused: (info: ProtocolInfo, presentProof: ProtocolStatus.PresentProofStatus) => void
-  handleProofDone: (info: ProtocolInfo, presentProof: ProtocolStatus.PresentProofStatus) => void
-}
+import org.findy_network.findy_common_kt.*
 
-export default (protocolClient: ProtocolClient, credDefId: string) => {
-  const invitations: string[] = []
+class Verifier(
+  connection: Connection,
+  credDefId: String
+) : Listener {
+  val connection = connection
+  val pwConnections: MutableMap<String, Pairwise> =
+    java.util.Collections.synchronizedMap(mutableMapOf<String, Pairwise>())
+  val credDefId: String = credDefId
 
-  const addInvitation = (id: string) => {
-    invitations.push(id)
+  fun addInvitation(id: String) {
+    pwConnections.put(id, Pairwise(id = id))
   }
 
-  const handleNewConnection = async (info: ProtocolInfo, didExchange: ProtocolStatus.DIDExchangeStatus) => {
-    // Skip if this connection was not for verifying
-    if (!invitations.includes(info.connectionId)) {
+  override suspend fun handleNewConnection(
+    notification: Notification,
+    status: ProtocolStatus.DIDExchangeStatus
+  ) {
+    if (!pwConnections.contains(notification.connectionID)) {
+      // Connection was not for verifying, skip
       return
     }
 
-    // Create proof request
-    const attributes = new agencyv1.Protocol.Proof()
-    const attr = new agencyv1.Protocol.Proof.Attribute()
-    attr.setName("foo")
-    attr.setCredDefid(credDefId)
-    attributes.addAttributes(attr)
+    val attrs = listOf(ProofRequestAttribute("foo", credDefId))
 
-    const proofRequest = new agencyv1.Protocol.PresentProofMsg()
-    proofRequest.setAttributes(attributes)
+    println("Request proof, conn id: ${notification.connectionID}, credDefID: ${credDefId}, attrs: ${attrs}")
 
-    // Send proof request to the other agent
-    console.log(`Sending proof request\n${JSON.stringify(proofRequest.toObject())}\nto ${info.connectionId}`)
-    await protocolClient.sendProofRequest(info.connectionId, proofRequest)
+    // Send credential offer to the other agent
+    connection.protocolClient.sendProofRequest(
+        notification.connectionID,
+        attrs,
+    )
   }
 
-  const handleProofPaused = async (info: ProtocolInfo, presentProof: ProtocolStatus.PresentProofStatus) => {
-    console.log(`Proof\n${JSON.stringify(presentProof.toObject())}\nwith protocol id ${info.protocolId} paused from ${info.connectionId}`)
-
-    // This function is called after proof is verified cryptographically.
-    // The application can execute its business logic and reject the proof
-    // if the attribute values are not valid.
-    const protocolID = new agencyv1.ProtocolID()
-    protocolID.setId(info.protocolId)
-    protocolID.setTypeid(agencyv1.Protocol.Type.PRESENT_PROOF)
-    protocolID.setRole(agencyv1.Protocol.Role.RESUMER)
-    const msg = new agencyv1.ProtocolState()
-    msg.setProtocolid(protocolID)
-
-    // We have no special logic here - accept all received values
-    msg.setState(agencyv1.ProtocolState.State.ACK)
-    console.log(`Resuming proof with for protocol ${info.protocolId} with payload ${JSON.stringify(msg.toObject())}`)
-    await protocolClient.resume(msg)
+  // This function is called after proof is verified cryptographically.
+  // The application can execute its business logic and reject the proof
+  // if the attribute values are not valid.
+  override suspend fun handlePresentProofPaused(
+    notification: Notification,
+    status: ProtocolStatus.PresentProofStatus
+  ) {
+    // we have no special logic here - accept all received values
+    connection.protocolClient.resumeProofRequest(notification.protocolID, true)
+    println("Proof continued with id ${notification.protocolID}")
   }
 
-  const handleProofDone = (info: ProtocolInfo, presentProof: ProtocolStatus.PresentProofStatus) => {
-    console.log(`Proof\n${JSON.stringify(presentProof.toObject())}\nwith protocol id ${info.protocolId} verified from ${info.connectionId}`)
+  override suspend fun handlePresentProofDone(
+    notification: Notification,
+    status: ProtocolStatus.PresentProofStatus
+  ) {
+    if (!pwConnections.contains(notification.connectionID)) {
+      // Connection was not for verifying, skip
+      return
+    }
+    println("Proof verified from ${notification.connectionID} with id ${notification.protocolID}")
 
-    // Remove invitation id from cache
-    const index = invitations.indexOf(info.connectionId)
-    invitations.splice(index, 1)
-  }
-
-  return {
-    addInvitation,
-    handleNewConnection,
-    handleProofPaused,
-    handleProofDone
+    pwConnections.remove(notification.connectionID)
   }
 }
-```
 
-## 2. Hook verifier to agent listener
-
-The verifier module we created in the previous step also needs the relevant agent notifications.
-Add calls from the listener to the verifier to keep it updated.
-
-Open file `src/listen.ts`.
-
-Add the following row to imports:
-
-```ts
-import { Verifier } from './verify'
-```
-
-Add a new parameter `verifier` to the default exported function:
-
-```ts
-export default async (
-  agentClient: AgentClient,
-  protocolClient: ProtocolClient,
-  issuer: Issuer,
-  verifier: Verifier,
-) => {
-
-...
-
-}
-```
-
-Add call to verifier's `handleNewConnection`-function whenever a new connection is established:
-
-```ts
-      // New connection is established
-      DIDExchangeDone: async (info, didExchange) => {
-
-        ...
-
-        // Notify verifier of new connection
-        verifier.handleNewConnection(info, didExchange)
-      },
-
-```
-
-Add new handlers `PresentProofPaused` and `PresentProofDone` to the listener.
-`PresentProofPaused` is called when the proof
-and `PresentProofDone` to listener.
-With both notifications, notify verifier:
-
-```ts
-      IssueCredentialDone: async (info, issueCredential) => {
-        ...
-      },
-
-      PresentProofPaused: (info, presentProof) => {
-        verifier.handleProofPaused(info, presentProof)
-      },
-
-      PresentProofDone: (info, presentProof) => {
-        verifier.handleProofDone(info, presentProof)
-      },
 ```
 
 ## 3. Implement the `/verify`-endpoint
 
-Open file `src/index.ts`.
+Open file `WorkshopApplication.kt`.
 
-Add the following row to imports:
+Create new member `verifier` and add it to the listeners list:
 
-```ts
-import createVerifier from './verify'
+```kotlin
+@RestController
+class AppController {
+  val agent = Agent()
+  val greeter = Greeter(agent.connection)
+  val issuer = Issuer(agent.connection, agent.credDefId)
+  val verifier = Verifier(agent.connection, agent.credDefId)
+
+  init {
+    val listeners = ArrayList<Listener>()
+    listeners.add(greeter)
+    listeners.add(issuer)
+    listeners.add(verifier)
+    agent.listen(listeners)
+  }
+  ...
+
+}
+
 ```
 
-Modify function `runApp`.
-Create the `verifier` and give it as a parameter on listener initialization:
+Replace the implementation in the `/verify`-endpoint with the following:
 
-```ts
-  // Add logic for verifying
-  const verifier = createVerifier(protocolClient, credDefId)
-
-  // Start listening to agent notifications
-  await listenAgent(
-    agentClient,
-    protocolClient,
-    issuer,
-    verifier
-  )
-```
-
-Add implementation to the `/verify`-endpoint:
-
-```ts
-  app.get('/verify', async (req: Request, res: Response) => {
-    const { id, payload } = await createInvitationPage(agentClient, 'Verify')
-    // Update verifier with invitation id
+```kotlin
+  @GetMapping("/verify") fun verify(): String {
+    val (html, id) = createInvitationPage("Verify")
     verifier.addInvitation(id)
-    res.send(payload)
-  });
+    return html
+  }
 ```
 
 ## 4. Test the `/verify`-endpoint
 
-Make sure the server is running (`npm run dev`).
+Make sure the server is restarted (`go run .`).
 Open your browser to <http://localhost:3001/verify>
 
 *You should see a simple web page with a QR code and a text input with a prefilled string.*
