@@ -27,6 +27,13 @@
     "GITHUB_PACKAGES_USERNAME": "${localEnv:GITHUB_PACKAGES_USERNAME}",
     "GITHUB_PACKAGES_TOKEN": "${localEnv:GITHUB_PACKAGES_TOKEN}"
   },
-  "workspaceMount": "source=${localWorkspaceFolder}/track2.2-kt/app,target=/workspace,type=bind",
-  "workspaceFolder": "/workspace"
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+  "workspaceFolder": "/workspace",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "mathiasfrohlich.Kotlin"
+      ]
+    }
+  }
 }
