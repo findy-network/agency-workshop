@@ -52,7 +52,7 @@ clone_repos() {
 	mkdir -p "$install_root"
 	pushd "$install_root" > /dev/null
 
-#	git clone https://github.com/findy-network/findy-wrapper-go.git "$install_root/findy-wrapper-go"
+	git clone https://github.com/findy-network/agency-workshop.git "$install_root/agency-workshop"
 	git clone https://github.com/findy-network/findy-agent-auth.git "$install_root/findy-agent-auth"
 	git clone https://github.com/findy-network/findy-agent.git "$install_root/findy-agent"
 	git clone https://github.com/findy-network/findy-agent-cli.git "$install_root/findy-agent-cli"
@@ -68,14 +68,14 @@ build_agency() {
 
 build_cli() {
 	pushd "$install_root/findy-agent-cli" > /dev/null
-	git checkout playground-tuning-for-workshop
+	git checkout dev
 	make cli
 	popd > /dev/null
 }
 
 build_auth() {
 	pushd "$install_root/findy-agent-auth" > /dev/null
-	git checkout start-scripts
+	git checkout dev
 	make acli
 	popd > /dev/null
 }
@@ -157,7 +157,7 @@ EOF
 }
 
 install_uuid_runtime() {
-	sudo apt install -y uuid-runtime
+	sudo apt install -y uuid-runtime bat bash-completion
 }
 
 install_tmuxinator_play() {
