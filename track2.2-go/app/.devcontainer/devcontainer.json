@@ -23,6 +23,6 @@
   "runArgs": [
     "--network=host"
   ],
-  "workspaceMount": "source=${localWorkspaceFolder}/track2.2-go/app,target=/workspace,type=bind",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
   "workspaceFolder": "/workspace"
 }
