@@ -80,8 +80,20 @@ build_auth() {
 	popd > /dev/null
 }
 
+install_bashrc() {
+	cat >>"$HOME/.bashrc" <<'EOF'
+
+set -o vi
+
+alias pe='printenv | grep '
+alias pe='printenv | grep FCLI'
+
+export GOPATH="$HOME/go"
+EOF
+}
+
 install_tmux_conf() {
-	cat >"$HOME/.tmux.conf" <<EOF
+	cat >"$HOME/.tmux.conf" <<'EOF'
 set -g default-terminal "xterm"
 
 # from neovim info
@@ -152,7 +164,7 @@ install_tmuxinator_play() {
 	mkdir "$HOME/.config/tmuxinator"
 	sudo apt install -y tmuxinator
 
-cat > "$HOME/.config/tmuxinator/play.yml" <<EOF
+cat > "$HOME/.config/tmuxinator/play.yml" <<'EOF'
 name: play
 root: ~/go/src/github.com/findy-network
 
@@ -185,7 +197,6 @@ check_install_go
 GOPATH=${GOPATH:-`go env GOPATH`}
 gopath=${GOPATH:-"$PWD"}
 install_root="$gopath/src/github.com/findy-network"
-alias pf='printenv|grep FCLI'
 
 install_libssl
 install_indy
@@ -195,6 +206,7 @@ build_cli
 build_auth
 install_tmux_conf
 install_tmuxinator_play
+install_bashrc
 install_uuid_runtime
 
 # steward creation: DONE
@@ -202,3 +214,5 @@ install_uuid_runtime
 # pf alias: DONE 
 # -local.sh GOPATH problem. and mem-server auth, export it!: DONE
 # auth-server-grpc path problem: needs PR or branch usage.
+#
+# check assertion in agency PW finding, add comment to err2 docs why it's better to use specific asserts: you get better message: DONE
