@@ -47,7 +47,7 @@ Modify handler `handleNewConnection` to following:
 
 ## 2. Ensure the message is sent to the web wallet
 
-Refresh the `/greet`-page and create a new connection using the web wallet UI.
+Restart the server, refresh the `/greet`-page and create a new connection using the web wallet UI.
 Check that the greeting is received in the web wallet UI.
 
 ![Receive message in web wallet](./docs/receive-basic-message-web-wallet.png)
@@ -127,7 +127,7 @@ and print messages to log:
 
 ## 4. Ensure the received message is printed to logs
 
-Send a reply from the web wallet UI:
+Save files and restart the server. Send a reply from the web wallet UI:
 
 ![Send message in web wallet](./docs/send-basic-message-web-wallet.png)
 

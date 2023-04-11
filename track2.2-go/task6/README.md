@@ -13,7 +13,10 @@
 
 ## Description
 
-This task is under construction...
+This task is under construction... 🔨
+
+If you still wish to work with this task, you can read about the task idea from
+[Typescript track](../../track2.1-ts/task6/README.md) and try to craft it on your own 💪
 
 ## 1. Continue with task 7
 

@@ -96,6 +96,8 @@ class Agent {
 
 ## 3. Ensure the credential definition is created from logs
 
+Restart server and check logs.
+
 Note! It will take a while for the agency to create a new credential definition.
 Wait patiently.
 
