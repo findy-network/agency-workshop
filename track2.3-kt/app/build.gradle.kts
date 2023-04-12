@@ -16,9 +16,22 @@ java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
     mavenCentral()
+
+    // findy-common-kt from GitHub Packages
+    maven {
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/findy-network/findy-common-kt")
+        credentials {
+            username = System.getenv("GITHUB_PACKAGES_USERNAME")
+            password = System.getenv("GITHUB_PACKAGES_TOKEN")
+        }
+    }
 }
 
 dependencies {
+    implementation("org.findy_network:findy-common-kt-client:0.0.13")
+    implementation("org.findy_network:findy-common-kt-stub:0.0.13")
+
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
