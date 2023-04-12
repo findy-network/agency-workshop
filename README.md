@@ -23,10 +23,10 @@ or independently in your own time.
 
 The workshop has two tracks you can choose from, or you can even study both.
 
-* [Track 1: Creating SSI chatbots with CLI tool](./track1/README.md)
+* [Track 1: Creating SSI chatbots with CLI tool](./track1-cli/README.md)
   * no coding skills needed
 * Track 2: Creating SSI web applications with Findy Agency API
   * choose from three programming languages:
-    * [Track 2.1: Typescript](./track2.1/README.md)
-    * [Track 2.2: Go](./track2.2/README.md)
-    * [Track 2.3: Kotlin](./track2.3/README.md)
+    * [Track 2.1: Typescript](./track2.1-ts/README.md)
+    * [Track 2.2: Go](./track2.2-go/README.md)
+    * [Track 2.3: Kotlin](./track2.3-kt/README.md)
