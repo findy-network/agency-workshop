@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/findy-network/agency-workshop/agent"
 	"github.com/lainio/err2"
 	"github.com/lainio/err2/try"
 )
@@ -50,6 +51,9 @@ func main() {
 	defer err2.Catch(func(err error) {
 		log.Fatal(err)
 	})
+
+	// Login agent
+	_ = try.To1(agent.LoginAgent())
 
 	myApp := app{}
 
