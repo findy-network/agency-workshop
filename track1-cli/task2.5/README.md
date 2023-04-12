@@ -5,8 +5,8 @@ agents. Now we build our first hello world application with Findy Agency's [FSM
 language
 (YAML).](https://findy-network.github.io/blog/2023/03/13/no-code-ssi-chatbots-part-i/)
 
-We have two agents `hello` and `world`. We want `world` to be the chatbot and
-`hello` be us, the human. As a human, we need to see both input and output
+We have two agents `hello` and `world`. We want `world` to be a chatbot and
+`hello` be us, a human. As a human, we need to see both input and output
 messages. We already had `cli bot read` command in terminal window 1. You should
 split that or bring new terminal near to it. Let's call this new terminal as
 'terminal window 1 chat'. And for clarity, the previous terminal window 1 to
@@ -79,8 +79,8 @@ how to write chatbot state-machines with Findy FSM language.
 > echoes the message it receives from the user.
 
 Unfortunately, the only documentation for Findy FSM is in the previously
-mentioned [blog post]
-(https://findy-network.github.io/blog/2023/03/13/no-code-ssi-chatbots-part-i/)
+mentioned [blog
+post](https://findy-network.github.io/blog/2023/03/13/no-code-ssi-chatbots-part-i/)
 We recommend you to used it as a reference manual. It's written for that kind of
 use in mind.
 
