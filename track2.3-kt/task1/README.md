@@ -141,14 +141,10 @@ The function should respond with an HTML page that renders a QR code for a DIDCo
 Replace the implementation of the `/greet`-endpoint:
 
 ```kotlin
-...
-
   @GetMapping("/greet") fun greet(): String {
     val (html) = createInvitationPage("Greet")
     return html
   }
-
-...
 ```
 
 ## 4. Test the `/greet`-endpoint
