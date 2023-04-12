@@ -97,20 +97,20 @@ See instructions [here](../agency-native/README.md). There is a script
 the system playground. The script targets a Debian Linux.
 
 Clone the needed Agency service source repos:
-```console
+```shell
 git clone https://github.com/findy-network/findy-agent-auth.git
 git clone https://github.com/findy-network/findy-agent.git
 git clone https://github.com/findy-network/findy-agent-cli.git
 ```
 
 Start the FIDO2 Server:
-```console
+```shell
 cd <findy-agent-auth-repo>
 cd scripts; ./mem-dev-server.sh
 ```
 
 Start the Agency Core Server:
-```console
+```shell
 cd <findy-agent-repo>
 make cli # builds fa named binary
 cd scripts/test
@@ -119,7 +119,7 @@ agency=fa register=findy.json no_clean=1 enclave=MEMORY_enclave.bolt ./mem-serve
 ```
 
 Start the Findy Agent CLI to command your local agency (in a new terminal/window/tab):
-```console
+```shell
 cd <findy-agent-cli-repo>
 make cli # builds and installs binary named cli in your path
 cd scripts/fullstack
@@ -130,7 +130,7 @@ cli agency count # tells how many cloud agent/wallet is running/onboarded
 
 After you have verified that everything above works, you can allocate two SSI
 agents:
-```console
+```shell
 # continue in findy-agent-cli/scripts/fullstack 
 ./make-play-agent.sh test-alice test-bob
 pushd test-alice
@@ -146,7 +146,7 @@ popd
 If you want to use tmux and tmuxinator the previously mentioned `setup.sh`
 script includes tmuxinator configuration that is installed by it with the name
 `play`.
-```console
+```shell
 tmuxinator play
 ```
 </details><br/>
