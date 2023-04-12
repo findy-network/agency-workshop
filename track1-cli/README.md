@@ -11,7 +11,7 @@ development.
 
 ## Task 0: Setup environment
 
-### 1. Clone these repositories to your GOPATH/src or what you prefer
+### 1. Clone these repositories into your GOPATH/src or into what you prefer
 
 ```shell
 git clone https://github.com/findy-network/agency-workshop.git
@@ -46,8 +46,10 @@ installation of Findy Agency available. Skip this step.
 
 <details>
 <summary>🤠 Local setup</summary>
+
 Start local agency instance if you do not have cloud installation available.
 See instructions [here](../agency-local/README.md).
+
 </details><br/>
 
 ### 4. Set environment variables
@@ -55,14 +57,14 @@ See instructions [here](../agency-local/README.md).
 The agency environment provides a script for setting up the needed environment
 variables automatically.
 
-Run following script in the dev container terminal:
+Run following script in the terminal:
 
 ```bash
 source <(curl <agency_url>/set-env.sh)
 ```
 
 The agency URL is provided for you in the guided workshop. e.g.
-`https://agency.example.com`
+`https://agency.example.com`.
 
 The script will export the needed environment variables. It will also create
 file `.envrc` that contains these variables. Typing `direnv allow` will ensure
@@ -88,11 +90,13 @@ source <(curl http://localhost:3000/set-env.sh)
 You need to have Go 1.20 installed to run needed Agency services from sources:
 **but you don't need docker or network access**.
 
-In case you want to play with the sources or you want to get touch of how the
-whole system feels to run locally from sources. 
-See instructions [here](../agency-native/README.md). There is a script
+In the case you want to play with the sources or you want to get touch of how the
+whole system feels to run locally from sources, 
+see instructions [here](../agency-native/README.md). There is a script
 (`setup.sh`) which installs all the needed repos and a tmuxinator script to start
 the system playground. The script targets a Debian Linux.
+
+Here's the summary what should be done:
 
 Clone the needed Agency service source repos:
 ```shell
@@ -126,8 +130,8 @@ admin/register && . admin/login
 cli agency count # tells how many cloud agent/wallet is running/onboarded
 ```
 
-After you have verified that everything above works, you can allocate two SSI
-agents:
+After you have verified that everything above works, you can allocate two
+separate SSI agents:
 ```shell
 # continue in findy-agent-cli/scripts/fullstack 
 ./make-play-agent.sh test-alice test-bob
@@ -150,13 +154,12 @@ tmuxinator play
 ```
 Tip:
 > You can use tmuxinator configurations even when using cloud version of the
-> agency. Just check from where the environment is loaded.
+> agency. Just check from where the environment variables are loaded.
 
 </details><br/>
-
 ### 5. Continue with task 1
 
-Congratulations, you have completed task 0 and have
-a working agency CLI development environment available!
+Congratulations, you have completed the task and have a working agency CLI
+development environment available!
 
 You can now continue with [task 1](./task1/README.md).

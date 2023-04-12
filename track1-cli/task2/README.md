@@ -1,7 +1,8 @@
 # Track 1.1 - Task 2: Send greetings
 
 In the previous task, we learned how to establish e2e-encrypted messaging
-between agents. Now we send our first messages using this communication pairwise.
+between agents. Now we will send our first messages using the communication
+pairwise.
 
 Agents interact over DIDComm using a specific Hyperledger Aries protocols. There
 are different protocols for different purposes. Agents send text messages to
@@ -28,9 +29,9 @@ cd play/world/<UUID-from-task1>
 echo "Hello world!" | cli bot chat    # look at terminal 1
 ```
 
-## 2. Continue with task 3
+## 2. Continue with task 2.5
 
-Congratulations, you have completed task 2 and you know now how to send a basic
+Congratulations, you have completed the task and you know now how to send a basic
 text message over a DIDComm connection.
 
-You can now continue with [task 3](../task3/README.md).
+You can now continue with [task 2.5](../task2.5/README.md).
