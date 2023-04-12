@@ -1,20 +1,18 @@
 # Track 1.1 - Task 3: Prepare for issuing credentials
 
-We have learned how to command our SSI cloud agent. We have also got first touch
-of the chatbot state-machine language. In the following tasks we will learn how
-to issue and verify credentials using these bots.
+We have learned how to command our SSI cloud agent. We have also got the first
+touch of the chatbot state-machine language. The following tasks will teach us
+how to issue and verify credentials using these bots.
 
-But before we can start issuing credentials, we have to prepare our agent for
-it. It means that we have to have suitable *schema* and *credential definition*
-available.
+But before issuing credentials, we have to prepare our agent for it. It means we
+must have a suitable schema and credential definition available.
 
 Schema describes the contents of the verifiable credential (VC): which data
-attributes it contains. Credential definition is needed for CL signature scheme
-that offers zero-knowledge proof capabilities. It also combines an ID to
-reference all the credentials that are issued from the this specific issuer.
-Other parties can verify the validity of the credential against the credential
-definition, and make sure that your and only your agent has issued the
-credential.
+attributes it contains. The credential definition is needed for the [CL signature scheme](https://asecuritysite.com/encryption/cl)
+that offers zero-knowledge-proof capabilities. It also combines an ID to
+reference all the credentials issued by this issuer. Other parties can verify
+these credential's validity against the credential definition and ensure that 
+your and only your agent has issued the credential.
 
 ## 0. Create a new schema
 
