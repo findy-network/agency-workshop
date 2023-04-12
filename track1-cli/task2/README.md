@@ -1,11 +1,11 @@
 # Track 1.1 - Task 2: Send greetings
 
-In the previous task, we learned how to establish e2e-encrypted messaging pipes
-between agents. Now we send our first messages using this communication pipe.
+In the previous task, we learned how to establish e2e-encrypted messaging
+between agents. Now we send our first messages using this communication pairwise.
 
-Agents interact using Hyperledger Aries protocols. There are different protocols
-for different purposes. Agents send text messages to each other using [basic
-message
+Agents interact over DIDComm using a specific Hyperledger Aries protocols. There
+are different protocols for different purposes. Agents send text messages to
+each other using [basic message
 protocol](https://github.com/hyperledger/aries-rfcs/blob/main/features/0095-basic-message/README.md).
 
 ## 0. Receive a text message

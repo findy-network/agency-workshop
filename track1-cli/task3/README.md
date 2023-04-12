@@ -21,14 +21,14 @@ In the terminal window 2:
 cd $FCLI_PATH/findy-agent-cli/scripts/fullstack
 cd play/world/<UUID-from-task1>
 cli agent ping # to check that you are the 'world'
-source new-schema foo
+source new-schema email # == one string attribute: 'email'
 ```
 
 ## 1. Create a new schema
 
 Continue in the terminal window 2:
 ```shell
-source new-cred-def # this can take time, even tens of seconds in a slower machine
+source new-cred-def # takes time, even tens of seconds in a slower machine
 ```
 
 ## 2. Continue with task 4

@@ -21,9 +21,10 @@ You should have following command still running in 'terminal 1 chat':
 `cli bot chat`
 
 And, you should have following command still running in 'terminal 1 read':
-`cli bot read`
+`cli bot read`.  **Note that this is very important.** The 'read' command also
+accept important protocol requests coming from the agency.
 
-## 1. Start issuer chatbot
+## 1. Start credential issuer chatbot
 
 In the terminal window 2:
 ```shell
@@ -31,22 +32,31 @@ In the terminal window 2:
 cd $FCLI_PATH/findy-agent-cli/scripts/fullstack
 cd play/world/<UUID-from-task1>
 cli agent ping # to check that you are the 'world'
+printenv | grep FCLI # check that FCLI_CRED_DEF_ID is defined and correct *Tip
 cli bot start ../../../email-issuer-bot.yaml -v=1 # verbose lvl 1, we want to know!
 ```
+Tip:
+> Defining `alias pf='printenv | grep FCLI'` is very useful idea when working
+> with Findy Agency and its CLI. If you haven't done this already.
 
 ## 1. Receive the credential
 
 Continue in the terminal window 1 chat by following instructions in
 read-terminal **and the secret PIN-code is printed to terminal window 2 where
-chatbot is runnnig.
+chatbot is running**.
 
-Tip:
+Note that it's very important that you have reader window for 'hello' agent
+running because it accepts important protocol request. There is
+`auto-accept-mode` for testing purposes, but we don't need it here.
+
+Sub-task:
 > Please read the issuer bot's FSM file thru and try to figure out how you
-> could change it. You are welcoming to test those changes.
+> could change it. You are welcoming to test those changes. Maybe just change
+> what it says?
 
 ## 2. Continue with task 5
 
-Congratulations, you have completed task 4 and you know now something.. :-D
+Congratulations, you have completed task 4 and you now know something.. :-D
 
 You can now continue with [task 5](../task5/README.md).
 

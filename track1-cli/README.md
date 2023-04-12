@@ -46,10 +46,8 @@ installation of Findy Agency available. Skip this step.
 
 <details>
 <summary>🤠 Local setup</summary>
-
 Start local agency instance if you do not have cloud installation available.
 See instructions [here](../agency-local/README.md).
-
 </details><br/>
 
 ### 4. Set environment variables
@@ -141,6 +139,7 @@ cli connection trustping
 popd
 ./rm-play-agent.sh test-alice test-bob # cleanup wallets and client stores
 # typically you shutdown FIDO2 and Core servers at this point
+# like (tmux kill-session)
 ```
 
 If you want to use tmux and tmuxinator the previously mentioned `setup.sh`
@@ -149,11 +148,15 @@ script includes tmuxinator configuration that is installed by it with the name
 ```shell
 tmuxinator play
 ```
+Tip:
+> You can use tmuxinator configurations even when using cloud version of the
+> agency. Just check from where the environment is loaded.
+
 </details><br/>
 
 ### 5. Continue with task 1
 
 Congratulations, you have completed task 0 and have
-a working agency client development environment available!
+a working agency CLI development environment available!
 
 You can now continue with [task 1](./task1/README.md).
