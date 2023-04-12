@@ -10,9 +10,9 @@ must have a suitable schema and credential definition available.
 Schema describes the contents of the verifiable credential (VC): which data
 attributes it contains. The credential definition is needed for the [CL signature scheme](https://asecuritysite.com/encryption/cl)
 that offers zero-knowledge-proof capabilities. It also combines an ID to
-reference all the credentials issued by this issuer. Other parties can verify
-these credential's validity against the credential definition and ensure that 
-your and only your agent has issued the credential.
+reference all the credentials issued by this issuer from a specific schema.
+Other parties can verify these credential's validity against the credential
+definition and ensure that your and only your agent has issued the credential.
 
 ## 0. Create a new schema
 

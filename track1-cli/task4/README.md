@@ -3,11 +3,12 @@
 Now that we have completed setting up the basic bells and whistles we can start
 the real fun with issuing and verifying credentials.
 
-Let's first issue a dummy credential to the web wallet user and verify it after
+Let's first issue our email credential to the human user and verify it after
 that. In a real world application the issuer would naturally know something
-about the user and would issue a credential only with validated information. But
-for this example case, we issue a dummy credential to all users that connect
-with us.
+about the user and would issue a credential only with validated information.
+In this example we have pseudo-verification, i.e, we simulate the case where a
+bot generates 6 digit PIN-code that is printed in the log output. In the
+real-world case the actual email should be used.
 
 Agents use [the issue credential
 protocol](https://github.com/hyperledger/aries-rfcs/blob/main/features/0036-issue-credential/README.md)
@@ -20,8 +21,8 @@ protocols).
 You should have following command still running in 'terminal 1 chat':
 `cli bot chat`
 
-And, you should have following command still running in 'terminal 1 read':
-`cli bot read`.  **Note that this is very important.** The 'read' command also
+And you should have following command still running in 'terminal 1 read':
+`cli bot read`.  **Note that this is very important.** The `read` command also
 accept important protocol requests coming from the agency.
 
 ## 1. Start credential issuer chatbot
@@ -56,7 +57,7 @@ Sub-task:
 
 ## 2. Continue with task 5
 
-Congratulations, you have completed task 4 and you now know something.. :-D
+Congratulations, you have completed task 4 and you now know kung fu.
 
 You can now continue with [task 5](../task5/README.md).
 

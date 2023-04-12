@@ -1,6 +1,6 @@
 # Track 1.1 - Task 5: Verify credential
 
-Your web wallet user should now have their first credential in their wallet. Now
+Your human user should now have their first credential in their wallet. Now
 we can build functionality that will verify that credential.
 
 In a real world implementation we would naturally have two applications and two
@@ -37,7 +37,7 @@ Tip:
 > Defining `alias pf='printenv | grep FCLI'` is very useful idea when working
 > with Findy Agency and its CLI.
 
-## 1. Receive the credential
+## 1. Present a proof of the credential
 
 Continue in the terminal window 1 chat by following instructions in
 read-terminal.
@@ -57,8 +57,8 @@ Congratulations, you have completed task 5 and you now know a lot. You should
 have the basic understanding what is core purpose of SSI/DID technology.
 
 For this specific task it should be quite clear how powerful the `proof
-presentation` is for authentication for example. Especially from user's point of
-view. And it's especially useful for these kind of chatbot applications.
+presentation` is for cases like authentication. Especially from user's point of
+view. And it's suits very well for these kind of chatbot applications.
 
 You can now continue with [task 6](../task6/README.md).
 
