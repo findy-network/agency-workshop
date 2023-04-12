@@ -13,6 +13,7 @@ fun main(args: Array<String>) {
 
 @RestController
 class AppController {
+  val agent = Agent()
 
   @GetMapping("/") fun index(): String = "Kotlin example"
   @GetMapping("/greet") fun greet(): String = "IMPLEMENT ME"
