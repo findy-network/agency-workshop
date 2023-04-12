@@ -45,7 +45,7 @@ If you are experienced Kotlin developer (and use for example IntelliJ IDEA),
 it probably makes most sense to work with your default setup as VSCode has some limitations
 regarding Kotlin development.
 
-If you still wish to go to the wild side, make sure you have these tools available:
+Make sure you have these tools available:
 
 * Code editor of your choice.
 * JDK and Gradle
@@ -72,7 +72,7 @@ See instructions [here](../agency-local/README.md).
 You need a GitHub account.
 
 [Create personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token#creating-a-personal-access-token-classic)
-with read:packages-permission.
+with `read:packages`-permission.
 
 Declare env variables before launching VS Code from the command line:
 
@@ -151,7 +151,7 @@ source <(curl <agency_url>/set-env.sh)
 
 ### **7. Start the application for the first time**
 
-  When starting the application for the first time, run following commands:
+  When starting the application for the first time, run following command:
 
   ```bash
   gradle bootRun
@@ -219,7 +219,9 @@ class Agent {
   public val connection: Connection = Connection(
     authOrigin = System.getenv("FCLI_ORIGIN"),
     authUrl = System.getenv("FCLI_URL"),
-    certFolderPath = System.getenv("FCLI_TLS_PATH"),
+    // NOTE: we currently assume that we do not need certs for cloud installation
+    // as the cert is issued by a trusted issuer
+    certFolderPath = if (System.getenv("AGENCY_API_SERVER") == "localhost") System.getenv("FCLI_TLS_PATH") else null,
     key = System.getenv("FCLI_KEY"),
     port = Integer.parseInt(System.getenv("AGENCY_API_SERVER_PORT")),
     seed = "",
@@ -251,13 +253,13 @@ Add a new variable `agent` to your `AppController`:
 
 @RestController
 class AppController {
-  var agent = Agent()
+  val agent = Agent()
 
   ...
 }
 ```
 
-Verify that you see logs similar to this:
+Restart server and verify that you see logs similar to this:
 ![First login log](./docs/log-first-login.png)
 
 ### **8. Continue with task 1**

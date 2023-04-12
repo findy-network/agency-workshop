@@ -291,7 +291,7 @@ func main() {
 }
 ```
 
-Verify that you see text *"Agent login succeeded"*:
+Restart server and verify that you see text *"Agent login succeeded"*:
 ![First login log](./docs/log-first-login.png)
 
 ### **8. Continue with task 1**
