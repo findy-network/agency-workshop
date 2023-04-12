@@ -20,8 +20,15 @@ protocol messages.
 ## 0. Allocate cloud agents
 
 ```shell
-export FCLI_PATH=<set_your_findy_network_dir_here> # this will be used later
-cd $FCLI_PATH/findy-agent-cli/scripts/fullstack
+# --- check that these are set and correct
+# --- you can take a look at: setup-cli-env-local.sh in playground root
+# FCLI_KEY=....4497641628... # check your key
+# FCLI=cli
+# FCLI_TLS_PATH=/home/God/go/src/github.com/findy-network/findy-agent/grpc/cert
+export FCLI_CONFIG=./cfg.yaml
+# ---
+export FCLI_PATH="<set_your_findy_network_dir_here>" # this will be used later
+cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack" # playground root
 ./make-play-agent.sh hello world
 ```
 
@@ -29,7 +36,7 @@ cd $FCLI_PATH/findy-agent-cli/scripts/fullstack
 
 In the terminal window 1:
 ```shell
-cd $FCLI_PATH/findy-agent-cli/scripts/fullstack
+cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
 ./make-play-agent.sh hello world
 cd play/hello
 cli agent ping # you should see the message: Agent register by name: hello
@@ -43,7 +50,7 @@ the next step.
 
 In the terminal window 2:
 ```shell
-cd $FCLI_PATH/findy-agent-cli/scripts/fullstack
+cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
 cd play/world
 cd $(../hello/invitation | ./connect)    # look at terminal 1
 ```
