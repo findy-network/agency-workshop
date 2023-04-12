@@ -302,8 +302,8 @@ listening in constructor:
 ```kotlin
 @RestController
 class AppController {
-  var agent = Agent()
-  var greeter = Greeter(agent.connection)
+  val agent = Agent()
+  val greeter = Greeter(agent.connection)
 
   init {
     val listeners = ArrayList<Listener>()
