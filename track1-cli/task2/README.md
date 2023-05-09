@@ -25,8 +25,8 @@ protocol](https://github.com/hyperledger/aries-rfcs/blob/main/features/0095-basi
 In the terminal window 1:
 ```shell
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
-cd "play/XX-hello/<UUID-from-task1>"
-cli agent ping # you should see the message: Agent register by name: XX-hello
+cd "play/$hello/<UUID-from-task1>"
+cli agent ping # you should see the message: Agent register by name: $hello
 cli bot read # now, leave this here until ALL the tasks are done
 ```
 
@@ -36,7 +36,7 @@ In the terminal window 2:
 ```shell
 # execute next 2 commands only if you have to.
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
-cd "play/XX-world/<UUID-from-task1>"
+cd "play/$world/<UUID-from-task1>"
 echo "Hello world!" | cli bot chat    # look at terminal 1
 ```
 

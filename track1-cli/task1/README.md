@@ -63,7 +63,7 @@ When your environment is ready and you are in
 `$FCLI_PATH/findy-agent-cli/scripts/fullstack`, execute the following:
 ```shell
 source agent-name.sh hello world
-./make-play-agent.sh XX-hello XX-world
+./make-play-agent.sh $hello $world
 ```
 That on-boards two agents for you.
 
@@ -74,8 +74,8 @@ For now we think that your are in playground root dir
 
 In the terminal window 1:
 ```shell
-cd play/XX-hello
-cli agent ping # you should see the message: Agent register by name: XX-hello
+cd play/$hello
+cli agent ping # you should see the message: Agent register by name: $hello
 cli agent listen # terminate with C-c when step 2 is finished
 ```
 This the agent who's invitation will be used. For the convenience we'll execute
@@ -84,18 +84,18 @@ the next step.
 
 ## 1. Create A Pairwise Connection
 
-In the terminal window 2:
+In the terminal window 2 (and look at terminal 1):
 ```shell
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
-cd play/XX-world
-cd $(../XX-hello/invitation | ./connect)    # look at terminal 1
+cd play/$world
+cd $(../$hello/invitation | ./connect)
 ```
 
 ## 2. Verify The Pairwise Connection
 
-And still in the terminal window 2:
+And still in the terminal window 2 (and look at terminal 1):
 ```shell
-cli connection trustping                 # look at terminal 1
+cli connection trustping
 ```
 The `trustping` verifies that the pairwise connection is well working properly.
 

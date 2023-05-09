@@ -42,8 +42,8 @@ In the terminal window 2:
 ```shell
 # execute next 2 commands only if you have to.
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
-cd "play/XX-world/<UUID-from-task1>"
-cli agent ping # to check that you are the 'XX-world'
+cd "play/$world/<UUID-from-task1>"
+cli agent ping # to check that you are the '$world'
 printenv | grep FCLI # check that FCLI_CRED_DEF_ID is defined and correct *Tip
 cli bot start ../../../email-issuer-bot.yaml -v=1 # verbose lvl 1, we want to know!
 ```
@@ -57,7 +57,7 @@ Continue in the terminal window 1 chat by following instructions in
 read-terminal **and the secret PIN-code is printed to terminal window 2 where
 chatbot is running**.
 
-Note that it's very important that you have reader window for 'XX-hello' agent
+Note that it's very important that you have reader window for '$hello' agent
 running because it accepts important protocol request. There is
 `auto-accept-mode` for testing purposes, but we don't need it here.
 
