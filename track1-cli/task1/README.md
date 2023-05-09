@@ -41,26 +41,31 @@ cd ./findy-agent-cli/scripts/fullstack"
 
 Check that your environment is ready:
 ```shell
-printenv | grep FCLI | sort
+alias pf='printenv | grep FCLI | sort'
+pf
 ```
 It should output:
 ```shell
-FCLI_URL=https://...fi
-FCLI_SERVER=f...fi:50051
-FCLI_KEY=d92f5847..............1897900457da599d
 FCLI=findy-agent-cli
-FCLI_TLS_PATH=/dir/path/to/cert
-FCLI_CONFIG=./cfg.yaml
+FCLI_KEY=1cb85f............cea..............addb7..............0c6122a340
+FCLI_ORIGIN=https://f...net
+FCLI_PATH=/....s/your-god/work/temp
+FCLI_SERVER=fi......................i:50051
+FCLI_TLS_PATH=/..............-techlab/work/.....cert
+FCLI_URL=https://...................fi
 ```
 If there is something extra like `FCLI_USER`, `FCLI_JWT`, etc. unset them.
 
-When your env is ready and you are in
+> Tip. You have now a `pf` alias in your session. Use it for problem-solving for
+> then environment.
+
+When your environment is ready and you are in
 `$FCLI_PATH/findy-agent-cli/scripts/fullstack`, execute the following:
 ```shell
-# --- try to think something uniq for the XX in the class room :-)
+source agent-name.sh hello world
 ./make-play-agent.sh XX-hello XX-world
 ```
-That onboards two agents for you.
+That on-boards two agents for you.
 
 ## 1. Create A Listener To Monitor Agent Notifications
 
