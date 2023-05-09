@@ -7,7 +7,7 @@ symbol 🤠.
 
 The workshop contains seven and ½ tasks:
 
-* **[Task 0: Setup environment](#task-0-setup-environment)**
+* [**Task 0: Setup environment**](#task-0-setup-environment)
 * [Task 1: Create a new connection](./task1/README.md)
 * [Task 2: Send greetings](./task2/README.md)
 * [Task 2.5: Chatbot and FSM Language](./task2.5/README.md)

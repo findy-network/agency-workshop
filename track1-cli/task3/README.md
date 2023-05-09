@@ -1,5 +1,16 @@
 # Track 1.1 - Task 3: Prepare for issuing credentials
 
+## Progress
+
+* [Task 0: Setup environment](../README.md)
+* [Task 1: Create a new connection](../task1/README.md)
+* [Task 2: Send greetings](../task2/README.md)
+* [Task 2.5: Send greetings](../task2.5/README.md)
+* [Task 3: Prepare for issuing credentials](../task3/README.md)
+* [Task 4: Issue credential](../task4/README.md)
+* [Task 5: Verify credential](../task5/README.md)
+* [Task 6: Issue credential for verified information](../task6/README.md)
+
 We have learned how to command our SSI cloud agent. We have also got the first
 touch of the chatbot state-machine language. The following tasks will teach us
 how to issue and verify credentials using these bots.
