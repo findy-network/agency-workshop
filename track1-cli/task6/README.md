@@ -9,7 +9,7 @@
 * [Task 3: Prepare for issuing credentials](../task3/README.md)
 * [Task 4: Issue credential](../task4/README.md)
 * [Task 5: Verify credential](../task5/README.md)
-* [Task 6: Issue credential for verified information](../task6/README.md)
+* [**Task 6: Issue credential for verified information**](../task6/README.md)
 
 Our workshop tracks have the above task 6 subject: verified information. As you
 did noticed in the task 4 we already achieved the email verification. Even it

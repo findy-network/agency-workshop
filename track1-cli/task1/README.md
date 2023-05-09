@@ -3,7 +3,7 @@
 ## Progress
 
 * [Task 0: Setup environment](../README.md)
-* [Task 1: Create a new connection](../task1/README.md)
+* [**Task 1: Create a new connection**](../task1/README.md)
 * [Task 2: Send greetings](../task2/README.md)
 * [Task 2.5: Send greetings](../task2.5/README.md)
 * [Task 3: Prepare for issuing credentials](../task3/README.md)

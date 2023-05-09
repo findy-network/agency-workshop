@@ -8,7 +8,7 @@
 * [Task 2.5: Send greetings](../task2.5/README.md)
 * [Task 3: Prepare for issuing credentials](../task3/README.md)
 * [Task 4: Issue credential](../task4/README.md)
-* [Task 5: Verify credential](../task5/README.md)
+* [**Task 5: Verify credential**](../task5/README.md)
 * [Task 6: Issue credential for verified information](../task6/README.md)
 
 Your human user should now have their first credential in their wallet. Now
