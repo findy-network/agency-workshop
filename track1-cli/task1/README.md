@@ -36,7 +36,7 @@ cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
 ```
 or
 ```shell
-cd ./findy-agent-cli/scripts/fullstack"
+cd ./findy-agent-cli/scripts/fullstack
 ```
 
 Check that your environment is ready:
