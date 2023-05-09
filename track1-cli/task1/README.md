@@ -19,27 +19,47 @@ protocol messages.
 
 ## 0. Allocate cloud agents
 
+Go to your 'playground' root:
 ```shell
-# --- check that these are set and correct
-# --- you can take a look at: setup-cli-env-local.sh in playground root
-# FCLI_KEY=....4497641628... # check your key
-# FCLI=cli
-# FCLI_TLS_PATH=/home/God/go/src/github.com/findy-network/findy-agent/grpc/cert
-export FCLI_CONFIG=./cfg.yaml
-# ---
-export FCLI_PATH="<set_your_findy_network_dir_here>" # this will be used later
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack" # playground root
-./make-play-agent.sh hello world
 ```
+or
+```shell
+cd ./findy-agent-cli/scripts/fullstack" # playground root
+```
+
+Check that your env is ready:
+```shell
+printenv | grep FCLI
+```
+It should output:
+```shell
+FCLI_URL=https://...fi
+FCLI_SERVER=f...fi:50051
+FCLI_KEY=d92f5847..............1897900457da599d
+FCLI=cli
+FCLI_TLS_PATH=/dir/path/to/cert
+FCLI_CONFIG=./cfg.yaml
+```
+If there is something extra like `FCLI_USER`, `FCLI_JWT`, etc. unset them.
+
+When your env is ready and you are in
+`$FCLI_PATH/findy-agent-cli/scripts/fullstack`, execute the following:
+```shell
+# --- try to think something uniq for the XX in the class room :-)
+./make-play-agent.sh XX-hello XX-world
+```
+That onboards two agents for you.
 
 ## 1. Create a listener to monitor agent notifications
 
+For now we think that your are in playground root dir
+(`$FCLI_PATH/findy-agent-cli/scripts/fullstack`).
+
 In the terminal window 1:
 ```shell
-cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
-./make-play-agent.sh hello world
-cd play/hello
-cli agent ping # you should see the message: Agent register by name: hello
+cd play/XX-hello
+cli agent ping # you should see the message: Agent register by name: XX-hello
 cli agent listen # terminate with C-c when step 2 is finished
 ```
 This the agent who's invitation will be used. For the convenience we'll execute
@@ -51,8 +71,8 @@ the next step.
 In the terminal window 2:
 ```shell
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
-cd play/world
-cd $(../hello/invitation | ./connect)    # look at terminal 1
+cd play/XX-world
+cd $(../XX-hello/invitation | ./connect)    # look at terminal 1
 ```
 
 ## 2. Verify the pairwise connection
