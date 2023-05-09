@@ -11,7 +11,21 @@ development.
 
 ## Task 0: Setup environment
 
-### 1. Clone these repositories into your GOPATH/src or into what you prefer
+### 0. Set Your `findy-network` Root Directory
+
+We recommend you to define:
+```shell
+export FCLI_PATH="<set_your_findy_network_root_dir_here>"
+```
+or even more convenient:
+```shell
+# cd to your project dir or GOPATH/src/github.com
+mkdir findy-network
+cd findy-network
+export FCLI_PATH=`pwd`
+```
+
+### 1. Clone these repositories into your `$FCLI_PATH'
 
 ```shell
 git clone https://github.com/findy-network/agency-workshop.git
@@ -60,7 +74,7 @@ variables automatically.
 Run following script in the terminal:
 
 ```bash
-source <(curl <agency_url>/set-env.sh)
+source <(curl <agency_url>/set-env-cli.sh)
 ```
 
 The agency URL is provided for you in the guided workshop. e.g.
@@ -81,7 +95,7 @@ installation](https://github.com/findy-network/findy-wallet-pwa/blob/master/tool
 use the web wallet URL `http://localhost:3000`:
 
 ```bash
-source <(curl http://localhost:3000/set-env.sh)
+source <(curl http://localhost:3000/set-env-cli.sh)
 ```
 </details><br/>
 <details>
@@ -157,6 +171,7 @@ Tip:
 > agency. Just check from where the environment variables are loaded.
 
 </details><br/>
+
 ### 5. Continue with task 1
 
 Congratulations, you have completed the task and have a working agency CLI
