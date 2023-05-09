@@ -5,6 +5,17 @@ Findy Agency FSM language. The assumption is that you are working in a guided
 workshop with the default tooling. In this case you can skip the sections with
 symbol 🤠.
 
+The workshop contains seven and ½ tasks:
+
+* **[Task 0: Setup environment](#task-0-setup-environment)**
+* [Task 1: Create a new connection](./task1/README.md)
+* [Task 2: Send greetings](./task2/README.md)
+* [Task 2.5: Chatbot and FSM Language](./task2.5/README.md)
+* [Task 3: Prepare for issuing credentials](./task3/README.md)
+* [Task 4: Issue credential](./task4/README.md)
+* [Task 5: Verify credential](./task5/README.md)
+* [Task 6: ~Issue credential for verified information~](./task6/README.md)
+
 Follow the instructions and execute the tasks in order. Good luck!
 It's needed. Both, the CLI and the FSM chatbot language are still under
 development.
@@ -13,13 +24,9 @@ development.
 
 ### 0. Set Your `findy-network` Root Directory
 
-We recommend you to define:
+We recommend you go to your workspace/project directory and execute following:
 ```shell
-export FCLI_PATH="<set_your_findy_network_root_dir_here>"
-```
-or even more convenient:
-```shell
-# cd to your project dir or GOPATH/src/github.com
+# in your project/workspace dir
 mkdir findy-network
 cd findy-network
 export FCLI_PATH=`pwd`

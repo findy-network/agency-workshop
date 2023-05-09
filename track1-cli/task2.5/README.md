@@ -1,4 +1,15 @@
-# Track 1.1 - Task 2.5: Chat bot state machines and FSM language
+# Track 1.1 - Task 2.5: Chatbot and FSM language
+
+## Prograess
+
+* [Task 0: Setup environment](#task-0-setup-environment)
+* [**Task 1: Create a new connection**](./task1/README.md)
+* [Task 2: Send greetings](./task2/README.md)
+* [Task 2.5: Chatbot and FSM Language](./task2.5/README.md)
+* [Task 3: Prepare for issuing credentials](./task3/README.md)
+* [Task 4: Issue credential](./task4/README.md)
+* [Task 5: Verify credential](./task5/README.md)
+* [Task 6: ~Issue credential for verified information~](./task6/README.md)
 
 In the previous task, we learned how to send simple text messages between
 agents. Now we build our first hello world application with Findy Agency's [FSM

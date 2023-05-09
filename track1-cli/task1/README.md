@@ -1,4 +1,18 @@
-# Track 1.1 - Task 1: Create a new connection
+# Track 1.1 - Task 1: Create a New Connection
+
+## Progress
+
+<INDEX>
+
+* **[Task 0: Setup environment](#task-0-setup-environment)**
+* [Task 1: Create a new connection](./task1/README.md)
+* [Task 2: Send greetings](./task2/README.md)
+* [Task 2.5: Send greetings](./task2.5/README.md)
+* [Task 3: Prepare for issuing credentials](./task3/README.md)
+* [Task 4: Issue credential](./task4/README.md)
+* [Task 5: Verify credential](./task5/README.md)
+* [Task 6: Issue credential for verified information](./task6/README.md)
+* [Task 7: Additional tasks](./task7/README.md)
 
 An agent's primary capability is peer-to-peer communication, which allows for
 exchanging messages between agents. These interactions can range from simple
@@ -17,27 +31,27 @@ information in the invitation. Eventually, the agents have a secure,
 e2e-encrypted communication pipeline that they can use to transmit other
 protocol messages.
 
-## 0. Allocate cloud agents
+## 0. Allocate Cloud Agents
 
 Go to your 'playground' root:
 ```shell
-cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack" # playground root
+cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
 ```
 or
 ```shell
-cd ./findy-agent-cli/scripts/fullstack" # playground root
+cd ./findy-agent-cli/scripts/fullstack"
 ```
 
-Check that your env is ready:
+Check that your environment is ready:
 ```shell
-printenv | grep FCLI
+printenv | grep FCLI | sort
 ```
 It should output:
 ```shell
 FCLI_URL=https://...fi
 FCLI_SERVER=f...fi:50051
 FCLI_KEY=d92f5847..............1897900457da599d
-FCLI=cli
+FCLI=findy-agent-cli
 FCLI_TLS_PATH=/dir/path/to/cert
 FCLI_CONFIG=./cfg.yaml
 ```
@@ -51,7 +65,7 @@ When your env is ready and you are in
 ```
 That onboards two agents for you.
 
-## 1. Create a listener to monitor agent notifications
+## 1. Create A Listener To Monitor Agent Notifications
 
 For now we think that your are in playground root dir
 (`$FCLI_PATH/findy-agent-cli/scripts/fullstack`).
@@ -66,7 +80,7 @@ This the agent who's invitation will be used. For the convenience we'll execute
 both invitation creation and invitation connection in the same command line in
 the next step.
 
-## 1. Create a pairwise connection
+## 1. Create A Pairwise Connection
 
 In the terminal window 2:
 ```shell
@@ -75,7 +89,7 @@ cd play/XX-world
 cd $(../XX-hello/invitation | ./connect)    # look at terminal 1
 ```
 
-## 2. Verify the pairwise connection
+## 2. Verify The Pairwise Connection
 
 And still in the terminal window 2:
 ```shell
@@ -83,7 +97,7 @@ cli connection trustping                 # look at terminal 1
 ```
 The `trustping` verifies that the pairwise connection is well working properly.
 
-## 3. Continue with task 2
+## 3. Continue With Task 2
 
 Congratulations, you have completed the task and you know now how to establish
 DIDComm connections between agents for message exchange!
