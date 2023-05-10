@@ -82,7 +82,7 @@ Dev tip:
 Go back to 'terminal 1 chat' and write something and press `enter`. You should
 see the chatbot's reply in your 'terminal window 1 read'.
 
-## 3. Continue with ~task 3~ ...
+## 3. Continue with task 3 ...
 
 Congratulations, you have (almost) completed the task 2.5 and you (almost) know
 how to write chatbot state-machines with Findy FSM language.
