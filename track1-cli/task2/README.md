@@ -34,7 +34,6 @@ $FCLI bot read
 
 In the terminal window 2:
 ```shell
-# execute next 2 commands only if you have to.
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
 source ./recover-names.sh
 cd "play/$world/<UUID-from-task1>"
