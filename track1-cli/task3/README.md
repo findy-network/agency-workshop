@@ -1,5 +1,16 @@
 # Track 1.1 - Task 3: Prepare for issuing credentials
 
+## Progress
+
+* [Task 0: Setup environment](../README.md)
+* [Task 1: Create a new connection](../task1/README.md)
+* [Task 2: Send greetings](../task2/README.md)
+* [Task 2.5: Chatbot and FSM Language](../task2.5/README.md)
+* [**Task 3: Prepare for issuing credentials**](../task3/README.md)
+* [Task 4: Issue credential](../task4/README.md)
+* [Task 5: Verify credential](../task5/README.md)
+* [Task 6: Issue credential for verified information](../task6/README.md)
+
 We have learned how to command our SSI cloud agent. We have also got the first
 touch of the chatbot state-machine language. The following tasks will teach us
 how to issue and verify credentials using these bots.
@@ -18,18 +29,18 @@ definition and ensure that your and only your agent has issued the credential.
 
 In the terminal window 2:
 ```shell
-# execute next 2 commands only if you have to.
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
-cd "play/XX-world/<UUID-from-task1>"
-cli agent ping # to check that you are the 'XX-world'
-source new-schema email # == one string attribute: 'email'
+source ./recover-names.sh
+cd "play/$world/<UUID-from-task1>"
+$FCLI agent ping
+source new-schema email
 ```
 
 ## 1. Create a new schema
 
 Continue in the terminal window 2:
 ```shell
-source new-cred-def # takes time, even tens of seconds in a slower machine
+source new-cred-def
 ```
 
 ## 2. Continue with task 4

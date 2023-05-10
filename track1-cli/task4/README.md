@@ -1,5 +1,16 @@
 # Track 1.1 - Task 4: Issue credential
 
+## Progress
+
+* [Task 0: Setup environment](../README.md)
+* [Task 1: Create a new connection](../task1/README.md)
+* [Task 2: Send greetings](../task2/README.md)
+* [Task 2.5: Chatbot and FSM Language](../task2.5/README.md)
+* [Task 3: Prepare for issuing credentials](../task3/README.md)
+* [**Task 4: Issue credential**](../task4/README.md)
+* [Task 5: Verify credential](../task5/README.md)
+* [Task 6: Issue credential for verified information](../task6/README.md)
+
 Now that we have completed setting up the basic bells and whistles we can start
 the real fun with issuing and verifying credentials.
 
@@ -19,22 +30,22 @@ protocols).
 ## 0. Check your 'holder' aka credential receiver
 
 You should have following command still running in 'terminal 1 chat':
-`cli bot chat`
+`$FCLI bot chat`
 
 And you should have following command still running in 'terminal 1 read':
-`cli bot read`.  **Note that this is very important.** The `read` command also
+`$FCLI bot read`.  **Note that this is very important.** The `read` command also
 accept important protocol requests coming from the agency.
 
 ## 1. Start credential issuer chatbot
 
 In the terminal window 2:
 ```shell
-# execute next 2 commands only if you have to.
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
-cd "play/XX-world/<UUID-from-task1>"
-cli agent ping # to check that you are the 'XX-world'
-printenv | grep FCLI # check that FCLI_CRED_DEF_ID is defined and correct *Tip
-cli bot start ../../../email-issuer-bot.yaml -v=1 # verbose lvl 1, we want to know!
+source ./recover-names.sh
+cd "play/$world/<UUID-from-task1>"
+$FCLI agent ping
+printenv | grep FCLI
+$FCLI bot start ../../../email-issuer-bot.yaml -v=1
 ```
 Tip:
 > Defining `alias pf='printenv | grep FCLI'` is very useful idea when working
@@ -46,7 +57,7 @@ Continue in the terminal window 1 chat by following instructions in
 read-terminal **and the secret PIN-code is printed to terminal window 2 where
 chatbot is running**.
 
-Note that it's very important that you have reader window for 'XX-hello' agent
+Note that it's very important that you have reader window for '$hello' agent
 running because it accepts important protocol request. There is
 `auto-accept-mode` for testing purposes, but we don't need it here.
 
