@@ -26,11 +26,32 @@ development.
 
 We recommend you go to your workspace/project directory and execute following:
 ```shell
-# in your project/workspace dir
 mkdir findy-network
 cd findy-network
+```
+You can store this directory to environment variable now. It's important that
+you can restore `FCLI_PATH` in every new terminal session that is used for these
+tasks. We'll do that in [the chapter 4](#4-set-environment-variables)
+
+```shell
 export FCLI_PATH=`pwd`
 ```
+
+##### Terminals environment summary
+
+During this practise you will use two agents `$hello` and `$world`. During this
+documentation we use following concepts and roles:
+
+| Agent  | Terminal | Role    |
+|--------|----------|---------|
+| $hello |  1       | Listen  |
+| $world |  2       | Connect |
+| $hello |  1       | Read    |
+| $hello |  3       | Chat    |
+
+As a summary, there'll be 3 terminal window where first two are for both agents.
+And finally we need third terminal for the `$hello` agent when chatbot is in the
+game.
 
 ### 1. Clone these repositories into your `$FCLI_PATH'
 
@@ -93,7 +114,23 @@ that the variables are automatically exported when you open a new terminal
 window in this folder.
 
 If you don't have `direnv` installed, you can export the variables by typing
-`source .envrc`.
+`source .envrc`. **Note. This is important:** all the following CLI FSM tasks
+relay the environment variable defined in `.envrc`, which means that if you
+aren't using `direnv` you must `source .envrc` every new `CLI playground`
+terminal.
+
+Before `.envrc` is ready for FSM playground use, we must add a couple variables
+to it. First move to `findy-network` root directory:
+```shell
+cd $FCLI_PATH
+```
+and then and the variables. Note. If `direnv` is in use, it asks you to `direnv
+allow`. Please do so:
+
+```shell
+printf 'export FCLI_CONFIG=./cfg.yaml\nexport FCLI_PATH=%s\n' "`pwd`" >> .envrc
+```
+
 <details>
 <summary>🤠 Local setup (WebServer&docker)</summary>
 

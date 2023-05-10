@@ -34,10 +34,6 @@ Go to your 'playground' root:
 ```shell
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
 ```
-or
-```shell
-cd ./findy-agent-cli/scripts/fullstack
-```
 
 Check that your environment is ready:
 ```shell
@@ -46,6 +42,7 @@ pf
 ```
 It should output:
 ```shell
+FCLI_CONFIG=./cfg.yaml
 FCLI=findy-agent-cli
 FCLI_KEY=1cb85f............cea..............addb7..............0c6122a340
 FCLI_ORIGIN=https://f...net
@@ -60,26 +57,56 @@ If there is something extra like `FCLI_USER`, `FCLI_JWT`, etc. unset them.
 > then environment.
 
 When your environment is ready and you are in
-`$FCLI_PATH/findy-agent-cli/scripts/fullstack`, execute the following. Please
-notice that second row really has $ signs on, because we use variables for
-uniqueness:
+`$FCLI_PATH/findy-agent-cli/scripts/fullstack`, execute the following: 
 ```shell
 source agent-name.sh hello world
+```
+The script generates two unique agent name and stores them variables `$helllo`
+and `$world`. It also generates `recover-names.sh` script to easily get those
+variables in use in new terminals.
+
+Next is the playground magic. Magic because clients must store something to be
+able to keep contact to Findy Agency. The ClI playground does that by using just
+file system and OS environment variables. Underneath it executes commands like
+`findy-agent-cli auth register --name 'hello-<some-uuid-or-whater>'`. Rest of
+the command flags come from `FCLI_URL, etc.` and `./cfg.yaml` file. If you are
+interested to see what's the whole command structure, please execute
+`findy-agent-cli tree`. It gives the big picture.
+
+Back to business, `make-play-agent.sh` on-boards (allocates) cloud agents from
+Findy Agency. It also log in all of the allocated agents.
+
+```shell
 ./make-play-agent.sh $hello $world
 ```
-That registers and logins two agents for you.
+That registers and logins two agents for you. The exact names for the agents are
+behind the variables: `$hello` and `$world`.
 
 ## 1. Create A Listener To Monitor Agent Notifications
 
 For now we think that your are in playground root dir
 (`$FCLI_PATH/findy-agent-cli/scripts/fullstack`).
 
-In the terminal window 1:
+In the terminal window 1, we move our `$hello` agent's home directory:
 ```shell
 cd play/$hello
+```
+Let's make sure we really are in the right place and everything is OK:
+```shell
 $FCLI agent ping
+```
+If it is, we did see response that showed something like:
+```shell
+Agent registered by name: hello...
+```
+Next, let's start a listener for our agent to be able to monitor what's going
+on. It will, e.g., let us know when other parties are connecting us thru the
+`invitation` generated from this agent:
+```shell
 $FCLI agent listen
 ```
+#### Summary of Our First Findy Agent
+
 After `$FCLI agent ping` you should see the agent's actual name-handle. `listen`
 command starts to listen your agent, so that you'll see what's happens when
 other agent connects to it.
