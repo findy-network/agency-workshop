@@ -40,14 +40,13 @@ export FCLI_PATH=`pwd`
 ##### Terminals environment summary
 
 During this practise you will use two agents `$hello` and `$world`. During this
-documentation we use following concepts and roles:
+documentation we use following concepts and roles in chronological order:
 
 | Agent  | Terminal | Role    |
 |--------|----------|---------|
-| $hello |  1       | Listen  |
-| $world |  2       | Connect |
-| $hello |  1       | Read    |
-| $hello |  3       | Chat    |
+| $hello |  1       | `ping`, `listen`, `read`  |
+| $world |  2       | `ping`, `connect`, `bot start`,  |
+| $hello |  3       | `bot chat` |
 
 As a summary, there'll be 3 terminal window where first two are for both agents.
 And finally we need third terminal for the `$hello` agent when chatbot is in the
