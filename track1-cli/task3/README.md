@@ -31,16 +31,17 @@ In the terminal window 2:
 ```shell
 # execute next 2 commands only if you have to.
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
+source ./recover-names.sh
 cd "play/$world/<UUID-from-task1>"
-cli agent ping # to check that you are the '$world'
-source new-schema email # == one string attribute: 'email'
+$FCLI agent ping
+source new-schema email
 ```
 
 ## 1. Create a new schema
 
 Continue in the terminal window 2:
 ```shell
-source new-cred-def # takes time, even tens of seconds in a slower machine
+source new-cred-def
 ```
 
 ## 2. Continue with task 4

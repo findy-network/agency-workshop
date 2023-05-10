@@ -60,12 +60,14 @@ If there is something extra like `FCLI_USER`, `FCLI_JWT`, etc. unset them.
 > then environment.
 
 When your environment is ready and you are in
-`$FCLI_PATH/findy-agent-cli/scripts/fullstack`, execute the following:
+`$FCLI_PATH/findy-agent-cli/scripts/fullstack`, execute the following. Please
+notice that second row really has $ signs on, because we use variables for
+uniqueness:
 ```shell
 source agent-name.sh hello world
 ./make-play-agent.sh $hello $world
 ```
-That on-boards two agents for you.
+That registers and logins two agents for you.
 
 ## 1. Create A Listener To Monitor Agent Notifications
 
@@ -75,9 +77,13 @@ For now we think that your are in playground root dir
 In the terminal window 1:
 ```shell
 cd play/$hello
-cli agent ping # you should see the message: Agent register by name: $hello
-cli agent listen # terminate with C-c when step 2 is finished
+$FCLI agent ping
+$FCLI agent listen
 ```
+After `$FCLI agent ping` you should see the agent's actual name-handle. `listen`
+command starts to listen your agent, so that you'll see what's happens when
+other agent connects to it.
+
 This the agent who's invitation will be used. For the convenience we'll execute
 both invitation creation and invitation connection in the same command line in
 the next step.
@@ -87,6 +93,7 @@ the next step.
 In the terminal window 2 (and look at terminal 1):
 ```shell
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
+source ./recover-names.sh
 cd play/$world
 cd $(../$hello/invitation | ./connect)
 ```
@@ -95,7 +102,7 @@ cd $(../$hello/invitation | ./connect)
 
 And still in the terminal window 2 (and look at terminal 1):
 ```shell
-cli connection trustping
+$FCLI connection trustping
 ```
 The `trustping` verifies that the pairwise connection is well working properly.
 

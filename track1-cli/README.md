@@ -57,7 +57,7 @@ The prerequisites for the FSM track are:
    you need to setup it's execution environment, i.e. bind it to the Findy Agency.
 
 Everything presented here can be executed just by using `findy-agent-cli` (later
-just `cli`) and Unix terminal & shell. (Terminal multiplexers and tiling window 
+just `$FCLI`) and Unix terminal & shell. (Terminal multiplexers and tiling window 
 managers might help you during these tasks.)
 
 ### 3. 🤠 Install Findy Agency
@@ -135,7 +135,7 @@ cd scripts; ./mem-dev-server.sh
 Start the Agency Core Server:
 ```shell
 cd <findy-agent-repo>
-make cli # builds fa named binary
+make cli
 cd scripts/test
 fa ledger steward create --config create-steward-to-mem-ledger.yaml
 agency=fa register=findy.json no_clean=1 enclave=MEMORY_enclave.bolt ./mem-server --reset-register --grpc-cert-path ../../grpc/cert
@@ -144,11 +144,11 @@ agency=fa register=findy.json no_clean=1 enclave=MEMORY_enclave.bolt ./mem-serve
 Start the Findy Agent CLI to command your local agency (in a new terminal/window/tab):
 ```shell
 cd <findy-agent-cli-repo>
-make cli # builds and installs binary named cli in your path
+make cli
 cd scripts/fullstack
 source ./setup-cli-env-local.sh
 admin/register && . admin/login
-cli agency count # tells how many cloud agent/wallet is running/onboarded
+cli agency count
 ```
 
 After you have verified that everything above works, you can allocate two
@@ -162,7 +162,7 @@ cli agent ping
 cd $(./invitation | ../test-bob/connect)
 cli connection trustping
 popd
-./rm-play-agent.sh test-alice test-bob # cleanup wallets and client stores
+./rm-play-agent.sh test-alice test-bob
 # typically you shutdown FIDO2 and Core servers at this point
 # like (tmux kill-session)
 ```

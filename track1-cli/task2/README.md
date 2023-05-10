@@ -26,8 +26,8 @@ In the terminal window 1:
 ```shell
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
 cd "play/$hello/<UUID-from-task1>"
-cli agent ping # you should see the message: Agent register by name: $hello
-cli bot read # now, leave this here until ALL the tasks are done
+$FCLI agent ping
+$FCLI bot read
 ```
 
 ## 1. Send a text message
@@ -36,8 +36,9 @@ In the terminal window 2:
 ```shell
 # execute next 2 commands only if you have to.
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
+source ./recover-names.sh
 cd "play/$world/<UUID-from-task1>"
-echo "Hello world!" | cli bot chat    # look at terminal 1
+echo "Hello world!" | $FCLI bot chat
 ```
 
 ## 2. Continue with task 2.5

@@ -18,7 +18,7 @@ language
 
 We have two agents `$hello` and `$world`. We want `$world` to be a chatbot and
 `$hello` be us, a human. As a human, we need to see both input and output
-messages. We already had `cli bot read` command in terminal window 1. You should
+messages. We already had `$FCLI bot read` command in terminal window 1. You should
 split that or bring new terminal near to it. Let's call this new terminal as
 'terminal window 1 chat'. And for clarity, the previous terminal window 1 to
 'terminal window 1 read'
@@ -29,8 +29,8 @@ In the 'terminal window 1 read' (**we have this already**):
 ```shell
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
 cd "play/$hello/<UUID-from-task1>"
-cli agent ping # you should see the message: Agent register by name: $hello
-cli bot read # leave this here until ALL the tasks are done
+$FCLI agent ping
+$FCLI bot read
 ```
 
 In the 'terminal window 1 chat' (**open/split a new**):
@@ -38,8 +38,8 @@ In the 'terminal window 1 chat' (**open/split a new**):
 # --- see the task 1 and check your FCLI_ variables in the new shell
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
 cd "play/$hello/<UUID-from-task1>"
-cli agent ping # you should see the message: Agent register by name: $hello
-cli bot chat # leave this here until ALL the tasks are done
+$FCLI agent ping
+$FCLI bot chat
 ```
 
 ## 1. Open chatbot terminal and start the FSM
@@ -67,12 +67,13 @@ In the terminal window 2:
 ```shell
 # execute next 2 commands only if you have to.
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
+source ./recover-names.sh
 cd "play/$world/<UUID-from-task1>"
-cli agent ping # we're the $world!
-cli bot start hello-world.yaml -v=1 # verbose lvl 1, we want to know!
+$FCLI agent ping
+$FCLI bot start hello-world.yaml -v=1
 ```
 Dev tip:
-> You could open more agent listeners (`cli agent listen`) for both agents:
+> You could open more agent listeners (`$FCLI agent listen`) for both agents:
 > `$hello` and `$world`. This helps you keep track what's going on. This is
 > especially handy with complex FSM chatbots.
 
