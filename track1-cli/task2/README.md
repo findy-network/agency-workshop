@@ -37,7 +37,7 @@ In the terminal window 2:
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
 source ./recover-names.sh
 cd "play/$world/<UUID-from-task1>"
-echo "Hello world!" | $FCLI bot chat
+echo 'Hello world!' | $FCLI bot chat
 ```
 
 ## 2. Continue with task 2.5

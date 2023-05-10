@@ -46,11 +46,14 @@ documentation we use following concepts and roles in chronological order:
 |--------|----------|---------|
 | $hello |  1       | `ping`, `listen`, `read`  |
 | $world |  2       | `ping`, `connect`, `bot start`,  |
-| $hello |  3       | `bot chat` |
+| $hello |  3       | `ping`, `bot chat` |
 
-As a summary, there'll be 3 terminal window where first two are for both agents.
-And finally we need third terminal for the `$hello` agent when chatbot is in the
-game.
+As a summary, there'll be 3 non-overlapping (ideal not mandatory) terminal
+window where first two are for both agents. And finally we need third terminal
+for the `$hello` agent when chatbot is in the game.
+
+> For the long-running commands like `listen`, `read`, `chat` you can close then
+> with <ctrl-C>, and `bot chat` with <ctr-D> because it's reading `stdin`.
 
 ### 1. Clone these repositories into your `$FCLI_PATH'
 
@@ -104,8 +107,8 @@ Run following script in the terminal:
 source <(curl <agency_url>/set-env-cli.sh)
 ```
 
-The agency URL is provided for you in the guided workshop. e.g.
-`https://agency.example.com`.
+**The agency URL is provided for you in the guided workshop**, e.g.
+`https://agency.example.com`. If not, ask it from the organizer.
 
 The script will export the needed environment variables. It will also create
 file `.envrc` that contains these variables. Typing `direnv allow` will ensure
@@ -114,17 +117,17 @@ window in this folder.
 
 If you don't have `direnv` installed, you can export the variables by typing
 `source .envrc`. **Note. This is important:** all the following CLI FSM tasks
-relay the environment variable defined in `.envrc`, which means that if you
+relay the environment variables defined in `.envrc`, which means that if you
 aren't using `direnv` you must `source .envrc` every new `CLI playground`
 terminal.
 
-Before `.envrc` is ready for FSM playground use, we must add a couple variables
-to it. First move to `findy-network` root directory:
+Before `.envrc` is ready for FSM playground use, **we must add a couple
+variables to it**. First move to `findy-network` root directory:
 ```shell
 cd $FCLI_PATH
 ```
-and then and the variables. Note. If `direnv` is in use, it asks you to `direnv
-allow`. Please do so:
+and then add the variables. Note. If `direnv` is in use, it asks you to `direnv
+allow` after below command. Please do so:
 
 ```shell
 printf 'export FCLI_CONFIG=./cfg.yaml\nexport FCLI_PATH=%s\n' "`pwd`" >> .envrc

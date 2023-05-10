@@ -117,13 +117,15 @@ the next step.
 
 ## 1. Create A Pairwise Connection
 
-In the terminal window 2 (and look at terminal 1):
+In the terminal window 2 (and remember follow terminal 1):
 ```shell
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
 source ./recover-names.sh
 cd play/$world
 cd $(../$hello/invitation | ./connect)
 ```
+Notice what your current working directory is. The same UUID is printed to
+`$hello` agents listen output. Copy that, you'll need it later.
 
 ## 2. Verify The Pairwise Connection
 

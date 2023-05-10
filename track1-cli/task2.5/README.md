@@ -28,6 +28,7 @@ split that or bring new terminal near to it. Let's call this new terminal as
 In the 'terminal window 1 read' (**we have this already**):
 ```shell
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
+source ./recover-names.sh
 cd "play/$hello/<UUID-from-task1>"
 $FCLI agent ping
 $FCLI bot read
@@ -37,6 +38,7 @@ In the 'terminal window 1 chat' (**open/split a new**):
 ```shell
 # --- see the task 1 and check your FCLI_ variables in the new shell
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
+source ./recover-names.sh
 cd "play/$hello/<UUID-from-task1>"
 $FCLI agent ping
 $FCLI bot chat
@@ -67,8 +69,14 @@ In the terminal window 2:
 ```shell
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
 source ./recover-names.sh
-cd "play/$world/<UUID-from-task1>"
+cd "play/$world"
 $FCLI agent ping
+```
+Next command will start the chatbot state-machine. Don't worry if you see
+state-transitions. That can happen if there has been some protocol events for
+then agent like `trust_ping`, `did_exchange`, etc.
+
+```shell
 $FCLI bot start hello-world.yaml -v=1
 ```
 Dev tip:
@@ -86,12 +94,11 @@ see the chatbot's reply in your 'terminal window 1 read'.
 Congratulations, you have (almost) completed the task 2.5 and you (almost) know
 how to write chatbot state-machines with Findy FSM language.
 
-**Super-User** Task:
+**Bonus Task**:
 > Stop (C-c) the current chatbot and modify its declaration so that it also
 > echoes the message it receives from the user.
 
-Unfortunately, the only documentation for Findy FSM is in the previously
-mentioned [blog
+The documentation for Findy FSM is in the previously mentioned [blog
 post](https://findy-network.github.io/blog/2023/03/13/no-code-ssi-chatbots-part-i/)
 We recommend you to used it as a reference manual. It's written for that kind of
 use in mind.
