@@ -42,7 +42,13 @@ In the 'terminal window 3 chat' (**open/split a new**):
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
 source ./recover-names.sh
 cd play/$hello
-cd "<CONNETION_ID_IS_YOUR_CLIPBOARD/OR_PRESS_TAB>"
+```
+Next, use blow or use connection ID from your clipboard:
+```shell
+cd ./<PRESS_TAB_AND_WHEN_YOU_SEE_CONN_ID_PRESS_ENTER>
+```
+Let's test all is good:
+```shell
 $FCLI agent ping
 ```
 If last `ping` is OK, everything is ready for our other terminal for the same
