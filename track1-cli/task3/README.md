@@ -27,21 +27,37 @@ definition and ensure that your and only your agent has issued the credential.
 
 ## 0. Create a new schema
 
-In the terminal window 2:
+In the terminal window 2 (`$world` agent), we have almost all ready:
 ```shell
-cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
-source ./recover-names.sh
-cd "play/$world/<UUID-from-task1>"
+cd ..
+```
+It would work if we have stayed in the connection ID directory, but this is a
+learning practise. Now we are in an agent level directory, which is correct be
+cause the chatbot works on agent level, not in the connection level. Chan
+clients are different things, and they can be simulated with the CLI as we have
+seen.
+
+Let's feel the pulse, are we live and kicking?
+```shell
 $FCLI agent ping
+```
+Next, we will create a schema with one attribute `email`.
+```shell
 source new-schema email
 ```
+It should take too much time.
 
-## 1. Create a new schema
+## 1. Create a new credential definition
 
-Continue in the terminal window 2:
+Continue in the same terminal window 2 (`$world` agent) to create a new CredDef.
 ```shell
 source new-cred-def
 ```
+
+#### Bonus Task:
+> Keeping your self this same terminal session, try these `$FCLI agent
+> get-schema` and `$FCLI agent get-cred-def`. They should work because the
+> actual IDs are transported thru environment variables.
 
 ## 2. Continue with task 4
 
