@@ -1,6 +1,14 @@
 package fi.oplab.findyagency.workshop
 
 import org.findy_network.findy_common_kt.*
+import kotlinx.coroutines.launch
+
+interface Listener {
+  suspend fun handleNewConnection(
+    notification: Notification,
+    status: ProtocolStatus.DIDExchangeStatus
+  ) {}
+}
 
 class Agent {
   public val connection: Connection = Connection(
@@ -15,4 +23,33 @@ class Agent {
     server = System.getenv("AGENCY_API_SERVER"),
     userName = System.getenv("FCLI_USER"),
   )
+
+  fun listen(listeners: List<Listener>) {
+    kotlinx.coroutines.GlobalScope.launch {
+      connection.agentClient.listen().collect {
+        println("Received from Agency:\n$it")
+        val status = it.notification
+        when (status.typeID) {
+          Notification.Type.STATUS_UPDATE -> {
+            // info contains the protocol related information
+            val info = connection.protocolClient.status(status.protocolID)
+            val getType =
+                fun(): Protocol.Type =
+                    if (info.state.state == ProtocolState.State.OK) status.protocolType
+                    else Protocol.Type.NONE
+
+            when (getType()) {
+              // New connection established
+              Protocol.Type.DIDEXCHANGE -> {
+                listeners.map{ it.handleNewConnection(status, info.didExchange) }
+              }
+              else -> println("no handler for protocol type: ${status.protocolType}")
+            }
+          }
+          else -> println("no handler for notification type: ${status.typeID}")
+        }
+      }
+    }
+  }
+
 }
