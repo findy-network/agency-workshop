@@ -29,6 +29,9 @@ repositories {
 }
 
 dependencies {
+    // add library for creating QR codes
+    implementation("com.google.zxing:core:3.5.1")
+
     implementation("org.findy_network:findy-common-kt-client:0.0.13")
     implementation("org.findy_network:findy-common-kt-stub:0.0.13")
 
