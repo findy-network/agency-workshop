@@ -31,18 +31,28 @@ cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
 source ./recover-names.sh
 cd "play/$hello/<UUID-from-task1>"
 $FCLI agent ping
+```
+If last `ping` is OK, everything is ready. Let's start the reader that we hear
+what other end is saying to us.
+```shell
 $FCLI bot read
 ```
+Remember that this can be stopped with `ctrl-C`.
 
-In the 'terminal window 1 chat' (**open/split a new**):
+In the 'terminal window 3 chat' (**open/split a new**):
 ```shell
-# --- see the task 1 and check your FCLI_ variables in the new shell
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
 source ./recover-names.sh
 cd "play/$hello/<UUID-from-task1>"
 $FCLI agent ping
+```
+If last `ping` is OK, everything is ready for our other terminal for the same
+agent `$hello`. Let's start the chatter that we can send our text lines to other
+end.
+```shell
 $FCLI bot chat
 ```
+Remember that this can be stopped with `ctrl-D` or `ctrl-C`.
 
 ## 1. Open chatbot terminal and start the FSM
 
@@ -65,7 +75,7 @@ states:
 Save above YAML file to
 `$FCLI_PATH/findy-agent-cli/scripts/fullstack/play/$world/hello-world.yaml`
 
-In the terminal window 2:
+In the terminal window 2 (we have this already for agent `$world`):
 ```shell
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
 source ./recover-names.sh
@@ -73,8 +83,8 @@ cd "play/$world"
 $FCLI agent ping
 ```
 Next command will start the chatbot state-machine. Don't worry if you see
-state-transitions. That can happen if there has been some protocol events for
-then agent like `trust_ping`, `did_exchange`, etc.
+state-transitions. That can happen if there has been some buffered protocol
+events for then agent like `trust_ping`, `did_exchange`, etc.
 
 ```shell
 $FCLI bot start hello-world.yaml -v=1
