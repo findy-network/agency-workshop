@@ -25,11 +25,9 @@ split that or bring new terminal near to it. Let's call this new terminal as
 
 ## 0. Open the human side terminals
 
-In the 'terminal window 1 read' (**we have this already**):
+In the 'terminal window 1 read' (**we have this open already**):
 ```shell
-cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
-source ./recover-names.sh
-cd "play/$hello/<UUID-from-task1>"
+cd "<CONNETION_ID_IS_YOUR_CLIPBOARD/OR_PRESS_TAB>"
 $FCLI agent ping
 ```
 If last `ping` is OK, everything is ready. Let's start the reader that we hear
@@ -43,7 +41,8 @@ In the 'terminal window 3 chat' (**open/split a new**):
 ```shell
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
 source ./recover-names.sh
-cd "play/$hello/<UUID-from-task1>"
+cd play/$hello
+cd "<CONNETION_ID_IS_YOUR_CLIPBOARD/OR_PRESS_TAB>"
 $FCLI agent ping
 ```
 If last `ping` is OK, everything is ready for our other terminal for the same
