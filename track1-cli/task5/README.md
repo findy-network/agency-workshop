@@ -34,19 +34,12 @@ And, you should have following command still running in 'terminal 1 read':
 
 ## 1. Start credential verifier chatbot
 
-In the terminal window 2:
+In the terminal window 2, where you already are in the correct place, in the
+agent `$world` home directory:
 ```shell
-cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
-source ./recover-names.sh
-cd "play/$world/<UUID-from-task1>"
-$FCLI agent ping
-printenv | grep FCLI
-$FCLI bot start ../../../email-verifier-bot.yaml -v=1
+$FCLI bot start ../../email-verifier-bot.yaml -v=1
 ```
-
-Tip:
-> Defining `alias pf='printenv | grep FCLI'` is very useful idea when working
-> with Findy Agency and its CLI.
+This bot is also passive and waits first message from other party.
 
 ## 1. Present a proof of the credential
 

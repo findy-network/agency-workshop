@@ -41,7 +41,7 @@ accept important protocol requests coming from the agency.
 In the terminal window 2, where you already are in the correct place, in the
 agent `$world` home directory:
 ```shell
-$FCLI bot start ../../../email-issuer-bot.yaml -v=1
+$FCLI bot start ../../email-issuer-bot.yaml -v=1
 ```
 This bot is also passive and waits first message from other party.
 
