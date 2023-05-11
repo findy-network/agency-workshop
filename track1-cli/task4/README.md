@@ -38,18 +38,12 @@ accept important protocol requests coming from the agency.
 
 ## 1. Start credential issuer chatbot
 
-In the terminal window 2:
+In the terminal window 2, where you already are in the correct place, in the
+agent `$world` home directory:
 ```shell
-cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
-source ./recover-names.sh
-cd "play/$world/<UUID-from-task1>"
-$FCLI agent ping
-printenv | grep FCLI
 $FCLI bot start ../../../email-issuer-bot.yaml -v=1
 ```
-Tip:
-> Defining `alias pf='printenv | grep FCLI'` is very useful idea when working
-> with Findy Agency and its CLI. If you haven't done this already.
+This bot is also passive and waits first message from other party.
 
 ## 1. Receive the credential
 
