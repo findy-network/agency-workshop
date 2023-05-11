@@ -56,8 +56,8 @@ As a summary, there'll be 3 non-overlapping (ideal not mandatory) terminal
 window where first two are for both agents. And finally we need third terminal
 for the `$hello` agent when chatbot is in the game.
 
-> For the long-running commands like `listen`, `read`, `chat` you can close then
-> with <ctrl-C>, and `bot chat` with <ctr-D> because it's reading `stdin`.
+> For the long-running commands like `listen`, `read`, `chat` you can close them
+> with `ctrl-C`, and `bot chat` with `ctr-D` because it's reading `stdin`.
 
 ### 1. Clone these repositories into your `$FCLI_PATH'
 
@@ -143,13 +143,18 @@ allow` after below command. Please do so:
 
 ```shell
 printf 'export FCLI_CONFIG=./cfg.yaml\nexport FCLI_PATH=%s\n' "`pwd`" >> .envrc
+echo "alias pf='printenv|grep FCLI|sort'" >> .envrc
 ```
-** If you don't use `direnv` tool, you must remember do the following for each
+> Tip. Now you have also a `pf` alias which is handy to check that you playground
+> environment is OK.
+
+**If you don't use `direnv` tool, you must remember do the following for each
 new terminal session:**
 ```shell
 cd $FCLI_PATH
 ```
-Load environment variables manually for the Findy Agent CLI:
+Load environment variables manually for the Findy Agent CLI when in the
+`findy-network` root directory:
 ```shell
 source .envrc
 ```
