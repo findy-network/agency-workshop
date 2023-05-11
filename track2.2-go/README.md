@@ -27,7 +27,7 @@ git clone https://github.com/findy-network/agency-workshop.git
 
 ### **2. Install tooling**
 
-The recommended tooling for the Typescript track is to use
+The recommended tooling for the Go track is to use
 [the Dev Container feature](https://code.visualstudio.com/docs/devcontainers/containers) in VS Code.
 
 For the recommended tooling, you need to have the following:
