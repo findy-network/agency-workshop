@@ -31,7 +31,9 @@ cd "<CONNETION_ID_IS_YOUR_CLIPBOARD/OR_PRESS_TAB>"
 $FCLI agent ping
 ```
 If last `ping` is OK, everything is ready. Let's start the reader that we hear
-what other end is saying to us.
+what other end is saying to us. NOTE. If you didn't close it at the previous
+task's end, `bot read` is already running.
+
 ```shell
 $FCLI bot read
 ```
@@ -94,6 +96,9 @@ events for then agent like `trust_ping`, `did_exchange`, etc.
 ```shell
 $FCLI bot start hello-world.yaml -v=1
 ```
+Because this chatbot is so simple, it's also passive. You must now go to the
+`$hello` agent's `chat` terminal and say something to test this bot.
+
 Dev tip:
 > You could open more agent listeners (`$FCLI agent listen`) for both agents:
 > `$hello` and `$world`. This helps you keep track what's going on. This is
