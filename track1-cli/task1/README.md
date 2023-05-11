@@ -151,6 +151,12 @@ cd $(../$hello/invitation | ./connect)
 Notice what your current working directory is *now*. The same `UUID` is printed to
 `$hello` agents listen output (the terminal 1). Copy that, you'll need it later.
 
+You can output the connection ID need in the next step with:
+```shell
+basename `pwd`
+```
+Copy it to clipboard.
+
 ## 2. Verify The Pairwise Connection
 
 And still in the terminal window 2 (and follow the terminal 1):

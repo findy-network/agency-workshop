@@ -22,8 +22,9 @@ protocol](https://github.com/hyperledger/aries-rfcs/blob/main/features/0095-basi
 
 ## 0. Receive a text message
 
-In the terminal window 1, **if you don't be a right directory already**, move to
-right place and setup the environment:
+In the terminal window 1:
+NOTE. **That if you haven't moved, you are in the *almost* correct place**.
+Otherwise, move to right place and setup the environment thru the root:
 ```shell
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
 source ./recover-names.sh
