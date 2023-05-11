@@ -22,7 +22,8 @@ protocol](https://github.com/hyperledger/aries-rfcs/blob/main/features/0095-basi
 
 ## 0. Receive a text message
 
-In the terminal window 1, move to right place and setup the environment:
+In the terminal window 1, **if you don't be a right directory already**, move to
+right place and setup the environment:
 ```shell
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
 source ./recover-names.sh
@@ -60,6 +61,15 @@ echo 'Hello world!' | $FCLI bot chat
 ```
 > Tip. If you give just `$FCLI bot chat`, you can enter and send many text lines
 > to other end. To stop that give `ctrl-D`
+
+Now, remember, your `$world` agent and its terminal, they are in the right
+directory. Stay there it makes next step easier.
+
+You can output the connection ID need in the next step with:
+```shell
+basename `pwd`
+```
+Copy it to clipboard.
 
 ## 2. Continue with task 2.5
 
