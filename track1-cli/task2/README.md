@@ -59,7 +59,7 @@ Let's send one text line thru the DIDComm to the agent `$hello`:
 echo 'Hello world!' | $FCLI bot chat
 ```
 > Tip. If you give just `$FCLI bot chat`, you can enter and send many text lines
-> to other end. To stop that give <ctrl-D>
+> to other end. To stop that give `ctrl-D`
 
 ## 2. Continue with task 2.5
 
