@@ -25,22 +25,41 @@ split that or bring new terminal near to it. Let's call this new terminal as
 
 ## 0. Open the human side terminals
 
-In the 'terminal window 1 read' (**we have this already**):
+In the 'terminal window 1 read' (**we have this open already**):
 ```shell
-cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
-cd "play/$hello/<UUID-from-task1>"
+cd "<CONNETION_ID_IS_YOUR_CLIPBOARD/OR_PRESS_TAB>"
 $FCLI agent ping
+```
+If last `ping` is OK, everything is ready. Let's start the reader that we hear
+what other end is saying to us. NOTE. If you didn't close it at the previous
+task's end, `bot read` is already running.
+
+```shell
 $FCLI bot read
 ```
+Remember that this can be stopped with `ctrl-C`.
 
-In the 'terminal window 1 chat' (**open/split a new**):
+In the 'terminal window 3 chat' (**open/split a new**):
 ```shell
-# --- see the task 1 and check your FCLI_ variables in the new shell
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
-cd "play/$hello/<UUID-from-task1>"
+source ./recover-names.sh
+cd play/$hello
+```
+Next, use blow or use connection ID from your clipboard:
+```shell
+cd ./<PRESS_TAB_AND_WHEN_YOU_SEE_CONN_ID_PRESS_ENTER>
+```
+Let's test all is good:
+```shell
 $FCLI agent ping
+```
+If last `ping` is OK, everything is ready for our other terminal for the same
+agent `$hello`. Let's start the chatter that we can send our text lines to other
+end.
+```shell
 $FCLI bot chat
 ```
+Remember that this can be stopped with `ctrl-D` or `ctrl-C`.
 
 ## 1. Open chatbot terminal and start the FSM
 
@@ -63,14 +82,23 @@ states:
 Save above YAML file to
 `$FCLI_PATH/findy-agent-cli/scripts/fullstack/play/$world/hello-world.yaml`
 
-In the terminal window 2:
+In the terminal window 2 (we have this already for agent `$world`):
 ```shell
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
 source ./recover-names.sh
-cd "play/$world/<UUID-from-task1>"
+cd "play/$world"
 $FCLI agent ping
+```
+Next command will start the chatbot state-machine. Don't worry if you see
+state-transitions. That can happen if there has been some buffered protocol
+events for then agent like `trust_ping`, `did_exchange`, etc.
+
+```shell
 $FCLI bot start hello-world.yaml -v=1
 ```
+Because this chatbot is so simple, it's also passive. You must now go to the
+`$hello` agent's `chat` terminal and say something to test this bot.
+
 Dev tip:
 > You could open more agent listeners (`$FCLI agent listen`) for both agents:
 > `$hello` and `$world`. This helps you keep track what's going on. This is
@@ -86,12 +114,11 @@ see the chatbot's reply in your 'terminal window 1 read'.
 Congratulations, you have (almost) completed the task 2.5 and you (almost) know
 how to write chatbot state-machines with Findy FSM language.
 
-**Super-User** Task:
+**Bonus Task**:
 > Stop (C-c) the current chatbot and modify its declaration so that it also
 > echoes the message it receives from the user.
 
-Unfortunately, the only documentation for Findy FSM is in the previously
-mentioned [blog
+The documentation for Findy FSM is in the previously mentioned [blog
 post](https://findy-network.github.io/blog/2023/03/13/no-code-ssi-chatbots-part-i/)
 We recommend you to used it as a reference manual. It's written for that kind of
 use in mind.

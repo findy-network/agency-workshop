@@ -24,26 +24,61 @@ development.
 
 ### 0. Set Your `findy-network` Root Directory
 
-We recommend you go to your workspace/project directory and execute following:
+We recommend you go to your workspace/project directory (~/Documents, etc.) and
+execute following:
 ```shell
-# in your project/workspace dir
 mkdir findy-network
 cd findy-network
+```
+You can store this directory to environment variable now. It's important that
+you can restore `FCLI_PATH` in every new terminal session that is used for these
+tasks. We'll do that in [the chapter 4](#4-set-environment-variables)
+
+```shell
 export FCLI_PATH=`pwd`
 ```
+> Tip. Copy then directory value and add it to your shell initialization scripts
+> (`.bashrc`, or `.profile`, what's your poison) if you aren't going to use
+> `direnv` tool. 
+
+##### Terminals environment summary
+
+During this practise you will use two agents `$hello` and `$world`. During this
+documentation we use following concepts and roles in chronological order:
+
+| Agent  | Terminal | Role/Command  |
+|--------|----------|---------------|
+| $hello |  1       | `ping`, `listen`, `read`  |
+| $world |  2       | `ping`, `connect`, `bot start`,  |
+| $hello |  3       | `ping`, `bot chat` |
+
+As a summary, there'll be 3 non-overlapping (ideal not mandatory) terminal
+window where first two are for both agents. And finally we need third terminal
+for the `$hello` agent when chatbot is in the game.
+
+> For the long-running commands like `listen`, `read`, `chat` you can close them
+> with `ctrl-C`, and `bot chat` with `ctr-D` because it's reading `stdin`.
 
 ### 1. Clone these repositories into your `$FCLI_PATH'
 
+This in mandatory. It includes the CLI FSM playground BASH scripts, example
+FSMs, and some optional documentation:
 ```shell
-git clone https://github.com/findy-network/agency-workshop.git
 git clone https://github.com/findy-network/findy-agent-cli.git
 ```
 
 As you noticed, you are cloning the `findy-agent-cli` repo as well to get *the
-actual helper scripts* for your use.
+actual playground/helper scripts* for your use.
 
 The scripts are located `scripts/fullstack/`. The directory contains `README.md`
 where some of the scripts are documented. It presents few examples as well.
+
+In the case, you want to read these transcripts from your own machine, or you
+want to use native setup of Findy Agency, you might be interested to clone
+`agency-workshop` repo:
+```shell
+git clone https://github.com/findy-network/agency-workshop.git
+```
 
 ### 2. Install The Tooling
 
@@ -84,8 +119,8 @@ Run following script in the terminal:
 source <(curl <agency_url>/set-env-cli.sh)
 ```
 
-The agency URL is provided for you in the guided workshop. e.g.
-`https://agency.example.com`.
+**The agency URL is provided for you in the guided workshop**, e.g.
+`https://agency.example.com`. If not, ask it from the organizer.
 
 The script will export the needed environment variables. It will also create
 file `.envrc` that contains these variables. Typing `direnv allow` will ensure
@@ -93,7 +128,38 @@ that the variables are automatically exported when you open a new terminal
 window in this folder.
 
 If you don't have `direnv` installed, you can export the variables by typing
-`source .envrc`.
+`source .envrc`. **Note. This is important:** all the following CLI FSM tasks
+relay the environment variables defined in `.envrc`, which means that if you
+aren't using `direnv` you must `source .envrc` every new `CLI playground`
+terminal.
+
+Before `.envrc` is ready for FSM playground use, **we must add a couple
+variables to it**. First move to `findy-network` root directory:
+```shell
+cd $FCLI_PATH
+```
+and then add the variables. Note. If `direnv` is in use, it asks you to `direnv
+allow` after below command. Please do so:
+
+```shell
+printf 'export FCLI_CONFIG=./cfg.yaml\nexport FCLI_PATH=%s\n' "`pwd`" >> .envrc
+echo "alias pf='printenv|grep FCLI|sort'" >> .envrc
+```
+> Tip. Now you have also a `pf` alias which is handy to check that you playground
+> environment is OK.
+
+**If you don't use `direnv` tool, you must remember do the following for each
+new terminal session:**
+```shell
+cd $FCLI_PATH
+```
+Load environment variables manually for the Findy Agent CLI when in the
+`findy-network` root directory:
+```shell
+source .envrc
+```
+
+
 <details>
 <summary>🤠 Local setup (WebServer&docker)</summary>
 

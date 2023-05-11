@@ -22,23 +22,55 @@ protocol](https://github.com/hyperledger/aries-rfcs/blob/main/features/0095-basi
 
 ## 0. Receive a text message
 
-In the terminal window 1:
+In the 'terminal window 1 read' (**we have this open already**):
+NOTE. **That if you haven't moved, you are in the *almost* correct place**.
+```shell
+cd ./<PRESS_TAB_IN_HERE_AND_ENTER_WHEN_YOU_SEE_CONN_ID>
+```
+Otherwise, move to right place and setup the environment thru the findy-network 
+root:
 ```shell
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
+source ./recover-names.sh
 cd "play/$hello/<UUID-from-task1>"
+```
+In the agent's connection directory (that's the `UUID` in path), let's do the
+health check with then `ping` command first.
+```shell
 $FCLI agent ping
+```
+
+On then start the reader to show what other party is saying. The difference
+between the command `agent listen` and `bot read` is that first is agent level
+and pretty technical, and the second simulates chat applications history stream.
+
+```shell
 $FCLI bot read
 ```
 
 ## 1. Send a text message
 
-In the terminal window 2:
+In the terminal window 2 for `$world` agent, we are in the right place.
+
+Let's do the health check with then `ping` command first.
 ```shell
-cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
-source ./recover-names.sh
-cd "play/$world/<UUID-from-task1>"
-echo "Hello world!" | $FCLI bot chat
+$FCLI agent ping
 ```
+Let's send one text line thru the DIDComm to the agent `$hello`:
+```shell
+echo 'Hello world!' | $FCLI bot chat
+```
+> Tip. If you give just `$FCLI bot chat`, you can enter and send many text lines
+> to other end. To stop that give `ctrl-D`
+
+Now, remember, your `$world` agent and its terminal, they are in the right
+directory. Stay there it makes next step easier.
+
+You can output the connection ID need in the next step with:
+```shell
+basename `pwd`
+```
+Copy it to clipboard.
 
 ## 2. Continue with task 2.5
 
