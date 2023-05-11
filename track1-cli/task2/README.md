@@ -22,9 +22,13 @@ protocol](https://github.com/hyperledger/aries-rfcs/blob/main/features/0095-basi
 
 ## 0. Receive a text message
 
-In the terminal window 1:
+In the 'terminal window 1 read' (**we have this open already**):
 NOTE. **That if you haven't moved, you are in the *almost* correct place**.
-Otherwise, move to right place and setup the environment thru the root:
+```shell
+cd ./<PRESS_TAB_IN_HERE_AND_ENTER_WHEN_YOU_SEE_CONN_ID>
+```
+Otherwise, move to right place and setup the environment thru the findy-network 
+root:
 ```shell
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
 source ./recover-names.sh
@@ -46,12 +50,8 @@ $FCLI bot read
 
 ## 1. Send a text message
 
-In the terminal window 2, move to right place and setup the environment: 
-```shell
-cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
-source ./recover-names.sh
-cd "play/$world"
-```
+In the terminal window 2 for `$world` agent, we are in the right place.
+
 Let's do the health check with then `ping` command first.
 ```shell
 $FCLI agent ping
