@@ -122,12 +122,17 @@ the next step.
 
 ## 1. Create A Pairwise Connection
 
-In the (new) terminal window 2 enter the following commands only if you aren't
-using `direnv` tool:
+In the (new) terminal window 2 enter the following command to go to the right
+place:
 ```shell
 cd "$FCLI_PATH"
+```
+In the terminal window 2 enter the following command **only if you aren't
+using `direnv` tool**:
+```shell
 source .envrc
 ```
+
 Continue to setup playground:
 ```shell
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
