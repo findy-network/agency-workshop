@@ -84,7 +84,7 @@ export GITHUB_PACKAGES_TOKEN=<personal_access_token>
 Alternatively you can define these as system-wide environment variables
 so that they are accessible by any VSCode instance.
 
-### **5. Open the Typescript application in a dev container**
+### **5. Open the Kotlin application in a dev container**
 
 Open folder `./track2.3-kt/app` in VS Code.
 

@@ -97,7 +97,7 @@ func (agencyClient *AgencyClient) Listen(listeners []Listener) {
 
 ## 2. Add code for verifying logic
 
-Create a new file `src/verify.ts`.
+Create a new file `src/verifier.go`.
 
 Add the following content to the new file:
 
