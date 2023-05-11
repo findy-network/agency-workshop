@@ -35,7 +35,8 @@ Go to your 'playground' root:
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
 ```
 
-Check that your environment is ready:
+Check that your environment is ready. Note. You might have the `pf` alias ready
+if you followed all the previous steps. In that case, give just a `pf` command.
 ```shell
 alias pf='printenv | grep FCLI | sort'
 pf
@@ -66,15 +67,16 @@ and `$world`. It also generates `recover-names.sh` script to easily get those
 variables in use in new terminals.
 
 Next is the playground magic. Magic because clients must store something to be
-able to keep contact to Findy Agency. The ClI playground does that by using just
+able to keep contact to Findy Agency. The CLI playground does that by using just
 file system and OS environment variables. Underneath it executes commands like
 `findy-agent-cli auth register --name 'hello-<some-uuid-or-whater>'`. Rest of
-the command flags come from `FCLI_URL, etc.` and `./cfg.yaml` file. If you are
-interested to see what's the whole command structure, please execute
-`findy-agent-cli tree`. It gives the big picture.
+the command flags come from variables like `FCLI_URL, etc.` and `./cfg.yaml`
+file. If you are interested to see what's the whole command structure, please
+execute `findy-agent-cli tree`. It gives the big picture.
 
 Back to business, `make-play-agent.sh` on-boards (allocates) cloud agents from
-Findy Agency. It also log in all of the allocated agents.
+Findy Agency. It also logs in all of the allocated agents, i.e. JWT tokens are
+stored to their home directory.
 
 ```shell
 ./make-play-agent.sh $hello $world
@@ -84,7 +86,7 @@ behind the variables: `$hello` and `$world`.
 
 ## 1. Create A Listener To Monitor Agent Notifications
 
-For now we think that your are in playground root dir
+For now we think that your are in playground root directory
 (`$FCLI_PATH/findy-agent-cli/scripts/fullstack`).
 
 In the terminal window 1, we move our `$hello` agent's home directory:
@@ -105,6 +107,9 @@ on. It will, e.g., let us know when other parties are connecting us thru the
 ```shell
 $FCLI agent listen
 ```
+Note. The listen is blocking listener staying there forever. It can be
+gracefully stopped by `Ctrl-C`.
+
 #### Summary of Our First Findy Agent
 
 After `$FCLI agent ping` you should see the agent's actual name-handle. `listen`
@@ -117,23 +122,42 @@ the next step.
 
 ## 1. Create A Pairwise Connection
 
-In the terminal window 2 (and remember follow terminal 1):
+In the (new) terminal window 2 enter the following commands only if you aren't
+using `direnv` tool:
+```shell
+cd "$FCLI_PATH"
+source .envrc
+```
+Continue to setup playground:
 ```shell
 cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
 source ./recover-names.sh
 cd play/$world
+$FCLI agent ping
+```
+Now you are in the correct place (`$world` home) and if last command (`ping`) went
+OK, everything is cool.
+
+In the terminal window 2 (and remember follow the terminal 1 to see what happens
+there during these commands):
+```shell
 cd $(../$hello/invitation | ./connect)
 ```
-Notice what your current working directory is. The same UUID is printed to
-`$hello` agents listen output. Copy that, you'll need it later.
+Notice what your current working directory is *now*. The same `UUID` is printed to
+`$hello` agents listen output (the terminal 1). Copy that, you'll need it later.
 
 ## 2. Verify The Pairwise Connection
 
-And still in the terminal window 2 (and look at terminal 1):
+And still in the terminal window 2 (and follow the terminal 1):
 ```shell
 $FCLI connection trustping
 ```
 The `trustping` verifies that the pairwise connection is well working properly.
+
+> Tip. You can start `listen` command for this `$world` agent (remember stop it)
+> just to see what notifications was generated during previous commands. The
+> Findy Agency has buffer for these notifications so that they can be delivered
+> when some one is actually listening.
 
 ## 3. Continue With Task 2
 
