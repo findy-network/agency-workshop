@@ -20,6 +20,50 @@ Agents interact using Hyperledger Aries protocols. There are different protocols
 Agents send text messages to each other using
 [basic message protocol](https://github.com/hyperledger/aries-rfcs/blob/main/features/0095-basic-message/README.md).
 
+### Task sequence
+
+In this task:
+
+We will create a new connection according to [the steps in task 1](../task1/README.md#task-sequence).
+We have already the logic for that in place.
+In addition, we will add logic to the application to send and receive basic messages:
+
+1. Once the connection protocol is complete, the application is notified of the new connection.
+1. Application sends a greeting to the new connection.
+1. Application agent initiates the Aries basic message protocol.
+1. Once the protocol is completed, the application is notified of the message sending success.
+1. Once the protocol is completed, the wallet user is notified of the received message.
+1. Wallet user sends a message to the application.
+1. User agent initiates the Aries basic message protocol.
+1. Once the protocol is completed, the wallet user is notified of the message sending success
+(message is displayed in the chat view).
+1. Once the protocol is completed, the application is notified of the received message.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client Application
+    participant Application Agent
+    participant User Agent
+    actor Wallet User
+
+    Application Agent->>Client Application: <<New connection!>>
+    rect rgb(191, 223, 255)
+    Client Application->>Application Agent: Send greeting
+    Note right of Application Agent: Aries Basic message protocol
+    Application Agent->>User Agent: Send message
+    Application Agent->>Client Application: <<Message sent!>>
+    User Agent->>Wallet User: <<Message received!>>
+    end
+    rect rgb(191, 191, 255)
+    Wallet User->>User Agent: Send greeting
+    Note right of Application Agent: Aries Basic message protocol
+    User Agent->>Application Agent: Send message
+    User Agent->>Wallet User: <<Message sent!>>
+    Application Agent->>Client Application: <<Message received!>>
+    end
+```
+
 ## 1. Use protocol API client to send a text to the other agent
 
 In the previous task, we added a handler for new connection notifications.
@@ -132,5 +176,6 @@ Check that the sent message is visible in the server logs:
 
 Congratulations, you have completed task 2, and now know how to send and receive
 basic messages with the Hyperledger Aries protocol!
+To revisit what happened, check [the sequence diagram](#task-sequence).
 
 You can now continue with [task 3](../task3/README.md).
