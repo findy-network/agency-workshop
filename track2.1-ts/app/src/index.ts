@@ -3,6 +3,7 @@ import { agencyv1, AgentClient, createAcator, openGRPCConnection } from '@findy-
 import QRCode from 'qrcode'
 
 import listenAgent from './listen'
+import prepare from './prepare'
 
 const app: Express = express();
 const port = process.env.PORT || 3001;
@@ -63,6 +64,9 @@ const runApp = async () => {
   // Create API clients using the connection
   const agentClient = await createAgentClient()
   const protocolClient = await createProtocolClient()
+
+  // Prepare issuing and fetch credential definition id
+  const credDefId = await prepare(agentClient, process.env.FCLI_USER!)
 
   // Start listening to agent notifications
   await listenAgent(agentClient, protocolClient)
