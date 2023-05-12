@@ -49,7 +49,9 @@ This bot is also passive and waits first message from other party.
 
 Continue in the terminal window 1 chat by following instructions in
 read-terminal **and the secret PIN-code is printed to terminal window 2 where
-chatbot is running**.
+chatbot is running**. Enter the PIN-code when asked (`read` window). After that
+you should see something like `Thank you` and `Bye Bye`. And it was all. Now
+your `$hello` agent has `email` credential.
 
 Note that it's very important that you have reader window for '$hello' agent
 running because it accepts important protocol request. There is

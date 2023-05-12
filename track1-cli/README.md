@@ -85,11 +85,23 @@ git clone https://github.com/findy-network/agency-workshop.git
 The prerequisites for the FSM track are:
 1. You should have a Unix and terminal access. The shell can be whatever, but
   `bash` is preferred because it's mostly tested by the dev team.
-2. [`findy-agent-cli`](https://github.com/findy-network/findy-agent-cli#installation)
-   installed.
+2. We have installation guides and scripts for every OS and CPU architecture in 
+   [`findy-agent-cli`.](https://github.com/findy-network/findy-agent-cli#installation)
+   To minimize hassling, we recommend you to use following lines for `findy-agent-cli`
+   installation, which makes care of writing rights, `PATH`, and keeps you in
+   control:
+   ```shell
+    curl https://raw.githubusercontent.com/findy-network/findy-agent-cli/HEAD/install.sh -o install
+    chmod +x ./install
+    sudo BINDIR=/usr/local/bin ./install
+    which findy-agent-cli
+   ```
+   When the final command outputs: `/usr/local/bin/which/findy-agent-cli` all is
+   OK.
 3. And most importantly, you should have access to [Findy
    Agency](https://findy-network.github.io). After CLI is successfully installed
    you need to setup it's execution environment, i.e. bind it to the Findy Agency.
+   You'll get the Findy Agency URL for workshop organizer.
 
 Everything presented here can be executed just by using `findy-agent-cli` (later
 just `$FCLI`) and Unix terminal & shell. (Terminal multiplexers and tiling window 
@@ -113,14 +125,22 @@ See instructions [here](../agency-local/README.md).
 The agency environment provides a script for setting up the needed environment
 variables automatically.
 
-Run following script in the terminal:
+Run following script in the terminal, or maybe not, but run the block after that
+because there seems to quite many shell that don't understand `sourc <()`
+notation:
 
-```bash
+```shell
 source <(curl <agency_url>/set-env-cli.sh)
 ```
+This is the safes and most backward compatible way to install environment
+variables for our Findy Agency playground:
+```shell
+curl <agency_url>/set-env-cli.sh -o set-env-cli.sh
+source ./set-env-cli.sh
+```
 
-**The agency URL is provided for you in the guided workshop**, e.g.
-`https://agency.example.com`. If not, ask it from the organizer.
+As already said, **The agency URL is provided for you in the guided workshop**,
+e.g. `https://agency.example.com`. If not, ask it from the organizer.
 
 The script will export the needed environment variables. It will also create
 file `.envrc` that contains these variables. Typing `direnv allow` will ensure
