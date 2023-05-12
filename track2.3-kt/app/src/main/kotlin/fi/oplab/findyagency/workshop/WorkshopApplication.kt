@@ -23,12 +23,16 @@ class AppController {
   val greeter = Greeter(agent.connection)
   // Create issuer instance
   val issuer = Issuer(agent.connection, agent.credDefId)
+  // Create verifier instance
+  val verifier = Verifier(agent.connection, agent.credDefId)
 
   init {
     val listeners = ArrayList<Listener>()
     listeners.add(greeter)
     // Add issuer to the listener array
     listeners.add(issuer)
+    // Add verifier to the listener array
+    listeners.add(verifier)
     // Start listening to agent notifications 
     agent.listen(listeners)
   }
@@ -100,5 +104,9 @@ class AppController {
     return html
   }
 
-  @GetMapping("/verify") fun verify(): String = "IMPLEMENT ME"
+  @GetMapping("/verify") fun verify(): String {
+    val (html, id) = createInvitationPage("Verify")
+    verifier.addInvitation(id)
+    return html
+  }
 }

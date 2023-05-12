@@ -1,10 +1,12 @@
 import { agencyv1, AgentClient, ProtocolClient } from '@findy-network/findy-common-ts'
 import { Issuer } from './issue'
+import { Verifier } from './verify'
 
 export default async (
   agentClient: AgentClient,
   protocolClient: ProtocolClient,
   issuer: Issuer,
+  verifier: Verifier,
 ) => {
 
   // Options for listener
@@ -27,6 +29,9 @@ export default async (
 
         // Notify issuer of new connection
         issuer.handleNewConnection(info, didExchange)
+
+        // Notify verifier of new connection
+        verifier.handleNewConnection(info, didExchange)
       },
 
       BasicMessageDone: async (info, basicMessage) => {
@@ -40,6 +45,14 @@ export default async (
       IssueCredentialDone: (info, issueCredential) => {
         // Notify issuer of issue protocol success
         issuer.handleIssueDone(info, issueCredential)
+      },
+
+      PresentProofPaused: (info, presentProof) => {
+        verifier.handleProofPaused(info, presentProof)
+      },
+
+      PresentProofDone: (info, presentProof) => {
+        verifier.handleProofDone(info, presentProof)
       },
     },
     options

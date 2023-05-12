@@ -15,6 +15,10 @@ type Listener interface {
 	HandleBasicMesssageDone(*agency.Notification, *agency.ProtocolStatus_BasicMessageStatus)
 	// Send notification to listener when issue credential protocol is completed
 	HandleIssueCredentialDone(*agency.Notification, *agency.ProtocolStatus_IssueCredentialStatus)
+	// Send notification to listener when present proof protocol is paused
+	HandlePresentProofPaused(*agency.Notification, *agency.ProtocolStatus_PresentProofStatus)
+	// Send notification to listener when present proof protocol is completed
+	HandlePresentProofDone(*agency.Notification, *agency.ProtocolStatus_PresentProofStatus)
 }
 
 func (agencyClient *AgencyClient) Listen(listeners []Listener) {
@@ -68,11 +72,21 @@ func (agencyClient *AgencyClient) Listen(listeners []Listener) {
 						for _, listener := range listeners {
 							listener.HandleIssueCredentialDone(notification, status.GetIssueCredential())
 						}
+						// Notify listener when present proof protocol is completed
+					case agency.Protocol_PRESENT_PROOF:
+						for _, listener := range listeners {
+							listener.HandlePresentProofDone(notification, status.GetPresentProof())
+						}
 					default:
 						log.Printf("No handler for protocol message %s\n", notification.GetProtocolType())
 					}
 				} else {
 					log.Printf("Status NOK %v for %s\n", status, notification.GetProtocolType())
+				}
+				// Notify listener when present proof protocol is paused
+			case agency.Notification_PROTOCOL_PAUSED:
+				for _, listener := range listeners {
+					listener.HandlePresentProofPaused(notification, status.GetPresentProof())
 				}
 			default:
 				log.Printf("No handler for notification %s\n", notification.GetTypeID())
