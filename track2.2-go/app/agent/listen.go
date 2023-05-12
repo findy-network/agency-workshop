@@ -13,6 +13,8 @@ type Listener interface {
 	HandleNewConnection(*agency.Notification, *agency.ProtocolStatus_DIDExchangeStatus)
 	// Send notification to listener when basic message protocol is completed
 	HandleBasicMesssageDone(*agency.Notification, *agency.ProtocolStatus_BasicMessageStatus)
+	// Send notification to listener when issue credential protocol is completed
+	HandleIssueCredentialDone(*agency.Notification, *agency.ProtocolStatus_IssueCredentialStatus)
 }
 
 func (agencyClient *AgencyClient) Listen(listeners []Listener) {
@@ -60,6 +62,11 @@ func (agencyClient *AgencyClient) Listen(listeners []Listener) {
 					case agency.Protocol_BASIC_MESSAGE:
 						for _, listener := range listeners {
 							listener.HandleBasicMesssageDone(notification, status.GetBasicMessage())
+						}
+					// Notify issue credential protocol events
+					case agency.Protocol_ISSUE_CREDENTIAL:
+						for _, listener := range listeners {
+							listener.HandleIssueCredentialDone(notification, status.GetIssueCredential())
 						}
 					default:
 						log.Printf("No handler for protocol message %s\n", notification.GetProtocolType())

@@ -14,6 +14,12 @@ interface Listener {
     notification: Notification,
     status: ProtocolStatus.BasicMessageStatus
   ) {}
+
+// Send notification to listener when issue credential protocol is completed
+  suspend fun handleIssueCredentialDone(
+    notification: Notification,
+    status: ProtocolStatus.IssueCredentialStatus
+  ) {}
 }
 
 class Agent {
@@ -53,6 +59,10 @@ class Agent {
               // Notify basic message protocol events
               Protocol.Type.BASIC_MESSAGE -> {
                 listeners.map{ it.handleBasicMessageDone(status, info.basicMessage) }
+              }
+              // Notify issue credential protocol events
+              Protocol.Type.ISSUE_CREDENTIAL -> {
+                listeners.map{ it.handleIssueCredentialDone(status, info.issueCredential) }
               }
               else -> println("no handler for protocol type: ${status.protocolType}")
             }
