@@ -1,8 +1,10 @@
 import { agencyv1, AgentClient, ProtocolClient } from '@findy-network/findy-common-ts'
+import { Issuer } from './issue'
 
 export default async (
   agentClient: AgentClient,
   protocolClient: ProtocolClient,
+  issuer: Issuer,
 ) => {
 
   // Options for listener
@@ -22,6 +24,9 @@ export default async (
         const msg = new agencyv1.Protocol.BasicMessageMsg()
         msg.setContent('Hi there 👋!')
         await protocolClient.sendBasicMessage(info.connectionId, msg)
+
+        // Notify issuer of new connection
+        issuer.handleNewConnection(info, didExchange)
       },
 
       BasicMessageDone: async (info, basicMessage) => {
@@ -30,6 +35,11 @@ export default async (
           const msg = basicMessage.getContent()
           console.log(`Received basic message ${msg} from ${info.connectionId}`)
         }
+      },
+
+      IssueCredentialDone: (info, issueCredential) => {
+        // Notify issuer of issue protocol success
+        issuer.handleIssueDone(info, issueCredential)
       },
     },
     options
