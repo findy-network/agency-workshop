@@ -29,6 +29,7 @@ class Agent {
     server = System.getenv("AGENCY_API_SERVER"),
     userName = System.getenv("FCLI_USER"),
   )
+  public val credDefId = createCredentialDefinition()
 
   fun listen(listeners: List<Listener>) {
     kotlinx.coroutines.GlobalScope.launch {
@@ -62,4 +63,45 @@ class Agent {
     }
   }
 
+
+  private fun createCredentialDefinition(): String = kotlinx.coroutines.runBlocking {
+    var credDefId = ""
+    try {
+      credDefId = java.io.File("CRED_DEF_ID").readLines()[0]
+    } catch (e: Exception) {}
+
+    // Create cred def only if it does not exist already
+    if (credDefId == "") {
+      // Note: if schema creation fails, you have probably created
+      // the same schema already with the same name and version number.
+      // If this happens, change the version number and retry the creation
+      val schemaRes =
+          connection.agentClient.createSchema(
+              name = "foobar",
+              attributes = listOf("foo"),
+              version = "1.0"
+          )
+      do {
+        var schemaCreated = false
+        try {
+          val schema = connection.agentClient.getSchema(id = schemaRes.id)
+          println("Created schema ${schema.id}")
+          schemaCreated = true
+        } catch (e: Exception) {
+          println("Waiting for the schema to be created...")
+          Thread.sleep(1_000 * 1)
+        }
+      } while (!schemaCreated)
+
+      println("Starting to create credential definition (may take a while)...")
+      val credDef = connection.agentClient.createCredDef(
+        schemaId = schemaRes.id,
+        tag = System.getenv("FCLI_USER")
+      )
+      credDefId = credDef.id
+      java.io.File("CRED_DEF_ID").writeText(credDefId)
+      println("Cred def ${credDefId} created successfully!")
+    }
+    credDefId
+  }
 }
