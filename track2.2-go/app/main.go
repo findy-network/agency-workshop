@@ -21,6 +21,8 @@ type app struct {
 	agencyClient *agent.AgencyClient
 	// Store greeter handler to app state
 	greeter *handlers.Greeter
+	// Issuer handles the issuing logic
+	issuer *handlers.Issuer
 }
 
 func (a *app) homeHandler(response http.ResponseWriter, r *http.Request) {
@@ -49,7 +51,9 @@ func (a *app) issueHandler(response http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		http.Error(response, err.Error(), http.StatusInternalServerError)
 	})
-	try.To1(response.Write([]byte("IMPLEMENT ME")))
+	id, html := try.To2(createInvitationPage(a.agencyClient.AgentClient, "Issue"))
+	a.issuer.AddInvitation(id)
+	try.To1(response.Write([]byte(html)))
 }
 
 // Show pairwise invitation. Once connection is established, verify credential.
@@ -106,18 +110,20 @@ func main() {
 	agencyClient := try.To1(agent.LoginAgent())
 
 	// Create credential definition
-	_ = try.To1(agencyClient.PrepareIssuing())
+	credDefId := try.To1(agencyClient.PrepareIssuing())
 
 	// Create handlers
 	myApp := app{
 		agencyClient: agencyClient,
 		greeter:      handlers.NewGreeter(agencyClient.Conn),
+		issuer:       handlers.NewIssuer(agencyClient.Conn, credDefId),
 	}
 
 	// Start listening
 	myApp.agencyClient.Listen([]agent.Listener{
-		// Greeter handles the greeting logic
 		myApp.greeter,
+		// Issuer handles the issuing logic
+		myApp.issuer,
 	})
 
 	router := http.NewServeMux()

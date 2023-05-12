@@ -2,6 +2,7 @@ import express, { Express, Request, Response } from 'express';
 import { agencyv1, AgentClient, createAcator, openGRPCConnection } from '@findy-network/findy-common-ts'
 import QRCode from 'qrcode'
 
+import createIssuer from './issue'
 import listenAgent from './listen'
 import prepare from './prepare'
 
@@ -68,8 +69,15 @@ const runApp = async () => {
   // Prepare issuing and fetch credential definition id
   const credDefId = await prepare(agentClient, process.env.FCLI_USER!)
 
+  // Add logic for issuing
+  const issuer = createIssuer(protocolClient, credDefId)
+
   // Start listening to agent notifications
-  await listenAgent(agentClient, protocolClient)
+  await listenAgent(
+    agentClient,
+    protocolClient,
+    issuer
+  )
 
   app.get('/greet', async (req: Request, res: Response) => {
     const { payload } = await createInvitationPage(agentClient, 'Greet')
@@ -77,7 +85,10 @@ const runApp = async () => {
   });
 
   app.get('/issue', async (req: Request, res: Response) => {
-    throw 'IMPLEMENT ME!'
+    const { id, payload } = await createInvitationPage(agentClient, 'Issue')
+    // Update issuer with invitation id
+    issuer.addInvitation(id)
+    res.send(payload)
   });
 
   app.get('/verify', async (req: Request, res: Response) => {

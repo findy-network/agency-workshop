@@ -21,10 +21,14 @@ fun main(args: Array<String>) {
 class AppController {
   val agent = Agent()
   val greeter = Greeter(agent.connection)
+  // Create issuer instance
+  val issuer = Issuer(agent.connection, agent.credDefId)
 
   init {
     val listeners = ArrayList<Listener>()
     listeners.add(greeter)
+    // Add issuer to the listener array
+    listeners.add(issuer)
     // Start listening to agent notifications 
     agent.listen(listeners)
   }
@@ -83,10 +87,18 @@ class AppController {
 
 
   @GetMapping("/") fun index(): String = "Kotlin example"
+
   @GetMapping("/greet") fun greet(): String {
     val (html) = createInvitationPage("Greet")
     return html
   }
-  @GetMapping("/issue") fun issue(): String = "IMPLEMENT ME"
+
+  // Show pairwise invitation. Once connection is established, issue credential.
+  @GetMapping("/issue") fun issue(): String {
+    val (html, id) = createInvitationPage("Issue")
+    issuer.addInvitation(id)
+    return html
+  }
+
   @GetMapping("/verify") fun verify(): String = "IMPLEMENT ME"
 }
