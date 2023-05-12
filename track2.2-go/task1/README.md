@@ -25,6 +25,39 @@ that the other agent can read using a mobile device. The connection negotiation 
 the information in the invitation. Eventually, the agents have a secure, e2e-encrypted
 communication pipeline that they can use to transmit other protocol messages.
 
+### Task sequence
+
+In this task:
+
+1. We will create a new web wallet user (if we don't already have one).
+The user will navigate to our application's *Greet*-page.
+1. The application will generate a new pairwise invitation each time the *Greet*-page is loaded.
+1. The application's agent hosted by the agency will handle the actual invitation generation.
+1. The application will render the invitation string as QR code and display it to the wallet user.
+1. The wallet user will use her web wallet to read the QR code.
+1. Reading of the QR code starts Aries connection protocol between the user's and the application's agents.
+1. Once the protocol is complete, the wallet user is notified of the new connection.
+1. Once the protocol is complete, the application is notified of the new connection.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client Application
+    participant Application Agent
+    participant User Agent
+    actor Wallet User
+
+    Wallet User->>Client Application: Navigate to http://localhost:3001/greet
+    Client Application->>Application Agent: Generate invitation
+    Application Agent-->>Client Application: <<invitation URL>>
+    Client Application-->>Wallet User: Show invitation QR code
+    Wallet User->>User Agent: Read QR code
+    Note right of Application Agent: Aries Connection protocol
+    User Agent->>Application Agent: Establish DIDComm pipe
+    User Agent->>Wallet User: <<New connection!>>
+    Application Agent->>Client Application: <<New connection!>>
+```
+
 ## 1. Add library for creating QR codes
 
 Add a new dependency to your project:
@@ -371,5 +404,6 @@ Check that the server logs print out the web wallet user name.
 
 Congratulations, you have completed task 1, and you know now how to establish DIDComm connections
 between agents for message exchange!
+To revisit what happened, check [the sequence diagram](#task-sequence).
 
 You can now continue with [task 2](../task2/README.md).

@@ -25,6 +25,48 @@ For simplicity, we build the verification functionality into the same applicatio
 we have been working on. The underlying protocol for requesting and presenting proofs is
 [the present proof protocol](https://github.com/hyperledger/aries-rfcs/blob/main/features/0037-present-proof/README.md).
 
+### Task sequence
+
+In this task:
+
+We will create a new connection according to [the steps in task 1](../task1/README.md#task-sequence).
+We have already the logic for that in place.
+In addition, we will add logic to the application to verify credentials:
+
+1. Once the connection protocol is complete, the application is notified of the new connection.
+1. Application sends a proof request to the new connection.
+1. Application agent initiates the Aries present proof protocol.
+1. Wallet user gets a notification of the request.
+1. Wallet user accepts the request.
+1. Present proof protocol continues.
+1. The application gets a notification of the presentation.
+1. The application approves the proof presentation.
+1. Present proof protocol continues.
+1. Once the protocol is completed, the wallet user is notified that proving was successful.
+1. Once the protocol is completed, the application is notified that verifying was successful.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client Application
+    participant Application Agent
+    participant User Agent
+    actor Wallet User
+
+    Application Agent->>Client Application: <<New connection!>>
+    Client Application->>Application Agent: Send proof request
+    Note right of Application Agent: Aries Present proof protocol
+    Application Agent->>User Agent: Send request
+    User Agent->>Wallet User: <<Request received!>>
+    Wallet User->>User Agent: Accept request
+    User Agent->>Application Agent: <<Protocol continues>
+    Application Agent->>Client Application: <<Presentation received!>>
+    Client Application->>Application Agent: Approve presentation
+    Application Agent->>User Agent: <<Protocol continues>
+    User Agent->>Wallet User: <<Proof ok!>>
+    Application Agent->>Client Application: <<Proof ok!>>
+```
+
 ## 1. Listen to present proof protocol
 
 Open file `Agent.kt`.
@@ -52,7 +94,6 @@ When receiving notification for the present proof protocol, notify listeners via
 Replace the implementation of `listen`-function with the following:
 
 ```kotlin
-
   fun listen(listeners: List<Listener>) {
     kotlinx.coroutines.GlobalScope.launch {
       connection.agentClient.listen().collect {
@@ -237,7 +278,8 @@ Ensure that server logs display the success for the proof protocol:
 
 ## 8. Continue with task 6
 
-Congratulations, you have completed task 6, and now know how to verify
+Congratulations, you have completed task 5, and now know how to verify
 credentials!
+To revisit what happened, check [the sequence diagram](#task-sequence).
 
 You can now continue with [task 6](../task6/README.md).

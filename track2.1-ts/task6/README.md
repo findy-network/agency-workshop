@@ -370,7 +370,7 @@ Review server logs.
 
 ## 8. Continue with task 7
 
-Congratulations, you have completed task 7 and now know a little more about
+Congratulations, you have completed task 6 and now know a little more about
 how to build the application logic for issuers!
 
 You can now continue with [task 7](../task7/README.md).

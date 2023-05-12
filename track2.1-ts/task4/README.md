@@ -25,6 +25,42 @@ Agents use [the issue credential protocol](https://github.com/hyperledger/aries-
 when handling the issuing process. Luckily, Findy Agency handles the execution of this complex
 protocol for us (similarly to other Hyperledger Aries protocols).
 
+### Task sequence
+
+In this task:
+
+We will create a new connection according to [the steps in task 1](../task1/README.md#task-sequence).
+We have already the logic for that in place.
+In addition, we will add logic to the application to issue credentials:
+
+1. Once the connection protocol is complete, the application is notified of the new connection.
+1. Application sends a credential offer to the new connection.
+1. Application agent initiates the Aries issue credential protocol.
+1. Wallet user gets a notification of the offer.
+1. Wallet user accepts the offer.
+1. Issue credential protocol continues.
+1. Once the protocol is completed, the application is notified of the issuing success.
+1. Once the protocol is completed, the wallet user is notified of the received credential.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client Application
+    participant Application Agent
+    participant User Agent
+    actor Wallet User
+
+    Application Agent->>Client Application: <<New connection!>>
+    Client Application->>Application Agent: Send credential offer
+    Note right of Application Agent: Aries Issue credential protocol
+    Application Agent->>User Agent: Send offer
+    User Agent->>Wallet User: <<Offer received!>>
+    Wallet User->>User Agent: Accept
+    User Agent->>Application Agent: <<Protocol continues>
+    Application Agent->>Client Application: <<Credential issued!>>
+    User Agent->>Wallet User: <<Credential received!>>
+```
+
 ## 1. Add code for issuing logic
 
 Create a new file `src/issue.ts`.
@@ -217,7 +253,8 @@ Ensure that server logs display the success for the issue protocol:
 
 ## 8. Continue with task 5
 
-Congratulations, you have completed task 5, and know now how to issue
+Congratulations, you have completed task 4, and know now how to issue
 credentials!
+To revisit what happened, check [the sequence diagram](#task-sequence).
 
 You can now continue with [task 5](../task5/README.md).
