@@ -15,10 +15,22 @@ interface Listener {
     status: ProtocolStatus.BasicMessageStatus
   ) {}
 
-// Send notification to listener when issue credential protocol is completed
+  // Send notification to listener when issue credential protocol is completed
   suspend fun handleIssueCredentialDone(
     notification: Notification,
     status: ProtocolStatus.IssueCredentialStatus
+  ) {}
+
+  // Send notification to listener when present proof protocol is paused
+  suspend fun handlePresentProofPaused(
+    notification: Notification,
+    status: ProtocolStatus.PresentProofStatus
+  ) {}
+
+  // Send notification to listener when present proof protocol is completed
+  suspend fun handlePresentProofDone(
+    notification: Notification,
+    status: ProtocolStatus.PresentProofStatus
   ) {}
 }
 
@@ -64,15 +76,23 @@ class Agent {
               Protocol.Type.ISSUE_CREDENTIAL -> {
                 listeners.map{ it.handleIssueCredentialDone(status, info.issueCredential) }
               }
+              // Notify listener when present proof protocol is completed
+              Protocol.Type.PRESENT_PROOF -> {
+                listeners.map{ it.handlePresentProofDone(status, info.presentProof) }
+              }
               else -> println("no handler for protocol type: ${status.protocolType}")
             }
+          }
+          // Notify listener when present proof protocol is paused
+          Notification.Type.PROTOCOL_PAUSED -> {
+            val info = connection.protocolClient.status(status.protocolID)
+            listeners.map{ it.handlePresentProofPaused(status, info.presentProof) }
           }
           else -> println("no handler for notification type: ${status.typeID}")
         }
       }
     }
   }
-
 
   private fun createCredentialDefinition(): String = kotlinx.coroutines.runBlocking {
     var credDefId = ""

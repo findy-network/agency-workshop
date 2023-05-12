@@ -23,6 +23,8 @@ type app struct {
 	greeter *handlers.Greeter
 	// Issuer handles the issuing logic
 	issuer *handlers.Issuer
+	// Verifier handles the verifying logic
+	verifier *handlers.Verifier
 }
 
 func (a *app) homeHandler(response http.ResponseWriter, r *http.Request) {
@@ -62,7 +64,9 @@ func (a *app) verifyHandler(response http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		http.Error(response, err.Error(), http.StatusInternalServerError)
 	})
-	try.To1(response.Write([]byte("IMPLEMENT ME")))
+	id, html := try.To2(createInvitationPage(a.agencyClient.AgentClient, "Verify"))
+	a.verifier.AddInvitation(id)
+	try.To1(response.Write([]byte(html)))
 }
 
 func createInvitationPage(
@@ -117,13 +121,16 @@ func main() {
 		agencyClient: agencyClient,
 		greeter:      handlers.NewGreeter(agencyClient.Conn),
 		issuer:       handlers.NewIssuer(agencyClient.Conn, credDefId),
+		// Handler for verifying logic
+		verifier: handlers.NewVerifier(agencyClient.Conn, credDefId),
 	}
 
 	// Start listening
 	myApp.agencyClient.Listen([]agent.Listener{
 		myApp.greeter,
-		// Issuer handles the issuing logic
 		myApp.issuer,
+		// Add verifier to listener array
+		myApp.verifier,
 	})
 
 	router := http.NewServeMux()

@@ -3,6 +3,7 @@ import { agencyv1, AgentClient, createAcator, openGRPCConnection } from '@findy-
 import QRCode from 'qrcode'
 
 import createIssuer from './issue'
+import createVerifier from './verify'
 import listenAgent from './listen'
 import prepare from './prepare'
 
@@ -72,11 +73,15 @@ const runApp = async () => {
   // Add logic for issuing
   const issuer = createIssuer(protocolClient, credDefId)
 
+  // Add logic for verifying
+  const verifier = createVerifier(protocolClient, credDefId)
+
   // Start listening to agent notifications
   await listenAgent(
     agentClient,
     protocolClient,
-    issuer
+    issuer,
+    verifier
   )
 
   app.get('/greet', async (req: Request, res: Response) => {
@@ -92,7 +97,10 @@ const runApp = async () => {
   });
 
   app.get('/verify', async (req: Request, res: Response) => {
-    throw 'IMPLEMENT ME!'
+    const { id, payload } = await createInvitationPage(agentClient, 'Verify')
+    // Update verifier with invitation id
+    verifier.addInvitation(id)
+    res.send(payload)
   });
 
   app.get('/', (req: Request, res: Response) => {
