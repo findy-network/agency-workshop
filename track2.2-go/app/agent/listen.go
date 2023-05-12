@@ -11,6 +11,8 @@ import (
 
 type Listener interface {
 	HandleNewConnection(*agency.Notification, *agency.ProtocolStatus_DIDExchangeStatus)
+	// Send notification to listener when basic message protocol is completed
+	HandleBasicMesssageDone(*agency.Notification, *agency.ProtocolStatus_BasicMessageStatus)
 }
 
 func (agencyClient *AgencyClient) Listen(listeners []Listener) {
@@ -53,6 +55,11 @@ func (agencyClient *AgencyClient) Listen(listeners []Listener) {
 					case agency.Protocol_DIDEXCHANGE:
 						for _, listener := range listeners {
 							listener.HandleNewConnection(notification, status.GetDIDExchange())
+						}
+						// Notify basic message protocol events
+					case agency.Protocol_BASIC_MESSAGE:
+						for _, listener := range listeners {
+							listener.HandleBasicMesssageDone(notification, status.GetBasicMessage())
 						}
 					default:
 						log.Printf("No handler for protocol message %s\n", notification.GetProtocolType())
