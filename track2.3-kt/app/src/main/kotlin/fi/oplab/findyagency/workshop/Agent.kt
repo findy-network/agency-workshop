@@ -8,6 +8,12 @@ interface Listener {
     notification: Notification,
     status: ProtocolStatus.DIDExchangeStatus
   ) {}
+
+  // Send notification to listener when basic message protocol is completed
+  suspend fun handleBasicMessageDone(
+    notification: Notification,
+    status: ProtocolStatus.BasicMessageStatus
+  ) {}
 }
 
 class Agent {
@@ -42,6 +48,10 @@ class Agent {
               // New connection established
               Protocol.Type.DIDEXCHANGE -> {
                 listeners.map{ it.handleNewConnection(status, info.didExchange) }
+              }
+              // Notify basic message protocol events
+              Protocol.Type.BASIC_MESSAGE -> {
+                listeners.map{ it.handleBasicMessageDone(status, info.basicMessage) }
               }
               else -> println("no handler for protocol type: ${status.protocolType}")
             }
