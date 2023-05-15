@@ -27,15 +27,13 @@ definition and ensure that your and only your agent has issued the credential.
 
 ## 0. Create a new schema
 
-In the terminal window 2 (`$world` agent), we have almost all ready:
+In the terminal window 2 (`$world` agent), we should be in the right place
+already. To check that all of these three lines should output `$world` agents
+unique name:
 ```shell
-cd ..
+basename `pwd`
+echo $world
 ```
-It would work if we have stayed in the connection ID directory, but this is a
-learning practise. Now we are in an agent level directory, which is correct be
-cause the chatbot works on agent level, not in the connection level. Chan
-clients are different things, and they can be simulated with the CLI as we have
-seen.
 
 Let's feel the pulse, are we live and kicking?
 ```shell
