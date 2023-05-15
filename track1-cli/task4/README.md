@@ -43,7 +43,8 @@ agent `$world` home directory:
 ```shell
 $FCLI bot start ../../email-issuer-bot.yaml -v=1
 ```
-This bot is also passive and waits first message from other party.
+This bot is also passive and waits first message from other party, i.e., please
+start the conversation from `$hello` agent's `chat` terminal.
 
 ## 1. Receive the credential
 

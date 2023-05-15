@@ -85,7 +85,9 @@ git clone https://github.com/findy-network/agency-workshop.git
 The prerequisites for the FSM track are:
 1. You should have a Unix and terminal access. The shell can be whatever, but
   `bash` is preferred because it's mostly tested by the dev team.
-2. We have installation guides and scripts for every OS and CPU architecture in 
+2. You need following tools as well: `uuidgen`, `git`, `curl`, which most can be
+   found from Unix systems.
+3. We have installation guides and scripts for every OS and CPU architecture in 
    [`findy-agent-cli`.](https://github.com/findy-network/findy-agent-cli#installation)
    To minimize hassling, we recommend you to use following lines for `findy-agent-cli`
    installation, which makes care of writing rights, `PATH`, and keeps you in
@@ -98,7 +100,7 @@ The prerequisites for the FSM track are:
    ```
    When the final command outputs: `/usr/local/bin/which/findy-agent-cli` all is
    OK.
-3. And most importantly, you should have access to [Findy
+4. And most importantly, you should have access to [Findy
    Agency](https://findy-network.github.io). After CLI is successfully installed
    you need to setup it's execution environment, i.e. bind it to the Findy Agency.
    You'll get the Findy Agency URL for workshop organizer.
