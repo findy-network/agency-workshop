@@ -53,6 +53,7 @@ sequenceDiagram
     participant User Agent
     actor Wallet User
 
+    Note left of Wallet User: User reads QR-code from /verify-page
     Application Agent->>Client Application: <<New connection!>>
     Client Application->>Application Agent: Send proof request
     Note right of Application Agent: Aries Present proof protocol
@@ -183,7 +184,7 @@ func (v *Verifier) getConnection(id string) *connection {
 }
 
 func (v *Verifier) AddInvitation(id string) {
-  v.connections.Store(id, &connection{id})
+  v.connections.Store(id, &connection{id: id})
 }
 
 func (v *Verifier) HandleNewConnection(
