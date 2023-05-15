@@ -50,6 +50,7 @@ sequenceDiagram
     participant User Agent
     actor Wallet User
 
+    Note left of Wallet User: User reads QR-code from /issue-page
     Application Agent->>Client Application: <<New connection!>>
     Client Application->>Application Agent: Send credential offer
     Note right of Application Agent: Aries Issue credential protocol

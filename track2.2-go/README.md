@@ -1,8 +1,16 @@
 # Track 2.2: Go application
 
 In this track, you will learn how to build a Go application that utilizes Findy Agency API
-for issuing and verifying credentials. The assumption is that you work in a guided workshop
-with the default tooling. In this case, you can skip the sections with the symbol 🤠.
+for issuing and verifying credentials.
+
+The application server exposes three endpoints that the web wallet user can utilize
+to start the interaction with your server. Your task is to implement the functionality
+for these three endpoints.
+
+Each of these endpoint implementations demonstrate how you can use Findy Agency capabilities.
+The workshop instructions have detailed instructions how to finalize the implementation.
+
+![App Overview](../track2.1-ts/docs/app-overview.png)
 
 The workshop contains seven tasks:
 
@@ -14,6 +22,9 @@ The workshop contains seven tasks:
 * [Task 5: Verify credential](./task5/README.md#track-21---task-5-verify-credential)
 * [Task 6: Issue credential for verified information](./task6/README.md#track-21---task-6-issue-credential-for-verified-information)
 * [Task 7: Additional tasks](./task7/README.md#track-21---task-7-additional-tasks)
+
+The assumption is that you work in a guided workshop
+with the default tooling. In this case, you can skip the sections with the symbol 🤠.
 
 Follow the instructions carefully and execute the tasks in order. Good luck!
 
