@@ -99,6 +99,11 @@ $FCLI bot start hello-world.yaml -v=1
 Because this chatbot is so simple, it's also passive. You must now go to the
 `$hello` agent's `chat` terminal and say something to test this bot.
 
+Tip:
+> Because we are using verbose logging `-v=1`, we'll get some warnings when
+> stopping these long running tasks like chatbot. You can ignore them. The bot
+> is stopped gracefully.
+
 Dev tip:
 > You could open more agent listeners (`$FCLI agent listen`) for both agents:
 > `$hello` and `$world`. This helps you keep track what's going on. This is
