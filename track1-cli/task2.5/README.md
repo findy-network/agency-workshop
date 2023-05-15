@@ -27,7 +27,6 @@ split that or bring new terminal near to it. Let's call this new terminal as
 
 In the 'terminal window 1 read' (**we have this open already**):
 ```shell
-cd "<CONNETION_ID_IS_YOUR_CLIPBOARD/OR_PRESS_TAB>"
 $FCLI agent ping
 ```
 If last `ping` is OK, everything is ready. Let's start the reader that we hear
@@ -45,9 +44,9 @@ cd "$FCLI_PATH/findy-agent-cli/scripts/fullstack"
 source ./recover-names.sh
 cd play/$hello
 ```
-Next, use blow or use connection ID from your clipboard:
+Next, use `tab` key for autocompletion or use connection ID from your clipboard:
 ```shell
-cd ./<PRESS_TAB_AND_WHEN_YOU_SEE_CONN_ID_PRESS_ENTER>
+cd ./<PRESS_TAB_AND_WHEN_YOU_SEE_CONNECTION_ID_PRESS_ENTER>
 ```
 Let's test all is good:
 ```shell
