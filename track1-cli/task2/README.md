@@ -47,6 +47,8 @@ and pretty technical, and the second simulates chat applications history stream.
 ```shell
 $FCLI bot read
 ```
+When you want to stop reading, just hit `ctrl-C`. Note. These listeners are
+event-based and don't consume CPU cycles when idling.
 
 ## 1. Send a text message
 
