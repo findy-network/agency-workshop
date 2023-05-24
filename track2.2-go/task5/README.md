@@ -27,15 +27,18 @@ we have been working on. The underlying protocol for requesting and presenting p
 
 ### Task sequence
 
+![App Overview](../../track2.1-ts/docs/app-overview-verify.png)
+
 In this task:
 
-We will create a new connection according to [the steps in task 1](../task1/README.md#task-sequence).
-We have already the logic for that in place.
+We will create a new connection according to [the steps in task 1](../task1/README.md#task-sequence)
+when the user reads the QR code in `/verify`-endpoint.
+We have already the most of the logic for that in place.
 In addition, we will add logic to the application to verify credentials:
 
 1. Once the connection protocol is complete, the application is notified of the new connection.
 1. Application sends a proof request to the new connection.
-1. Application agent initiates the Aries present proof protocol.
+1. Application agent initiates the **Aries present proof protocol**.
 1. Wallet user gets a notification of the request.
 1. Wallet user accepts the request.
 1. Present proof protocol continues.
