@@ -69,6 +69,26 @@ func (a *app) verifyHandler(response http.ResponseWriter, r *http.Request) {
 	try.To1(response.Write([]byte(html)))
 }
 
+// Email verification
+func (a *app) emailHandler(response http.ResponseWriter, r *http.Request) {
+	defer err2.Catch(func(err error) {
+		log.Println(err)
+		http.Error(response, err.Error(), http.StatusInternalServerError)
+	})
+
+	values := r.URL.Query()
+	connID := values.Get("value")
+
+	var html = `<html><h1>Error</h1></html>`
+	if a.issuer.SetEmailVerified(connID) == nil {
+		html = `<html>
+    <h1>Offer sent!</h1>
+    <p>Please open your wallet application and accept the credential.</p>
+    <p>You can close this window.</p></html>`
+	}
+	try.To1(response.Write([]byte(html)))
+}
+
 func createInvitationPage(
 	agentClient agency.AgentServiceClient,
 	header string,
@@ -139,6 +159,7 @@ func main() {
 	router.HandleFunc("/greet", myApp.greetHandler)
 	router.HandleFunc("/issue", myApp.issueHandler)
 	router.HandleFunc("/verify", myApp.verifyHandler)
+	router.HandleFunc("/email", myApp.emailHandler)
 
 	addr := ":3001"
 	log.Printf("Starting server at %s", addr)

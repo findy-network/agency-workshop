@@ -103,6 +103,19 @@ const runApp = async () => {
     res.send(payload)
   });
 
+  app.get('/email/:connectionId', async (req: Request, res: Response) => {
+    const { connectionId } = req.params
+    // Ask issuer to send credential offer for verified email
+    if (await issuer.setEmailVerified(connectionId)) {
+      res.send(`<html>
+    <h1>Offer sent!</h1>
+    <p>Please open your wallet application and accept the credential.</p>
+    <p>You can close this window.</p></html>`);
+    } else {
+      res.send(`<html><h1>Error</h1></html>`);
+    }
+  });
+
   app.get('/', (req: Request, res: Response) => {
     res.send('Typescript example');
   });

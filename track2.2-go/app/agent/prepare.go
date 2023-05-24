@@ -15,8 +15,8 @@ func (a *AgencyClient) PrepareIssuing() (credDefID string, err error) {
 	defer err2.Handle(&err)
 
 	const credDefIDFileName = "CRED_DEF_ID"
-	const schemaName = "foobar"
-	schemaAttributes := []string{"foo"}
+	const schemaName = "email"
+	schemaAttributes := []string{"email"}
 
 	credDefIDBytes, credDefReadErr := os.ReadFile(credDefIDFileName)
 	if credDefReadErr == nil {

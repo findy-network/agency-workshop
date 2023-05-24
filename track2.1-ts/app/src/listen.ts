@@ -40,6 +40,9 @@ export default async (
           const msg = basicMessage.getContent()
           console.log(`Received basic message ${msg} from ${info.connectionId}`)
         }
+
+        // Notify issuer
+        issuer.handleBasicMessageDone(info, basicMessage)
       },
 
       IssueCredentialDone: (info, issueCredential) => {

@@ -39,14 +39,14 @@ export default async (agentClient: AgentClient, tag: string) => {
     // A dummy schema name
     // Note: creation of schema may fail, if it already exists
     // If this happens, pick a new unique schema name or version and retry
-    const schemaName = 'foobar'
+    const schemaName = 'email'
     console.log(`Creating schema ${schemaName}`)
 
     const schemaMsg = new agencyv1.SchemaCreate()
     schemaMsg.setName(schemaName)
     schemaMsg.setVersion('1.0')
     // List of dummy attributes
-    schemaMsg.setAttributesList(['foo'])
+    schemaMsg.setAttributesList(['email'])
 
     try {
       const schemaId = (await agentClient.createSchema(schemaMsg)).getId()

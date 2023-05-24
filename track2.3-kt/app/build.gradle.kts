@@ -29,6 +29,9 @@ repositories {
 }
 
 dependencies {
+    // add library for sending emails
+    implementation("com.sendgrid:sendgrid-java:4.9.3")
+
     // add library for creating QR codes
     implementation("com.google.zxing:core:3.5.1")
 

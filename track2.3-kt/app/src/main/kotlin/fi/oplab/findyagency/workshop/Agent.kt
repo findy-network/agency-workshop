@@ -107,8 +107,8 @@ class Agent {
       // If this happens, change the version number and retry the creation
       val schemaRes =
           connection.agentClient.createSchema(
-              name = "foobar",
-              attributes = listOf("foo"),
+              name = "email",
+              attributes = listOf("email"),
               version = "1.0"
           )
       do {

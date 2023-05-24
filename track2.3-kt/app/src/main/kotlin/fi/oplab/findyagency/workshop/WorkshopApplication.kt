@@ -1,10 +1,12 @@
 package fi.oplab.findyagency.workshop
 
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.decodeFromString
 import org.findy_network.findy_common_kt.*
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RestController
 
 @SpringBootApplication class WorkshopApplication
@@ -108,5 +110,18 @@ class AppController {
     val (html, id) = createInvitationPage("Verify")
     verifier.addInvitation(id)
     return html
+  }
+
+  @GetMapping("/email/{connectionId}") fun issueEmail(@PathVariable("connectionId") id: String): String {
+    var res = "<html><h1>Error</h1></html>"
+    runBlocking {
+      if (issuer.setEmailVerified(id)) {
+        res = """<html>
+<h1>Offer sent!</h1>
+<p>Please open your wallet application and accept the credential.</p>
+<p>You can close this window.</p></html>"""
+      }
+    }
+    return res
   }
 }

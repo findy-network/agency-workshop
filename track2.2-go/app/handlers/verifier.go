@@ -37,7 +37,7 @@ func (v *Verifier) getConnection(id string) *connection {
 }
 
 func (v *Verifier) AddInvitation(id string) {
-	v.connections.Store(id, &connection{id})
+	v.connections.Store(id, &connection{id: id})
 }
 
 func (v *Verifier) HandleNewConnection(

@@ -2,7 +2,10 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"os"
+	"strings"
 	"sync"
 
 	"github.com/findy-network/agency-workshop/agent"
@@ -11,6 +14,8 @@ import (
 	agency "github.com/findy-network/findy-common-go/grpc/agency/v1"
 	"github.com/lainio/err2"
 	"github.com/lainio/err2/try"
+	"github.com/sendgrid/sendgrid-go"
+	"github.com/sendgrid/sendgrid-go/helpers/mail"
 )
 
 type Issuer struct {
@@ -21,8 +26,14 @@ type Issuer struct {
 }
 
 type connection struct {
-	id string
+	id       string
+	email    string
+	verified bool
 }
+
+var (
+	sgClient = sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY"))
+)
 
 func NewIssuer(conn client.Conn, credDefID string) *Issuer {
 	return &Issuer{
@@ -41,7 +52,7 @@ func (i *Issuer) getConnection(id string) *connection {
 }
 
 func (i *Issuer) AddInvitation(id string) {
-	i.connections.Store(id, &connection{id})
+	i.connections.Store(id, &connection{id: id})
 }
 
 func (i *Issuer) HandleNewConnection(
@@ -59,31 +70,51 @@ func (i *Issuer) HandleNewConnection(
 		return
 	}
 
-	// Create credential content
-	attributes := make([]*agency.Protocol_IssuingAttributes_Attribute, 1)
-	attributes[0] = &agency.Protocol_IssuingAttributes_Attribute{
-		Name:  "foo",
-		Value: "bar",
+	if conn.email == "" {
+		i.askForEmail(conn.id)
+	}
+}
+
+func (i *Issuer) HandleBasicMesssageDone(
+	notification *agency.Notification,
+	status *agency.ProtocolStatus_BasicMessageStatus,
+) {
+	defer err2.Catch(func(err error) {
+		log.Printf("Error handling basic message: %v", err)
+	})
+
+	conn := i.getConnection(notification.ConnectionID)
+
+	// Skip handling if
+	// 1. Connection was not for issuing
+	// 2. Message was sent by us
+	// 3. Email has been already asked
+	if conn == nil || status.SentByMe || conn.email != "" {
+		return
 	}
 
-	log.Printf(
-		"Offer credential, conn id: %s, credDefID: %s, attrs: %v",
-		notification.ConnectionID,
-		i.credDefID,
-		attributes,
-	)
+	msg := status.Content
+	msgValid := len(strings.Split(msg, " ")) == 1 && strings.Contains(msg, "@")
 
-	// Send credential offer to the other agent
-	pw := async.NewPairwise(i.conn, notification.ConnectionID)
-	res := try.To1(pw.IssueWithAttrs(
-		context.TODO(),
-		i.credDefID,
-		&agency.Protocol_IssuingAttributes{
-			Attributes: attributes,
-		}),
-	)
+	log.Printf("Basic message %s with protocol id %s completed with %s",
+		msg, notification.ProtocolID, conn.id)
 
-	log.Printf("Credential offered: %s", res.GetID())
+	if msgValid {
+		i.connections.Store(conn.id, &connection{id: conn.id, email: msg})
+
+		// Create simple verification link
+		// Note: in real-world we should use some random value instead of the connection id
+		content := fmt.Sprintf("Please verify your email by clicking the following link:\n http://localhost:3001/email?value=%s", conn.id)
+		i.sendEmail(content, msg)
+
+		// Send confirmation via basic message
+		pw := async.NewPairwise(i.conn, conn.id)
+		_ = try.To1(pw.BasicMessage(context.TODO(), "Email is on it's way! Please check your mailbox 📫."))
+
+	} else {
+		// If email is invalid, ask again
+		i.askForEmail(conn.id)
+	}
 }
 
 func (i *Issuer) HandleIssueCredentialDone(
@@ -104,4 +135,71 @@ func (i *Issuer) HandleIssueCredentialDone(
 	)
 
 	i.connections.Delete(notification.ConnectionID)
+}
+
+func (i *Issuer) SetEmailVerified(connectionID string) (err error) {
+	defer err2.Handle(&err)
+
+	conn := i.getConnection(connectionID)
+
+	// Skip handling if
+	// 1. Connection was not for issuing
+	// 2. Email has not been saved
+	// 3. Credential has been already issued
+	if conn == nil || conn.email == "" || conn.verified {
+		return
+	}
+
+	i.connections.Store(conn.id, &connection{id: conn.id, email: conn.email, verified: true})
+
+	// Create credential content
+	attributes := make([]*agency.Protocol_IssuingAttributes_Attribute, 1)
+	attributes[0] = &agency.Protocol_IssuingAttributes_Attribute{
+		Name:  "email",
+		Value: conn.email,
+	}
+
+	log.Printf(
+		"Offer credential, conn id: %s, credDefID: %s, attrs: %v",
+		conn.id,
+		i.credDefID,
+		attributes,
+	)
+
+	// Send credential offer to the other agent
+	pw := async.NewPairwise(i.conn, conn.id)
+	res := try.To1(pw.IssueWithAttrs(
+		context.TODO(),
+		i.credDefID,
+		&agency.Protocol_IssuingAttributes{
+			Attributes: attributes,
+		}),
+	)
+
+	log.Printf("Credential offered: %s", res.GetID())
+	return nil
+}
+
+func (i *Issuer) askForEmail(connectionID string) (err error) {
+	defer err2.Handle(&err)
+
+	// Ask for user email via basic message
+	pw := async.NewPairwise(i.conn, connectionID)
+	_ = try.To1(pw.BasicMessage(context.TODO(), "Please enter your email to get started."))
+
+	return err
+}
+
+func (i *Issuer) sendEmail(content, email string) (err error) {
+	defer err2.Handle(&err)
+
+	from := mail.NewEmail("Issuer example", os.Getenv("SENDGRID_SENDER"))
+	subject := "Email verification"
+	to := mail.NewEmail(email, email) // Change to your recipient
+	message := mail.NewSingleEmail(from, subject, to, content, content)
+
+	log.Printf("Sending email %s to %s", content, email)
+	_ = try.To1(sgClient.Send(message))
+
+	return err
 }
