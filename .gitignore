@@ -3,6 +3,7 @@
 .data
 /cert
 CRED_DEF_ID
+foobar_CRED_DEF_ID
 .DS_Store
 Session.vim
 
