@@ -27,6 +27,8 @@ communication pipeline that they can use to transmit other protocol messages.
 
 ### Task sequence
 
+![App Overview](../../track2.1-ts/docs/app-overview-greet.png)
+
 In this task:
 
 1. We will create a new web wallet user (if we don't already have one).
@@ -35,7 +37,7 @@ The user will navigate to our application's *Greet*-page.
 1. The application's agent hosted by the agency will handle the actual invitation generation.
 1. The application will render the invitation string as QR code and display it to the wallet user.
 1. The wallet user will use her web wallet to read the QR code.
-1. Reading of the QR code starts Aries connection protocol between the user's and the application's agents.
+1. Reading of the QR code starts **Aries connection protocol** between the user's and the application's agents.
 1. Once the protocol is complete, the wallet user is notified of the new connection.
 1. Once the protocol is complete, the application is notified of the new connection.
 

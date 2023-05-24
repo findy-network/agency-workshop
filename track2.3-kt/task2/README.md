@@ -22,6 +22,8 @@ Agents send text messages to each other using
 
 ### Task sequence
 
+![App Overview](../../track2.1-ts/docs/app-overview-greet.png)
+
 In this task:
 
 We will create a new connection according to [the steps in task 1](../task1/README.md#task-sequence).
@@ -30,11 +32,11 @@ In addition, we will add logic to the application to send and receive basic mess
 
 1. Once the connection protocol is complete, the application is notified of the new connection.
 1. Application sends a greeting to the new connection.
-1. Application agent initiates the Aries basic message protocol.
+1. Application agent initiates the **Aries basic message protocol**.
 1. Once the protocol is completed, the application is notified of the message sending success.
 1. Once the protocol is completed, the wallet user is notified of the received message.
 1. Wallet user sends a message to the application.
-1. User agent initiates the Aries basic message protocol.
+1. User agent initiates the **Aries basic message protocol**.
 1. Once the protocol is completed, the wallet user is notified of the message sending success
 (message is displayed in the chat view).
 1. Once the protocol is completed, the application is notified of the received message.

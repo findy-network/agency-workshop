@@ -39,6 +39,66 @@ Configure and verify also a sender identity for your email address.
 
 </details></br>
 
+### Task sequence
+
+![App Overview](../../track2.1-ts/docs/app-overview-issue.png)
+
+In this task:
+
+We will create a new connection according to [the steps in task 1](../task1/README.md#task-sequence)
+when the user reads the QR code in `/issue`-endpoint.
+We have already the most of the logic for that in place.
+In addition, we will add logic to the application to first verify user's email before issuing credential:
+
+1. Once the connection protocol is complete, the application is notified of the new connection.
+1. Application sends a basic message asking for the user's email address to the new connection.
+1. Application agent initiates the **Aries basic message protocol**.
+1. Wallet user gets a notification of the message.
+1. Wallet user replies with their email address.
+1. User agent initiates the **Aries basic message protocol**.
+1. Application gets a notification of the message.
+1. Application uses SendGrid API to send a verification email to the provided address.
+1. SendGrid handles the email sending.
+1. User receives the email and navigates to the provided URL.
+1. Application sends a credential offer to the wallet user.
+1. Application agent initiates the **Aries issue credential protocol**.
+1. Wallet user gets a notification of the offer.
+1. Wallet user accepts the offer.
+1. Issue credential protocol continues.
+1. Once the protocol is completed, the application is notified of the issuing success.
+1. Once the protocol is completed, the wallet user is notified of the received credential.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant SendGrid API
+    participant Client Application
+    participant Application Agent
+    participant User Agent
+    actor Wallet User
+
+    Note left of Wallet User: User reads QR-code from /issue-page
+    Application Agent->>Client Application: <<New connection!>>
+    Client Application->>Application Agent: "What's your email?"
+    Note right of Application Agent: Aries Basic message protocol
+    Application Agent->>User Agent: Send message
+    User Agent->>Wallet User: <<Message received!>>
+    Wallet User->>User Agent: "workshopper@example.com"
+    User Agent->>Application Agent: Send message
+    Application Agent->>Client Application: <<Message received!>>
+    Client Application->>SendGrid API: Send email
+    SendGrid API-->>Wallet User: <<email>>
+    Wallet User->>Client Application: Navigate to http://localhost:3001/email/xxx
+    Note right of Application Agent: Aries Issue credential protocol
+    Client Application->>Application Agent: Send credential offer
+    Application Agent->>User Agent: Send offer
+    User Agent->>Wallet User: <<Offer received!>>
+    Wallet User->>User Agent: Accept
+    User Agent->>Application Agent: <<Protocol continues>
+    Application Agent->>Client Application: <<Credential issued!>>
+    User Agent->>Wallet User: <<Credential received!>>
+```
+
 ## 1. Install SendGrid dependency
 
 Stop your server (C-c).
@@ -372,5 +432,6 @@ Review server logs.
 
 Congratulations, you have completed task 6 and now know a little more about
 how to build the application logic for issuers!
+To revisit what happened, check [the sequence diagram](#task-sequence).
 
 You can now continue with [task 7](../task7/README.md).

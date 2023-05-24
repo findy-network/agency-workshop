@@ -27,15 +27,18 @@ protocol for us (similarly to other Hyperledger Aries protocols).
 
 ### Task sequence
 
+![App Overview](../../track2.1-ts/docs/app-overview-issue.png)
+
 In this task:
 
-We will create a new connection according to [the steps in task 1](../task1/README.md#task-sequence).
-We have already the logic for that in place.
+We will create a new connection according to [the steps in task 1](../task1/README.md#task-sequence)
+when the user reads the QR code in `/issue`-endpoint.
+We have already the most of the logic for that in place.
 In addition, we will add logic to the application to issue credentials:
 
 1. Once the connection protocol is complete, the application is notified of the new connection.
 1. Application sends a credential offer to the new connection.
-1. Application agent initiates the Aries issue credential protocol.
+1. Application agent initiates the **Aries issue credential protocol**.
 1. Wallet user gets a notification of the offer.
 1. Wallet user accepts the offer.
 1. Issue credential protocol continues.
