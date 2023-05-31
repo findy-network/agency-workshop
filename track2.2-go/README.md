@@ -26,6 +26,11 @@ The workshop contains seven tasks:
 The assumption is that you work in a guided workshop
 with the default tooling. In this case, you can skip the sections with the symbol 🤠.
 
+**NOTE:** The workshop instructions are tested with Linux and MacOS. If you are using Windows,
+you may encounter problems. In this case, it might be easiest to use
+[a preconfigured environment](https://github.com/findy-network/agency-workshop-codespace)
+powered by GitHub Codespaces.
+
 Follow the instructions carefully and execute the tasks in order. Good luck!
 
 ## Task 0: Setup environment
