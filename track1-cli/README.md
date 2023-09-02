@@ -20,10 +20,11 @@ Follow the instructions and execute the tasks in order. Good luck!
 It's needed. Both, the CLI and the FSM chatbot language are still under
 development.
 
-**NOTE:** The workshop instructions are tested with Linux and MacOS. If you are using Windows,
-you may encounter problems. In this case, it might be easiest to use
-[a preconfigured environment](https://github.com/findy-network/agency-workshop-codespace)
-powered by GitHub Codespaces.
+**NOTE:** The workshop instructions are tested with Linux and MacOS. If you are
+using Windows, you may encounter problems. In this case, it might be easiest to
+use [a preconfigured
+environment](https://github.com/findy-network/agency-workshop-codespace) powered
+by GitHub Codespaces.
 
 ## Task 0: Setup environment
 
@@ -99,7 +100,7 @@ The prerequisites for the FSM track are:
 2. You need following tools as well: `uuidgen`, `git`, `curl`, which most can be
    found from Unix systems.
 3. We have installation guides and scripts for every OS and CPU architecture in
-   [`findy-agent-cli`.](https://github.com/findy-network/findy-agent-cli#installation)
+   [`findy-agent-cli`](https://github.com/findy-network/findy-agent-cli#installation).
    To minimize hassling, we recommend you to use following lines for `findy-agent-cli`
    installation, which makes care of writing rights, `PATH`, and keeps you in
    control:
@@ -185,8 +186,8 @@ printf 'export FCLI_CONFIG=./cfg.yaml\nexport FCLI_PATH=%s\n' "`pwd`" >> .envrc
 echo "alias pf='printenv|grep FCLI|sort'" >> .envrc
 ```
 
-> Tip. Now you have also a `pf` alias which is handy to check that you playground
-> environment is OK.
+> Tip. Now you have also a `pf` alias which is handy to check that you
+> playground environment is OK.
 
 **If you don't use `direnv` tool, you must remember do the following for each
 new terminal session:**
@@ -220,11 +221,11 @@ source <(curl http://localhost:3000/set-env-cli.sh)
 You need to have Go 1.20 installed to run needed Agency services from sources:
 **but you don't need docker or network access**.
 
-In the case you want to play with the sources or you want to get touch of how the
-whole system feels to run locally from sources,
-see instructions [here](../agency-native/README.md). There is a script
-(`setup.sh`) which installs all the needed repos and a tmuxinator script to start
-the system playground. The script targets a Debian Linux.
+In the case you want to play with the sources or you want to get touch of how
+the whole system feels to run locally from sources, see instructions
+[here](../agency-native/README.md). There is a script (`setup.sh`) which
+installs all the needed repos and a tmuxinator script to start the system
+playground. The script targets a Debian Linux.
 
 Here's the summary what should be done:
 
