@@ -173,9 +173,9 @@ func (i *Issuer) HandleNewConnection(
   notification *agency.Notification,
   status *agency.ProtocolStatus_DIDExchangeStatus,
 ) {
-  defer err2.Catch(func(err error) {
+  defer err2.Catch(err2.Err(func(err error) {
     log.Printf("Error handling new connection: %v", err)
-  })
+  }))
 
   conn := i.getConnection(notification.ConnectionID)
 
@@ -283,10 +283,10 @@ Replace the implementation in the `/issue`-endpoint with the following:
 ```go
 // Show pairwise invitation. Once connection is established, issue credential.
 func (a *app) issueHandler(response http.ResponseWriter, r *http.Request) {
-  defer err2.Catch(func(err error) {
+  defer err2.Catch(err2.Err(func(err error) {
     log.Println(err)
     http.Error(response, err.Error(), http.StatusInternalServerError)
-  })
+  }))
   id, html := try.To2(createInvitationPage(a.agencyClient.AgentClient, "Issue"))
   a.issuer.AddInvitation(id)
   try.To1(response.Write([]byte(html)))

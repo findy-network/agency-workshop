@@ -81,15 +81,15 @@ func (g *Greeter) HandleNewConnection(
  notification *agency.Notification,
  status *agency.ProtocolStatus_DIDExchangeStatus,
 ) {
-  defer err2.Catch(func(err error) {
+  defer err2.Catch(err2.Err(func(err error) {
     log.Printf("Error handling new connection: %v", err)
-  })
+  }))
 
   log.Printf("New connection %s with id %s", status.TheirLabel, notification.ConnectionID)
 
   // Greet each new connection with basic message
   pw := async.NewPairwise(g.conn, notification.ConnectionID)
-  _ = try.To1(pw.BasicMessage(context.TODO(), "Hi there 👋!"))
+  try.To1(pw.BasicMessage(context.TODO(), "Hi there 👋!"))
 }
 ```
 

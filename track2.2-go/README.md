@@ -240,7 +240,7 @@ func LoginAgent() (
   res, firstTryErr := execAuthCmd(subCmdLogin)
   if firstTryErr != nil {
     // if login fails, try to register and relogin
-    _ = try.To1(execAuthCmd(subCmdRegister))
+    try.To1(execAuthCmd(subCmdRegister))
     res = try.To1(execAuthCmd(subCmdLogin))
   }
 
@@ -295,12 +295,12 @@ import (
 )
 
 func main() {
-  defer err2.Catch(func(err error) {
+  defer err2.Catch(err2.Err(func(err error) {
     log.Fatal(err)
-  })
+  }))
 
   // Login agent
-  _ = try.To1(agent.LoginAgent())
+  try.To1(agent.LoginAgent())
 
   ...
 

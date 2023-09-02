@@ -165,10 +165,10 @@ Then, replace the implementation of the `/greet`-endpoint to the following:
 ```go
 // Show pairwise invitation. Once connection is established, send greeting.
 func (a *app) greetHandler(response http.ResponseWriter, r *http.Request) {
-  defer err2.Catch(func(err error) {
+  defer err2.Catch(err2.Err(func(err error) {
     log.Println(err)
     http.Error(response, err.Error(), http.StatusInternalServerError)
-  })
+  }))
   // Create HTML payload
   _, html := try.To2(createInvitationPage(a.agencyClient.AgentClient, "Greet"))
   // Render HTML
