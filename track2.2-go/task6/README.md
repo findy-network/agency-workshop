@@ -212,7 +212,7 @@ func (i *Issuer) askForEmail(connectionID string) (err error) {
 
   // Ask for user email via basic message
   pw := async.NewPairwise(i.conn, connectionID)
-  _ = try.To1(pw.BasicMessage(context.TODO(), "Please enter your email to get started."))
+  try.To1(pw.BasicMessage(context.TODO(), "Please enter your email to get started."))
 
   return err
 }
@@ -226,7 +226,7 @@ func (i *Issuer) sendEmail(content, email string) (err error) {
   message := mail.NewSingleEmail(from, subject, to, content, content)
 
   log.Printf("Sending email %s to %s", content, email)
-  _ = try.To1(sgClient.Send(message))
+  try.To1(sgClient.Send(message))
 
   return err
 }
@@ -244,9 +244,9 @@ func (i *Issuer) HandleNewConnection(
   notification *agency.Notification,
   status *agency.ProtocolStatus_DIDExchangeStatus,
 ) {
-  defer err2.Catch(func(err error) {
+  defer err2.Catch(err2.Err(func(err error) {
     log.Printf("Error handling new connection: %v", err)
-  })
+  }))
 
   conn := i.getConnection(notification.ConnectionID)
 
@@ -271,9 +271,9 @@ func (i *Issuer) HandleBasicMesssageDone(
   notification *agency.Notification,
   status *agency.ProtocolStatus_BasicMessageStatus,
 ) {
-  defer err2.Catch(func(err error) {
+  defer err2.Catch(err2.Err(func(err error) {
     log.Printf("Error handling basic message: %v", err)
-  })
+  }))
 
   conn := i.getConnection(notification.ConnectionID)
 
@@ -301,7 +301,7 @@ func (i *Issuer) HandleBasicMesssageDone(
 
     // Send confirmation via basic message
     pw := async.NewPairwise(i.conn, conn.id)
-    _ = try.To1(pw.BasicMessage(context.TODO(), "Email is on it's way! Please check your mailbox 📫."))
+    try.To1(pw.BasicMessage(context.TODO(), "Email is on it's way! Please check your mailbox 📫."))
 
   } else {
     // If email is invalid, ask again
@@ -368,10 +368,10 @@ The function asks the issuer to send a credential offer if the connection is val
 ```go
 // Email verification
 func (a *app) emailHandler(response http.ResponseWriter, r *http.Request) {
-  defer err2.Catch(func(err error) {
+  defer err2.Catch(err2.Err(func(err error) {
     log.Println(err)
     http.Error(response, err.Error(), http.StatusInternalServerError)
-  })
+  }))
 
   values := r.URL.Query()
   connID := values.Get("value")

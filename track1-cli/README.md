@@ -20,16 +20,24 @@ Follow the instructions and execute the tasks in order. Good luck!
 It's needed. Both, the CLI and the FSM chatbot language are still under
 development.
 
+**NOTE:** The workshop instructions are tested with Linux and MacOS. If you are
+using Windows, you may encounter problems. In this case, it might be easiest to
+use [a preconfigured
+environment](https://github.com/findy-network/agency-workshop-codespace) powered
+by GitHub Codespaces.
+
 ## Task 0: Setup environment
 
 ### 0. Set Your `findy-network` Root Directory
 
 We recommend you go to your workspace/project directory (~/Documents, etc.) and
 execute following:
+
 ```shell
 mkdir findy-network
 cd findy-network
 ```
+
 You can store this directory to environment variable now. It's important that
 you can restore `FCLI_PATH` in every new terminal session that is used for these
 tasks. We'll do that in [the chapter 4](#4-set-environment-variables)
@@ -37,9 +45,10 @@ tasks. We'll do that in [the chapter 4](#4-set-environment-variables)
 ```shell
 export FCLI_PATH=`pwd`
 ```
+
 > Tip. Copy then directory value and add it to your shell initialization scripts
 > (`.bashrc`, or `.profile`, what's your poison) if you aren't going to use
-> `direnv` tool. 
+> `direnv` tool.
 
 ##### Terminals environment summary
 
@@ -63,6 +72,7 @@ for the `$hello` agent when chatbot is in the game.
 
 This in mandatory. It includes the CLI FSM playground BASH scripts, example
 FSMs, and some optional documentation:
+
 ```shell
 git clone https://github.com/findy-network/findy-agent-cli.git
 ```
@@ -76,6 +86,7 @@ where some of the scripts are documented. It presents few examples as well.
 In the case, you want to read these transcripts from your own machine, or you
 want to use native setup of Findy Agency, you might be interested to clone
 `agency-workshop` repo:
+
 ```shell
 git clone https://github.com/findy-network/agency-workshop.git
 ```
@@ -83,21 +94,24 @@ git clone https://github.com/findy-network/agency-workshop.git
 ### 2. Install The Tooling
 
 The prerequisites for the FSM track are:
+
 1. You should have a Unix and terminal access. The shell can be whatever, but
   `bash` is preferred because it's mostly tested by the dev team.
 2. You need following tools as well: `uuidgen`, `git`, `curl`, which most can be
    found from Unix systems.
-3. We have installation guides and scripts for every OS and CPU architecture in 
-   [`findy-agent-cli`.](https://github.com/findy-network/findy-agent-cli#installation)
+3. We have installation guides and scripts for every OS and CPU architecture in
+   [`findy-agent-cli`](https://github.com/findy-network/findy-agent-cli#installation).
    To minimize hassling, we recommend you to use following lines for `findy-agent-cli`
    installation, which makes care of writing rights, `PATH`, and keeps you in
    control:
+
    ```shell
     curl https://raw.githubusercontent.com/findy-network/findy-agent-cli/HEAD/install.sh -o install
     chmod +x ./install
     sudo BINDIR=/usr/local/bin ./install
     which findy-agent-cli
    ```
+
    When the final command outputs: `/usr/local/bin/which/findy-agent-cli` all is
    OK.
 4. And most importantly, you should have access to [Findy
@@ -106,7 +120,7 @@ The prerequisites for the FSM track are:
    You'll get the Findy Agency URL for workshop organizer.
 
 Everything presented here can be executed just by using `findy-agent-cli` (later
-just `$FCLI`) and Unix terminal & shell. (Terminal multiplexers and tiling window 
+just `$FCLI`) and Unix terminal & shell. (Terminal multiplexers and tiling window
 managers might help you during these tasks.)
 
 ### 3. 🤠 Install Findy Agency
@@ -134,8 +148,10 @@ notation:
 ```shell
 source <(curl <agency_url>/set-env-cli.sh)
 ```
+
 This is the safes and most backward compatible way to install environment
 variables for our Findy Agency playground:
+
 ```shell
 curl <agency_url>/set-env-cli.sh -o set-env-cli.sh
 source ./set-env-cli.sh
@@ -157,9 +173,11 @@ terminal.
 
 Before `.envrc` is ready for FSM playground use, **we must add a couple
 variables to it**. First move to `findy-network` root directory:
+
 ```shell
 cd $FCLI_PATH
 ```
+
 and then add the variables. Note. If `direnv` is in use, it asks you to `direnv
 allow` after below command. Please do so:
 
@@ -167,20 +185,23 @@ allow` after below command. Please do so:
 printf 'export FCLI_CONFIG=./cfg.yaml\nexport FCLI_PATH=%s\n' "`pwd`" >> .envrc
 echo "alias pf='printenv|grep FCLI|sort'" >> .envrc
 ```
-> Tip. Now you have also a `pf` alias which is handy to check that you playground
-> environment is OK.
+
+> Tip. Now you have also a `pf` alias which is handy to check that you
+> playground environment is OK.
 
 **If you don't use `direnv` tool, you must remember do the following for each
 new terminal session:**
+
 ```shell
 cd $FCLI_PATH
 ```
+
 Load environment variables manually for the Findy Agent CLI when in the
 `findy-network` root directory:
+
 ```shell
 source .envrc
 ```
-
 
 <details>
 <summary>🤠 Local setup (WebServer&docker)</summary>
@@ -192,6 +213,7 @@ use the web wallet URL `http://localhost:3000`:
 ```bash
 source <(curl http://localhost:3000/set-env-cli.sh)
 ```
+
 </details><br/>
 <details>
 <summary>🤠 Local setup (Native from sources)</summary>
@@ -199,15 +221,16 @@ source <(curl http://localhost:3000/set-env-cli.sh)
 You need to have Go 1.20 installed to run needed Agency services from sources:
 **but you don't need docker or network access**.
 
-In the case you want to play with the sources or you want to get touch of how the
-whole system feels to run locally from sources, 
-see instructions [here](../agency-native/README.md). There is a script
-(`setup.sh`) which installs all the needed repos and a tmuxinator script to start
-the system playground. The script targets a Debian Linux.
+In the case you want to play with the sources or you want to get touch of how
+the whole system feels to run locally from sources, see instructions
+[here](../agency-native/README.md). There is a script (`setup.sh`) which
+installs all the needed repos and a tmuxinator script to start the system
+playground. The script targets a Debian Linux.
 
 Here's the summary what should be done:
 
 Clone the needed Agency service source repos:
+
 ```shell
 git clone https://github.com/findy-network/findy-agent-auth.git
 git clone https://github.com/findy-network/findy-agent.git
@@ -215,12 +238,14 @@ git clone https://github.com/findy-network/findy-agent-cli.git
 ```
 
 Start the FIDO2 Server:
+
 ```shell
 cd <findy-agent-auth-repo>
 cd scripts; ./mem-dev-server.sh
 ```
 
 Start the Agency Core Server:
+
 ```shell
 cd <findy-agent-repo>
 make cli
@@ -230,6 +255,7 @@ agency=fa register=findy.json no_clean=1 enclave=MEMORY_enclave.bolt ./mem-serve
 ```
 
 Start the Findy Agent CLI to command your local agency (in a new terminal/window/tab):
+
 ```shell
 cd <findy-agent-cli-repo>
 make cli
@@ -241,6 +267,7 @@ cli agency count
 
 After you have verified that everything above works, you can allocate two
 separate SSI agents:
+
 ```shell
 # continue in findy-agent-cli/scripts/fullstack 
 ./make-play-agent.sh test-alice test-bob
@@ -258,9 +285,11 @@ popd
 If you want to use tmux and tmuxinator the previously mentioned `setup.sh`
 script includes tmuxinator configuration that is installed by it with the name
 `play`.
+
 ```shell
 tmuxinator play
 ```
+
 Tip:
 > You can use tmuxinator configurations even when using cloud version of the
 > agency. Just check from where the environment variables are loaded.

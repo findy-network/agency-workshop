@@ -14,7 +14,7 @@
 In the previous task, we learned how to send simple text messages between
 agents. Now we build our first hello world application with Findy Agency's [FSM
 language
-(YAML).](https://findy-network.github.io/blog/2023/03/13/no-code-ssi-chatbots-part-i/)
+(YAML).](https://findy-network.github.io/blog/2023/03/13/no-code-ssi-chatbots-fsm-part-i/)
 
 We have two agents `$hello` and `$world`. We want `$world` to be a chatbot and
 `$hello` be us, a human. As a human, we need to see both input and output
@@ -123,7 +123,7 @@ how to write chatbot state-machines with Findy FSM language.
 > echoes the message it receives from the user.
 
 The documentation for Findy FSM is in the previously mentioned [blog
-post](https://findy-network.github.io/blog/2023/03/13/no-code-ssi-chatbots-part-i/)
+post](https://findy-network.github.io/blog/2023/03/13/no-code-ssi-chatbots-fsm-part-i/)
 We recommend you to used it as a reference manual. It's written for that kind of
 use in mind.
 

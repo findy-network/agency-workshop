@@ -12,44 +12,44 @@ import (
 type app struct{}
 
 func (a *app) homeHandler(response http.ResponseWriter, r *http.Request) {
-	defer err2.Catch(func(err error) {
+	defer err2.Catch(err2.Err(func(err error) {
 		log.Println(err)
 		http.Error(response, err.Error(), http.StatusInternalServerError)
-	})
+	}))
 	try.To1(response.Write([]byte("Go example")))
 }
 
 // Show pairwise invitation. Once connection is established, send greeting.
 func (a *app) greetHandler(response http.ResponseWriter, r *http.Request) {
-	defer err2.Catch(func(err error) {
+	defer err2.Catch(err2.Err(func(err error) {
 		log.Println(err)
 		http.Error(response, err.Error(), http.StatusInternalServerError)
-	})
+	}))
 	try.To1(response.Write([]byte("IMPLEMENT ME")))
 }
 
 // Show pairwise invitation. Once connection is established, issue credential.
 func (a *app) issueHandler(response http.ResponseWriter, r *http.Request) {
-	defer err2.Catch(func(err error) {
+	defer err2.Catch(err2.Err(func(err error) {
 		log.Println(err)
 		http.Error(response, err.Error(), http.StatusInternalServerError)
-	})
+	}))
 	try.To1(response.Write([]byte("IMPLEMENT ME")))
 }
 
 // Show pairwise invitation. Once connection is established, verify credential.
 func (a *app) verifyHandler(response http.ResponseWriter, r *http.Request) {
-	defer err2.Catch(func(err error) {
+	defer err2.Catch(err2.Err(func(err error) {
 		log.Println(err)
 		http.Error(response, err.Error(), http.StatusInternalServerError)
-	})
+	}))
 	try.To1(response.Write([]byte("IMPLEMENT ME")))
 }
 
 func main() {
-	defer err2.Catch(func(err error) {
+	defer err2.Catch(err2.Err(func(err error) {
 		log.Fatal(err)
-	})
+	}))
 
 	myApp := app{}
 
